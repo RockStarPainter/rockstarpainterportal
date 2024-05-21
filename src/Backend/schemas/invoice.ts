@@ -34,7 +34,8 @@ const invoiceSchema = new Schema({
   state: { type: String, required: false },
 
   zip_code: { type: String, required: false },
-  interiorData: {}
+  interiorData: {},
+  exteriorData: {}
 })
 
 const InvoiceModel = mongoose.models.Invoice || mongoose.model('Invoice', invoiceSchema)
