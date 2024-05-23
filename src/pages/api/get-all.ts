@@ -4,7 +4,7 @@ import InvoiceModel from 'src/Backend/schemas/invoice'
 const handler = async (req: any, res: any) => {
   if (req.method === 'GET') {
     try {
-      const data = await InvoiceModel.find({})
+      const data = await InvoiceModel.find({}).sort({ createdAt: -1 })
       return res.send({
         message: 'invoice fetched successfully',
         payload: { data }

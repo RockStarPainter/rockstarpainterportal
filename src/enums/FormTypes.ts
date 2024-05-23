@@ -9,3 +9,5 @@ export enum InvoiceTypes {
   EXTERIOR = 'EXTERIOR',
   BOTH = 'BOTH'
 }
+
+export const InvoiceTypesValues: InvoiceTypes[] = Object.values(InvoiceTypes)
