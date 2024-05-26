@@ -5,10 +5,10 @@ const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
       const { invoiceId } = req.body
-      const data = await InvoiceModel.findById({ _id: invoiceId })
+      await InvoiceModel.findByIdAndDelete({ _id: invoiceId })
       return res.send({
-        message: 'invoice fetched successfully',
-        payload: { data }
+        message: 'invoice deleted successfully',
+        payload: {}
       })
     } catch (error) {
       console.log(error)

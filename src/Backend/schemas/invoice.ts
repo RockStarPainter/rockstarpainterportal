@@ -4,6 +4,7 @@ const Schema = mongoose.Schema
 
 const invoiceSchema = new Schema(
   {
+    custom_id: { type: Number, required: true },
     interiorRows: [
       {
         name: { type: String, required: true },
@@ -24,7 +25,7 @@ const invoiceSchema = new Schema(
         ]
       }
     ],
-    form_type: { type: String, enum: FormTypes, required: true },
+    form_type: { type: String, enum: FormTypes, required: false },
     invoice_type: { type: String, required: true, enum: InvoiceTypes },
     customer_name: { type: String, required: false },
     phone_number: { type: String, required: false },
@@ -35,6 +36,10 @@ const invoiceSchema = new Schema(
     state: { type: String, required: false },
 
     zip_code: { type: String, required: false },
+    total_cost: { type: Number, required: false },
+    balance_due: { type: Number, required: false },
+    down_payment: { type: Number, required: false },
+    issue_date: { type: Date, required: false },
     interiorData: {},
     exteriorData: {}
   },

@@ -4,7 +4,8 @@ import InvoiceModel from 'src/Backend/schemas/invoice'
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
-      const newInvoice = new InvoiceModel(req.body)
+      const count = await InvoiceModel.countDocuments({})
+      const newInvoice = new InvoiceModel({ ...req.body, custom_id: count + 1 })
 
       const saved = await newInvoice.save()
 
@@ -17,7 +18,7 @@ const handler = async (req: any, res: any) => {
         payload: { invoice: saved }
       })
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       res.status(500).send('something went wrong')
     }
   } else {

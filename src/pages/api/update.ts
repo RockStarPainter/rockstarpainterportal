@@ -4,11 +4,16 @@ import InvoiceModel from 'src/Backend/schemas/invoice'
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
-      const { invoiceId } = req.body
-      const data = await InvoiceModel.findById({ _id: invoiceId })
+      const { payload, invoiceId } = req.body
+      const newInvoice = await InvoiceModel.findByIdAndUpdate(invoiceId, { $set: { ...payload } })
+
+      if (!newInvoice) {
+        return res.status(404).send('Not able to update invoice')
+      }
+
       return res.send({
         message: 'invoice fetched successfully',
-        payload: { data }
+        payload: {}
       })
     } catch (error) {
       console.log(error)

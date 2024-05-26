@@ -26,12 +26,16 @@
       ],
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
-      ],
-    }
+      ]
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ]
   },
   "include": [
     "src",
-    "declaration.d.ts"
+    "types"
   ],
   "exclude": [
     "node_modules"
