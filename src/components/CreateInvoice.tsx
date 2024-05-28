@@ -31,6 +31,8 @@ import emailjs from '@emailjs/browser'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
+import Create from 'src/pages/create'
+
 // import html2pdf from 'html2pdf.js'
 
 emailjs.init({
@@ -46,7 +48,7 @@ const CreateInvoice = () => {
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
-    let defaultValues: any = {}
+    const defaultValues: any = {}
     defaultValues.interiorRows = []
     defaultValues.exteriorRows = []
     for (let row = 0; row < rows; row++) {
@@ -108,7 +110,7 @@ const CreateInvoice = () => {
   useEffect(() => {
     if (invoiceId) {
       axios.post(`/api/get`, { invoiceId }).then(response => {
-        let defaultValues: any = {}
+        const defaultValues: any = {}
         defaultValues.interiorRows = []
         defaultValues.exteriorRows = []
         const tableData = response.data.payload.data
@@ -217,6 +219,7 @@ const CreateInvoice = () => {
     const input = document.getElementById('pdf-content') as HTMLElement
     if (!input) {
       console.error('No element found with id "pdf-content"')
+
       return
     }
 
@@ -240,14 +243,18 @@ const CreateInvoice = () => {
       },
       jsPDF: { unit: 'in', format: [15, 45], orientation: 'portrait' }
     }
+
     // Generate the PDF and get the blob
     const pdfBlob = await html2pdf().from(input).set(options).outputPdf('blob')
+
     // Create a Data URI for downloading the PDF locally
     const pdfDataUri = await html2pdf().from(input).set(options).outputPdf('datauristring')
     const imageUrl = '/images/new-logo.png' // Path to your image in the public folder
     const base64Image = await getBase64Image(imageUrl)
+
     // Ensure the base64 string is prefixed with the correct data URI
     const base64DataUri = `data:application/pdf;base64,${base64Image.split(',')[1]}`
+
     // Save the PDF locally
     const link = document.createElement('a')
     link.href = pdfDataUri
@@ -976,8 +983,21 @@ const CreateInvoice = () => {
           </Grid>
           {!view && (
             <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
-              {apiLoading ? <CircularProgress /> : invoiceId ? 'Update' : 'Submit'}
+              {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
             </Button>
+          )}
+          {Create && (
+            <div>
+              <Button
+                type='submit'
+                variant='contained'
+                fullWidth
+                disabled={apiLoading}
+                style={{ display: apiLoading || !invoiceId ? 'none' : 'block', marginTop: '1%' }} // Hide based on loading or missing invoiceId
+              >
+                {apiLoading ? <CircularProgress /> : invoiceId ? 'Review Invoice' : null}
+              </Button>
+            </div>
           )}
         </form>
       </div>
