@@ -36,7 +36,7 @@ import Create from 'src/pages/create'
 // import html2pdf from 'html2pdf.js'
 
 emailjs.init({
-  publicKey: 'OW59chdvke7mXLuJV'
+  publicKey: '1rRx93iEXQmVegiJX'
 })
 const CreateInvoice = () => {
   const numRows = 18 // Number of rows in your table
@@ -89,7 +89,7 @@ const CreateInvoice = () => {
 
   const defaultValues = generateDefaultValues(numRows, numCols)
 
-  const { control, handleSubmit, reset } = useForm({
+  const { control, handleSubmit, reset, getValues } = useForm({
     defaultValues
   })
 
@@ -100,6 +100,7 @@ const CreateInvoice = () => {
   const [invoiceType, setInvoiceType] = useState<any>(InvoiceTypes.BOTH)
   const [selectedOption, setSelectedOption] = useState('')
   const [allData, setAllData] = useState<any>()
+  const [pdfLoading, setPdfLoading] = useState(false)
 
   const handleCheckboxChange = (event: any) => {
     setSelectedOption(event.target.name)
@@ -215,6 +216,7 @@ const CreateInvoice = () => {
 
   const generatePdf = async () => {
     if (typeof window === 'undefined') return
+    setPdfLoading(true)
     const html2pdf = (await import('html2pdf.js')).default
     const input = document.getElementById('pdf-content') as HTMLElement
     if (!input) {
@@ -260,6 +262,7 @@ const CreateInvoice = () => {
     link.href = pdfDataUri
     link.download = 'download.pdf'
     link.click()
+    setPdfLoading(false)
   }
   const onSubmit = async (formData: any) => {
     console.log(formData)
@@ -409,6 +412,79 @@ const CreateInvoice = () => {
       name: 'exteriorData.extras.heavy_prep'
     }
   ]
+
+  const showExteriorWindow = () => {
+    if (view) {
+      if (
+        getValues(`exteriorData.window.row-${0}-col-${1 + 1}`) ||
+        getValues(`exteriorData.window.row-${0}-col-${2 + 1}`) ||
+        getValues(`exteriorData.window.row-${0}-col-${3 + 1}`) ||
+        getValues(`exteriorData.window.row-${0}-col-${4 + 1}`)
+      ) {
+        return true
+      } else return false
+    } else return true
+  }
+
+  const showExteriorExtras = () => {
+    if (view) {
+      if (
+        getValues(`exteriorData.extras.paint`) ||
+        getValues(`exteriorData.extras.power_wash`) ||
+        getValues(`exteriorData.extras.patch_cracks`) ||
+        getValues(`exteriorData.extras.primer`) ||
+        getValues(`exteriorData.extras.apply_primer`) ||
+        getValues(`exteriorData.extras.paper`) ||
+        getValues(`exteriorData.extras.caulking`) ||
+        getValues(`exteriorData.extras.plastic`) ||
+        getValues(`exteriorData.extras.stain`) ||
+        getValues(`exteriorData.extras.tape`) ||
+        getValues(`exteriorData.extras.heavy_prep`)
+      ) {
+        return true
+      } else return false
+    } else return true
+  }
+
+  const showExtras = () => {
+    if (view) {
+      if (
+        getValues(`interiorData.extras.paint`) ||
+        getValues(`interiorData.extras.patch_cracks`) ||
+        getValues(`interiorData.extras.primer`) ||
+        getValues(`interiorData.extras.apply_primer`) ||
+        getValues(`interiorData.extras.paper`) ||
+        getValues(`interiorData.extras.caulking`) ||
+        getValues(`interiorData.extras.plastic`) ||
+        getValues(`interiorData.extras.stain`) ||
+        getValues(`interiorData.extras.tape`)
+      ) {
+        return true
+      } else return false
+    } else return true
+  }
+  const showSingleExtra = (name: any) => {
+    if (view) {
+      if (getValues(name)) {
+        return true
+      } else return false
+    }
+    return true
+  }
+
+  const showInteriorWindow = () => {
+    if (view) {
+      if (
+        getValues(`interiorData.window.row-${0}-col-${1 + 1}`) ||
+        getValues(`interiorData.window.row-${0}-col-${2 + 1}`) ||
+        getValues(`interiorData.window.row-${1}-col-${1 + 1}`) ||
+        getValues(`interiorData.window.row-${1}-col-${2 + 1}`)
+      ) {
+        return true
+      } else return false
+    }
+    return true
+  }
   interface CustomInputProps {
     value: any
     label: string
@@ -430,7 +506,13 @@ const CreateInvoice = () => {
     <Box>
       {view && (
         <Box textAlign={'right'}>
-          <Button variant='contained' color='primary' onClick={generatePdf}>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={generatePdf}
+            disabled={pdfLoading}
+            startIcon={pdfLoading ? <CircularProgress size={15} /> : null}
+          >
             Download PDF
           </Button>
         </Box>
@@ -555,7 +637,7 @@ const CreateInvoice = () => {
                 INTERIOR
               </Typography>
               <Box display={'flex'} justifyContent={'space-between'}>
-                <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px' }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px', height: '100%' }}>
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -580,21 +662,33 @@ const CreateInvoice = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {data.map((row: any, rowIndex: any) => (
-                        <TableRow key={rowIndex}>
-                          <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
-                          {row.columns.map((column: any, colIndex: any) => (
-                            <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                              <Controller
-                                name={`interiorRows.row-${rowIndex}-col-${colIndex + 1}`}
-                                control={control}
-                                defaultValue={column.value}
-                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                              />
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
+                      {data.map((row: any, rowIndex: any) => {
+                        let rowFilled = false
+                        row.columns.forEach((c: any, i: any) => {
+                          if (getValues(`interiorRows.row-${rowIndex}-col-${i + 1}`)) {
+                            rowFilled = true
+                          }
+                        })
+                        if (!view) rowFilled = true
+
+                        return rowFilled ? (
+                          <TableRow key={rowIndex}>
+                            <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
+                            {row.columns.map((column: any, colIndex: any) => (
+                              <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
+                                <Controller
+                                  name={`interiorRows.row-${rowIndex}-col-${colIndex + 1}`}
+                                  control={control}
+                                  defaultValue={column.value}
+                                  render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ) : (
+                          <></>
+                        )
+                      })}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -608,7 +702,7 @@ const CreateInvoice = () => {
                       />
                     </FormControl>
                   )}
-                  {view && (
+                  {view && allData?.interiorData?.paint_textarea && (
                     <Box minHeight={150}>
                       <Typography variant='h6'>Paint : </Typography>
                       <Typography variant='body1'>{allData?.interiorData?.paint_textarea}</Typography>
@@ -624,88 +718,92 @@ const CreateInvoice = () => {
                       />
                     </FormControl>
                   )}
-                  {view && (
+                  {view && allData?.interiorData?.stain_textarea && (
                     <Box minHeight={150}>
                       <Typography variant='h6'>Stain : </Typography>
                       <Typography variant='body1'>{allData?.interiorData?.stain_textarea}</Typography>
                     </Box>
                   )}
-                  <TableContainer component={Paper} sx={{ borderRadius: 0, width: '300px', mt: 10 }}>
-                    <Table>
-                      <TableHead>
-                        <TableCell
-                          colSpan={1}
-                          rowSpan={2}
-                          sx={{ border: '1px solid black', textAlign: 'center' }}
-                        ></TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          YES
-                        </TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          NO
-                        </TableCell>
-                      </TableHead>
-                      <TableBody>
-                        <TableRow key={'0'}>
-                          <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                            WINDOW TRIM
+                  {showInteriorWindow() && (
+                    <TableContainer component={Paper} sx={{ borderRadius: 0, width: '300px', mt: 10 }}>
+                      <Table>
+                        <TableHead>
+                          <TableCell
+                            colSpan={1}
+                            rowSpan={2}
+                            sx={{ border: '1px solid black', textAlign: 'center' }}
+                          ></TableCell>
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            YES
                           </TableCell>
-                          <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`interiorData.window.row-${0}-col-${1 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            NO
                           </TableCell>
-                          <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`interiorData.window.row-${0}-col-${2 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow key={'1'}>
-                          <TableCell sx={{ border: '1px solid black' }}>WINDOW SEAL</TableCell>
-                          <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`interiorData.window.row-${1}-col-${1 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </TableCell>
-                          <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`interiorData.window.row-${1}-col-${2 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <Grid container sx={{ mt: 10 }}>
-                    {extrasArray.map((e: any) => {
-                      return (
-                        <Grid item xs={12} sm={6} key={e.name}>
-                          <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                            <Typography width={'50%'}>{e.label}</Typography>
-                            <Controller
-                              name={e.name}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </Box>
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow key={'0'}>
+                            <TableCell key={'0'} sx={{ border: '1px solid black' }}>
+                              WINDOW TRIM
+                            </TableCell>
+                            <TableCell key={'1'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`interiorData.window.row-${0}-col-${1 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                            <TableCell key={'2'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`interiorData.window.row-${0}-col-${2 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                          </TableRow>
+                          <TableRow key={'1'}>
+                            <TableCell sx={{ border: '1px solid black' }}>WINDOW SEAL</TableCell>
+                            <TableCell key={'1'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`interiorData.window.row-${1}-col-${1 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                            <TableCell key={'2'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`interiorData.window.row-${1}-col-${2 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                  {showExtras() && (
+                    <Grid container sx={{ mt: 10 }}>
+                      {extrasArray.map((e: any) => {
+                        return (
+                          <Grid item xs={12} sm={6} key={e.name}>
+                            <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
+                              <Typography width={'50%'}>{e.label}</Typography>
+                              <Controller
+                                name={e.name}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </Box>
+                          </Grid>
+                        )
+                      })}
+                    </Grid>
+                  )}
                 </Box>
               </Box>
             </>
@@ -717,7 +815,7 @@ const CreateInvoice = () => {
                 EXTERIOR
               </Typography>
               <Box display={'flex'} justifyContent={'space-between'}>
-                <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px' }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px', height: '100%' }}>
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -739,21 +837,32 @@ const CreateInvoice = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {exteriorData.map((row: any, rowIndex: any) => (
-                        <TableRow key={rowIndex}>
-                          <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
-                          {row.columns.map((column: any, colIndex: any) => (
-                            <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                              <Controller
-                                name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
-                                control={control}
-                                defaultValue={column.value}
-                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                              />
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
+                      {exteriorData.map((row: any, rowIndex: any) => {
+                        let rowFilled = false
+                        row.columns.forEach((c: any, i: any) => {
+                          if (getValues(`exteriorRows.row-${rowIndex}-col-${i + 1}`)) {
+                            rowFilled = true
+                          }
+                        })
+                        if (!view) rowFilled = true
+                        return rowFilled ? (
+                          <TableRow key={rowIndex}>
+                            <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
+                            {row.columns.map((column: any, colIndex: any) => (
+                              <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
+                                <Controller
+                                  name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
+                                  control={control}
+                                  defaultValue={column.value}
+                                  render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                                />
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ) : (
+                          <></>
+                        )
+                      })}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -767,7 +876,7 @@ const CreateInvoice = () => {
                       />
                     </FormControl>
                   )}
-                  {view && (
+                  {view && allData?.exteriorData?.paint_textarea && (
                     <Box minHeight={150}>
                       <Typography variant='h6'>Paint : </Typography>
                       <Typography variant='body1'>{allData?.exteriorData?.paint_textarea}</Typography>
@@ -783,91 +892,97 @@ const CreateInvoice = () => {
                       />
                     </FormControl>
                   )}
-                  {view && (
+                  {view && allData?.exteriorData?.stain_textarea && (
                     <Box minHeight={150}>
                       <Typography variant='h6'>Stain : </Typography>
                       <Typography variant='body1'>{allData?.exteriorData?.stain_textarea}</Typography>
                     </Box>
                   )}
-                  <TableContainer component={Paper} sx={{ borderRadius: 0, width: '420px', mt: 10 }}>
-                    <Table>
-                      <TableHead>
-                        <TableCell
-                          colSpan={1}
-                          rowSpan={2}
-                          sx={{ border: '1px solid black', textAlign: 'center' }}
-                        ></TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          SIDING
-                        </TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          FACIAL
-                        </TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          TRIM
-                        </TableCell>
-                        <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          SOFFITS
-                        </TableCell>
-                      </TableHead>
-                      <TableBody>
-                        <TableRow key={'0'}>
-                          <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                            REPAIRS
+                  {showExteriorWindow() && (
+                    <TableContainer component={Paper} sx={{ borderRadius: 0, width: '420px', mt: 10 }}>
+                      <Table>
+                        <TableHead>
+                          <TableCell
+                            colSpan={1}
+                            rowSpan={2}
+                            sx={{ border: '1px solid black', textAlign: 'center' }}
+                          ></TableCell>
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            SIDING
                           </TableCell>
-                          <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`exteriorData.window.row-${0}-col-${1 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            FACIAL
                           </TableCell>
-                          <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`exteriorData.window.row-${0}-col-${2 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            TRIM
                           </TableCell>
-                          <TableCell key={'3'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`exteriorData.window.row-${0}-col-${3 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
+                          <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                            SOFFITS
                           </TableCell>
-                          <TableCell key={'4'} sx={{ border: '1px solid black' }}>
-                            <Controller
-                              name={`exteriorData.window.row-${0}-col-${4 + 1}`}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                  <Grid container sx={{ mt: 10 }}>
-                    {exteriorExtrasArray.map((e: any) => {
-                      return (
-                        <Grid item xs={12} sm={6} key={e.name}>
-                          <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                            <Typography width={'50%'}>{e.label}</Typography>
-                            <Controller
-                              name={e.name}
-                              control={control}
-                              defaultValue={false}
-                              render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                            />
-                          </Box>
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow key={'0'}>
+                            <TableCell key={'0'} sx={{ border: '1px solid black' }}>
+                              REPAIRS
+                            </TableCell>
+
+                            <TableCell key={'1'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`exteriorData.window.row-${0}-col-${1 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+
+                            <TableCell key={'2'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`exteriorData.window.row-${0}-col-${2 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                            <TableCell key={'3'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`exteriorData.window.row-${0}-col-${3 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                            <TableCell key={'4'} sx={{ border: '1px solid black' }}>
+                              <Controller
+                                name={`exteriorData.window.row-${0}-col-${4 + 1}`}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                  {showExteriorExtras() && (
+                    <Grid container sx={{ mt: 10 }}>
+                      {exteriorExtrasArray.map((e: any) => {
+                        return (
+                          <Grid item xs={12} sm={6} key={e.name}>
+                            <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
+                              <Typography width={'50%'}>{e.label}</Typography>
+                              <Controller
+                                name={e.name}
+                                control={control}
+                                defaultValue={false}
+                                render={({ field }) => <Checkbox {...field} checked={field.value} />}
+                              />
+                            </Box>
+                          </Grid>
+                        )
+                      })}
+                    </Grid>
+                  )}
                 </Box>
               </Box>
             </>
@@ -985,19 +1100,6 @@ const CreateInvoice = () => {
             <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
               {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
             </Button>
-          )}
-          {Create && (
-            <div>
-              <Button
-                type='submit'
-                variant='contained'
-                fullWidth
-                disabled={apiLoading}
-                style={{ display: apiLoading || !invoiceId ? 'none' : 'block', marginTop: '1%' }} // Hide based on loading or missing invoiceId
-              >
-                {apiLoading ? <CircularProgress /> : invoiceId ? 'Review Invoice' : null}
-              </Button>
-            </div>
           )}
         </form>
       </div>
