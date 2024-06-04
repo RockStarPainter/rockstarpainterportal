@@ -26,6 +26,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
+
 const Home = ({ tableId }: any) => {
   const [data, setData] = useState<any>([])
   const router = useRouter()
@@ -46,26 +47,43 @@ const Home = ({ tableId }: any) => {
   const columns = useMemo(
     () => [
       {
-        header: 'ID',
+        header: 'Invoice #',
         accessorKey: 'custom_id' //simple recommended way to define a column
+      },
+      {
+        header: 'Creation Date',
+        accessorKey: 'issue_date', //simple recommended way to define a column
+        Cell: ({ cell }: any) => {
+          const { issue_date } = cell.row.original // Access the issue_date directly
+
+          // Check if issue_date is a valid date object (optional)
+          if (issue_date instanceof Date) {
+            return issue_date.toLocaleDateString()
+          } else {
+            // Handle non-date values (e.g., return an empty string)
+            return ''
+          }
+        }
       },
       {
         header: 'Customer Name',
         accessorKey: 'customer_name' //simple recommended way to define a column
       },
       {
-        header: 'Phone Number',
-        accessorKey: 'phone_number' //simple recommended way to define a column
+        header: 'Invoice Status',
+        accessorKey: 'total_cost' //simple recommended way to define a column
       },
       {
-        header: 'City',
-        accessorKey: 'city' //simple recommended way to define a column
+        header: 'Total Payment',
+        accessorKey: 'total_cost' //simple recommended way to define a column
       },
+
       {
         header: 'Actions',
         Cell: ({ cell }: any) => {
           const { _id } = cell.row.original
           const [deleting, setDeleting] = useState(false)
+
           return (
             <>
               <Box display={'flex'}>
