@@ -1,9 +1,12 @@
 import mongoose from 'mongoose'
+import { Status } from 'src/enums'
 import { FormTypes, InvoiceTypes } from 'src/enums/FormTypes'
 const Schema = mongoose.Schema
 
 const invoiceSchema = new Schema(
   {
+    payment_link: { type: String, required: false },
+    status: { type: String, enum: Status, required: false },
     custom_id: { type: Number, required: true },
     interiorRows: [
       {

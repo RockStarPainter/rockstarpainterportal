@@ -26,12 +26,13 @@ import {
 import axios from 'axios'
 import toast, { LoaderIcon } from 'react-hot-toast'
 import { InvoiceTypes, InvoiceTypesValues } from 'src/enums/FormTypes'
-import { useRouter } from 'next/router'
+import Router, { useRouter } from 'next/router'
 import emailjs from '@emailjs/browser'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
 import Create from 'src/pages/create'
+import { Status, statusValues } from 'src/enums'
 
 // import html2pdf from 'html2pdf.js'
 
@@ -83,6 +84,7 @@ const CreateInvoice = () => {
     defaultValues.balance_due = ''
     defaultValues.down_payment = ''
     defaultValues.issue_date = new Date()
+    defaultValues.payment_link = ''
 
     return defaultValues
   }
@@ -101,6 +103,8 @@ const CreateInvoice = () => {
   const [selectedOption, setSelectedOption] = useState('')
   const [allData, setAllData] = useState<any>()
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [status, setStatus] = useState(Status.UNPAID)
+  const [emailLoading, setemailLoading] = useState(false)
 
   const handleCheckboxChange = (event: any) => {
     setSelectedOption(event.target.name)
@@ -139,7 +143,7 @@ const CreateInvoice = () => {
         defaultValues.address = tableData.address
         defaultValues.city = tableData.city
         defaultValues.state = tableData.state
-
+        defaultValues.payment_link = tableData.payment_link
         defaultValues.zip_code = tableData.zip_code
         defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
@@ -151,6 +155,7 @@ const CreateInvoice = () => {
         setData(tableData.interiorRows)
         setExteriorData(tableData.exteriorRows)
         setIsLoading(false)
+        setStatus(tableData.status)
       })
     } else {
       reset(defaultValues)
@@ -214,9 +219,13 @@ const CreateInvoice = () => {
     })
   }
 
-  const generatePdf = async () => {
+  const generatePdf = async (str?: string) => {
     if (typeof window === 'undefined') return
-    setPdfLoading(true)
+    if (str !== 'email') {
+      setPdfLoading(true)
+    } else {
+      setemailLoading(true)
+    }
     const html2pdf = (await import('html2pdf.js')).default
     const input = document.getElementById('pdf-content') as HTMLElement
     if (!input) {
@@ -234,7 +243,7 @@ const CreateInvoice = () => {
     const options = {
       margin: 0,
       filename: 'download.pdf',
-      image: { type: 'jpeg', quality: 1.0 },
+      image: { type: 'jpeg', quality: 0.5 },
       html2canvas: {
         scale: 2, // Use a higher scale for better clarity
         useCORS: true,
@@ -254,18 +263,52 @@ const CreateInvoice = () => {
     const imageUrl = '/images/new-logo.png' // Path to your image in the public folder
     const base64Image = await getBase64Image(imageUrl)
 
-    // Ensure the base64 string is prefixed with the correct data URI
-    const base64DataUri = `data:application/pdf;base64,${base64Image.split(',')[1]}`
-
     // Save the PDF locally
-    const link = document.createElement('a')
-    link.href = pdfDataUri
-    link.download = 'download.pdf'
-    link.click()
+    if (str !== 'email') {
+      const link = document.createElement('a')
+      link.href = pdfDataUri
+      link.download = 'download.pdf'
+      link.click()
+    }
     setPdfLoading(false)
+    if (str === 'email') {
+      const reader = new FileReader()
+      reader.readAsDataURL(pdfBlob)
+      reader.onloadend = () => {
+        const base64data = reader.result as string
+
+        // EmailJS configuration
+        const serviceID = 'service_pypvnz1'
+        const templateID = 'template_1hlt1qp'
+        const userID = '1rRx93iEXQmVegiJX'
+        if (!allData.email) {
+          toast.error('No email address provided')
+          setemailLoading(false)
+          return
+        }
+        const templateParams = {
+          content: base64data,
+          customer_name: allData.customer_name,
+          to_email: allData.email
+        }
+
+        emailjs
+          .send(serviceID, templateID, templateParams, userID)
+          .then(response => {
+            console.log('Email sent successfully:', response.status, response.text)
+            toast.success('Email sent')
+          })
+          .catch(error => {
+            console.error('Error sending email:', error)
+          })
+          .finally(() => {
+            setemailLoading(false)
+          })
+      }
+    }
   }
+
   const onSubmit = async (formData: any) => {
-    console.log(formData)
     try {
       setApiLoading(true)
       const rows = data.map((row: any, rowIndex: any) => ({
@@ -298,15 +341,21 @@ const CreateInvoice = () => {
         exteriorData: formData.exteriorData,
         total_cost: parseInt(formData.total_cost),
         balance_due: parseInt(formData.balance_due),
-        down_payment: parseInt(formData.down_payment)
+        down_payment: parseInt(formData.down_payment),
+        status: status,
+        payment_link: formData.payment_link
       }
 
       if (invoiceId) {
         await axios.post(`/api/update`, { payload, invoiceId })
       } else {
         const res = await axios.post('/api/create-invoice', payload)
+
         reset(defaultValues)
         setSelectedOption('')
+        console.log(res.data)
+        const { _id } = res.data.payload.invoice
+        router.push(`create?invoiceId=${_id}&view=true`)
       }
     } catch (error) {
       console.log(error)
@@ -324,7 +373,8 @@ const CreateInvoice = () => {
     { name: 'city', label: 'City' },
     { name: 'state', label: 'State' },
     { name: 'zip_code', label: 'ZipCode' },
-    { name: 'issue_date', label: 'Issue Date' }
+    { name: 'issue_date', label: 'Issue Date' },
+    { name: 'payment_link', label: 'Payment Link' }
   ]
 
   const extrasArray = [
@@ -505,18 +555,29 @@ const CreateInvoice = () => {
   return (
     <Box>
       {view && (
-        <Box textAlign={'right'}>
+        <Box justifyContent={'end'} display={'flex'}>
           <Button
             variant='contained'
             color='primary'
-            onClick={generatePdf}
+            onClick={() => generatePdf('pdf')}
             disabled={pdfLoading}
             startIcon={pdfLoading ? <CircularProgress size={15} /> : null}
           >
             Download PDF
           </Button>
+          <Box sx={{ width: '20px' }}></Box>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => generatePdf('email')}
+            disabled={emailLoading}
+            startIcon={emailLoading ? <CircularProgress size={15} /> : null}
+          >
+            Send Email
+          </Button>
         </Box>
       )}
+
       <Divider sx={{ mt: 6 }} />
       <div id='pdf-content' style={{ padding: 20 }}>
         <Box display={'flex'} justifyContent={'space-between'}>
@@ -615,6 +676,22 @@ const CreateInvoice = () => {
               )
             })}
           </Grid>
+          {!view && (
+            <FormControl fullWidth sx={{ mt: 10 }}>
+              <InputLabel id='demo-simple-select-label'>Select Status</InputLabel>
+              <Select
+                labelId='demo-simple-select-label'
+                id='demo-simple-select'
+                value={status}
+                label='Select Status'
+                onChange={(e: any) => setStatus(e.target.value)}
+              >
+                {statusValues.map(d => {
+                  return <MenuItem value={d}>{d}</MenuItem>
+                })}
+              </Select>
+            </FormControl>
+          )}
           {!view && (
             <FormControl fullWidth sx={{ mt: 10 }}>
               <InputLabel id='demo-simple-select-label'>Select Service</InputLabel>

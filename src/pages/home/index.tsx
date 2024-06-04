@@ -51,35 +51,31 @@ const Home = ({ tableId }: any) => {
         accessorKey: 'custom_id' //simple recommended way to define a column
       },
       {
-        header: 'Creation Date',
+        header: 'Issue Date',
         accessorKey: 'issue_date', //simple recommended way to define a column
         Cell: ({ cell }: any) => {
-          const { issue_date } = cell.row.original // Access the issue_date directly
+          const value = cell.getValue()
 
-          // Check if issue_date is a valid date object (optional)
-          if (issue_date instanceof Date) {
-            return issue_date.toLocaleDateString()
-          } else {
-            // Handle non-date values (e.g., return an empty string)
-            return ''
-          }
+          return value ? new Date(value).toLocaleDateString() : ''
         }
       },
       {
         header: 'Customer Name',
         accessorKey: 'customer_name' //simple recommended way to define a column
       },
-      {
-        header: 'Invoice Status',
-        accessorKey: 'total_cost' //simple recommended way to define a column
-      },
+
       {
         header: 'Total Payment',
         accessorKey: 'total_cost' //simple recommended way to define a column
       },
+      {
+        header: 'Status',
+        accessorKey: 'status' //simple recommended way to define a column
+      },
 
       {
         header: 'Actions',
+        accessorKey: 'actions',
         Cell: ({ cell }: any) => {
           const { _id } = cell.row.original
           const [deleting, setDeleting] = useState(false)
