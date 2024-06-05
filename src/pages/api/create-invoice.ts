@@ -1,11 +1,25 @@
 import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
 
+const generateUniqueCustomId = async (): Promise<number> => {
+  let isUnique = false
+  let customId: number
+
+  while (!isUnique) {
+    customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
+    const existingInvoice = await InvoiceModel.findOne({ custom_id: customId })
+    if (!existingInvoice) {
+      isUnique = true
+    }
+  }
+
+  return customId
+}
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
-      const count = await InvoiceModel.countDocuments({})
-      const newInvoice = new InvoiceModel({ ...req.body, custom_id: count + 1 })
+      const customId = await generateUniqueCustomId()
+      const newInvoice = new InvoiceModel({ ...req.body, custom_id: customId })
 
       const saved = await newInvoice.save()
 
@@ -13,16 +27,23 @@ const handler = async (req: any, res: any) => {
         return res.status(404).send('Not able to save invoice')
       }
 
-      return res.send({
-        message: 'invoice fetched successfully',
+      return res.status(201).send({
+        message: 'Invoice created successfully',
         payload: { invoice: saved }
       })
     } catch (error) {
-      console.log(error)
-      res.status(500).send('something went wrong')
+      console.error('Error saving invoice:', error)
+      if (error.code === 11000) {
+        // Duplicate key error
+        return res.status(409).send('Custom ID already exists')
+      }
+
+      return res.status(500).send('Something went wrong')
     }
   } else {
-    res.status(500).send('this is a post request')
+    res.setHeader('Allow', ['POST'])
+
+    return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }
 

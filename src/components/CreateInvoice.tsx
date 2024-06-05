@@ -1,4 +1,5 @@
 import React, { forwardRef, useEffect, useState } from 'react'
+
 import { useForm, Controller } from 'react-hook-form'
 import {
   Table,
@@ -33,6 +34,7 @@ import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
 import Create from 'src/pages/create'
 import { Status, statusValues } from 'src/enums'
+import Link from 'next/link'
 
 // import html2pdf from 'html2pdf.js'
 
@@ -84,7 +86,7 @@ const CreateInvoice = () => {
     defaultValues.balance_due = ''
     defaultValues.down_payment = ''
     defaultValues.issue_date = new Date()
-    defaultValues.payment_link = ''
+    defaultValues.pay_link = ''
 
     return defaultValues
   }
@@ -143,10 +145,10 @@ const CreateInvoice = () => {
         defaultValues.address = tableData.address
         defaultValues.city = tableData.city
         defaultValues.state = tableData.state
-        defaultValues.payment_link = tableData.payment_link
         defaultValues.zip_code = tableData.zip_code
         defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
+        defaultValues.pay_link = tableData.pay_link
         defaultValues.down_payment = tableData.down_payment
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
         setAllData(tableData)
@@ -284,6 +286,7 @@ const CreateInvoice = () => {
         if (!allData.email) {
           toast.error('No email address provided')
           setemailLoading(false)
+
           return
         }
         const templateParams = {
@@ -343,7 +346,7 @@ const CreateInvoice = () => {
         balance_due: parseInt(formData.balance_due),
         down_payment: parseInt(formData.down_payment),
         status: status,
-        payment_link: formData.payment_link
+        pay_link: formData.pay_link
       }
 
       if (invoiceId) {
@@ -373,8 +376,7 @@ const CreateInvoice = () => {
     { name: 'city', label: 'City' },
     { name: 'state', label: 'State' },
     { name: 'zip_code', label: 'ZipCode' },
-    { name: 'issue_date', label: 'Issue Date' },
-    { name: 'payment_link', label: 'Payment Link' }
+    { name: 'issue_date', label: 'Issue Date' }
   ]
 
   const extrasArray = [
@@ -519,6 +521,7 @@ const CreateInvoice = () => {
         return true
       } else return false
     }
+
     return true
   }
 
@@ -533,6 +536,7 @@ const CreateInvoice = () => {
         return true
       } else return false
     }
+
     return true
   }
   interface CustomInputProps {
@@ -922,6 +926,7 @@ const CreateInvoice = () => {
                           }
                         })
                         if (!view) rowFilled = true
+
                         return rowFilled ? (
                           <TableRow key={rowIndex}>
                             <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
@@ -1091,7 +1096,7 @@ const CreateInvoice = () => {
             PAYMENT DETAILS
           </Typography>
           <Grid container spacing={5} mt={5} mb={10}>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               {!view ? (
                 <FormControl fullWidth>
                   <Controller
@@ -1118,7 +1123,7 @@ const CreateInvoice = () => {
                 </Box>
               )}
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               {!view ? (
                 <FormControl fullWidth>
                   <Controller
@@ -1145,7 +1150,7 @@ const CreateInvoice = () => {
                 </Box>
               )}
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               {!view ? (
                 <FormControl fullWidth>
                   <Controller
@@ -1168,6 +1173,39 @@ const CreateInvoice = () => {
                   </Typography>
                   <Typography variant='body1' sx={{ textAlign: 'center' }}>
                     {allData && allData['balance_due']}
+                  </Typography>
+                </Box>
+              )}
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              {!view ? (
+                <FormControl fullWidth>
+                  <Controller
+                    name={'pay_link'}
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <TextField
+                        value={value}
+                        label={'Payment Link'}
+                        onChange={onChange}
+                        aria-describedby='validation-basic-last-name'
+                      />
+                    )}
+                  />
+                </FormControl>
+              ) : (
+                <Box>
+                  <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                    {'Pay Link'}
+                  </Typography>
+                  <Typography variant='body1' sx={{ textAlign: 'center' }}>
+                    {allData && allData['pay_link'] ? (
+                      <Link href={allData['pay_link']} target='_blank'>
+                        {allData['pay_link'].length > 30
+                          ? `${allData['pay_link'].substring(0, 30)}...`
+                          : allData['pay_link']}
+                      </Link>
+                    ) : null}
                   </Typography>
                 </Box>
               )}
