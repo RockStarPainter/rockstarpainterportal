@@ -15,7 +15,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 
 const FooterContent = () => {
   // ** Var
-  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+  const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.up('xl'))
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -41,7 +41,7 @@ const FooterContent = () => {
             Instagram
           </LinkStyled>
           <LinkStyled target='_blank' href='https://rockstarpaintingdenver.com/'>
-            Webiste
+            Website
           </LinkStyled>
         </Box>
       )}
