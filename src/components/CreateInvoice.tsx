@@ -1201,9 +1201,7 @@ const CreateInvoice = () => {
                   <Typography variant='body1' sx={{ textAlign: 'center' }}>
                     {allData && allData['pay_link'] ? (
                       <Link href={allData['pay_link']} target='_blank'>
-                        {allData['pay_link'].length > 30
-                          ? `${allData['pay_link'].substring(0, 30)}...`
-                          : allData['pay_link']}
+                        {allData['pay_link'].length > 30 ? `${allData['pay_link']}` : allData['pay_link']}
                       </Link>
                     ) : null}
                   </Typography>
