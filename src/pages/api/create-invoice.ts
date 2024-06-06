@@ -1,17 +1,10 @@
 import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
 
-const generateUniqueCustomId = async (): Promise<number> => {
-  let isUnique = false
+const generateUniqueCustomId = async () => {
   let customId: number
 
-  while (!isUnique) {
-    customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
-    const existingInvoice = await InvoiceModel.findOne({ custom_id: customId })
-    if (!existingInvoice) {
-      isUnique = true
-    }
-  }
+  customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
 
   return customId
 }
@@ -33,10 +26,6 @@ const handler = async (req: any, res: any) => {
       })
     } catch (error) {
       console.error('Error saving invoice:', error)
-      if (error.code === 11000) {
-        // Duplicate key error
-        return res.status(409).send('Custom ID already exists')
-      }
 
       return res.status(500).send('Something went wrong')
     }

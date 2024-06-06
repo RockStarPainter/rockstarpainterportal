@@ -107,6 +107,8 @@ const CreateInvoice = () => {
   const [pdfLoading, setPdfLoading] = useState(false)
   const [status, setStatus] = useState(Status.UNPAID)
   const [emailLoading, setemailLoading] = useState(false)
+  const [selectedSherwin, setSelectedSherwin] = useState<any>([])
+  const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
 
   const handleCheckboxChange = (event: any) => {
     setSelectedOption(event.target.name)
@@ -548,6 +550,162 @@ const CreateInvoice = () => {
   const CustomInput = forwardRef(({ ...props }: CustomInputProps, ref) => {
     return <TextField inputRef={ref} {...props} sx={{ width: '100%' }} />
   })
+
+  const sherwinPaints = [
+    {
+      name: 'Cashmere ®',
+      sub_name: 'Interior Acrylic Latex',
+      img: '/images/s-1.png',
+      d_name: 's-1.png'
+    },
+    {
+      name: 'Duration®',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-2.png',
+      d_name: 's-2.png'
+    },
+    {
+      name: 'Duration Home®',
+      sub_name: 'Interior Acrylic Latex',
+      img: '/images/s-3.png',
+      d_name: 's-3.png'
+    },
+    {
+      name: 'Emerald®',
+      sub_name: 'Urethane Trim Enamel',
+      img: '/images/s-4.png',
+      d_name: 's-4.png'
+    },
+    {
+      name: 'Emerald®',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-5.png',
+      d_name: 's-5.png'
+    },
+    {
+      name: 'Latitude™ with Climate Flex Technology™',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-6.png',
+      d_name: 's-6.png'
+    },
+    {
+      name: 'SuperDeck ®',
+      sub_name: 'Deck Finishing System',
+      img: '/images/s-7.png',
+      d_name: 's-7.png'
+    },
+    {
+      name: 'ProClassic®',
+      sub_name: 'Interior Acrylic, Acrylic-Alkyd and Alkyd Enamels',
+      img: '/images/s-8.png',
+      d_name: 's-8.png'
+    },
+    {
+      name: 'SuperPaint®',
+      sub_name: 'Interior Acrylic Latex',
+      img: '/images/s-9.png',
+      d_name: 's-9.png'
+    },
+    {
+      name: 'WoodScapes®',
+      sub_name: 'Rain Refresh',
+      img: '/images/s-10.png',
+      d_name: 's-10.png'
+    },
+    {
+      name: 'Emerald®',
+      sub_name: 'Interior Acrylic Latex',
+      img: '/images/s-11.png',
+      d_name: 's-11.png'
+    },
+    {
+      name: 'Emerald®',
+      sub_name: 'Exterior Acrylic Latex Paint',
+      img: '/images/s-12.png',
+      d_name: 's-12.png'
+    },
+    {
+      name: 'Duration®',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-13.png',
+      d_name: 's-13.png'
+    },
+    {
+      name: 'Latitude®',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-14.png',
+      d_name: 's-14.png'
+    },
+    {
+      name: 'SuperPaint®',
+      sub_name: 'Exterior Acrylic Latex',
+      img: '/images/s-15.png',
+      d_name: 's-15.png'
+    }
+  ]
+
+  const benjaminPaints = [
+    {
+      paint_code: '0790',
+      img: '/images/b-1.png',
+      d_name: 'b-1.png',
+      name: 'PRIMER IMPRIMADOR'
+    },
+    {
+      paint_code: '0791',
+      img: '/images/b-2.png',
+      d_name: 'b-2.png',
+      name: 'MATTE MATE'
+    },
+    {
+      paint_code: '0792',
+      img: '/images/b-3.png',
+      d_name: 'b-3.png',
+      name: 'SATIN SATINADO'
+    },
+    {
+      paint_code: '0793',
+      img: '/images/b-4.png',
+      d_name: 'b-4.png',
+      name: 'SEMI-GLOSS SEMI-BRILLANTE'
+    },
+    {
+      paint_code: 'N794',
+      img: '/images/b-5.png',
+      d_name: 'b-5.png',
+      name: 'HIGH-GLOSS ALTO BRILLO'
+    }
+  ]
+
+  const handlePaintSelect = (name: string, checked: any) => {
+    if (checked) {
+      if (selectedSherwin.includes(name)) {
+        return
+      } else {
+        setSelectedSherwin([...selectedSherwin, name])
+      }
+    } else {
+      const index = selectedSherwin.indexOf(name)
+      const temp = [...selectedSherwin]
+      temp.splice(index, 1)
+      setSelectedSherwin(temp)
+    }
+  }
+
+  const handlePaintSelectBenjamin = (name: string, checked: any) => {
+    if (checked) {
+      if (selectedBenjamin.includes(name)) {
+        return
+      } else {
+        setSelectedBenjamin([...selectedBenjamin, name])
+      }
+    } else {
+      const index = selectedBenjamin.indexOf(name)
+      const temp = [...selectedBenjamin]
+      temp.splice(index, 1)
+      setSelectedBenjamin(temp)
+    }
+  }
 
   if (isLoading)
     return (
@@ -1069,6 +1227,46 @@ const CreateInvoice = () => {
               </Box>
             </>
           )}
+
+          <Typography variant='h4' textAlign={'center'} sx={{ mt: 10 }}>
+            Brand Sherwin Williams Paints
+          </Typography>
+          <Grid container mt={10}>
+            {sherwinPaints.map(p => {
+              return (
+                <Grid item xs={12} sm={4} key={p.name} mb={10}>
+                  <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
+                    <Typography variant='h5'>{p.name}</Typography>
+                    <Typography>{p.sub_name}</Typography>
+                    <Box width={200}>
+                      <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
+                    </Box>
+                    <Checkbox onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)} />
+                  </Box>
+                </Grid>
+              )
+            })}
+          </Grid>
+
+          <Typography variant='h4' textAlign={'center'} sx={{ mt: 10 }}>
+            Benjamin Moore Advance Paints
+          </Typography>
+          <Grid container mt={10}>
+            {benjaminPaints.map(p => {
+              return (
+                <Grid item xs={12} sm={4} key={p.name} mb={10}>
+                  <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
+                    <Typography variant='h5'>{p.name}</Typography>
+                    <Typography>{p.paint_code}</Typography>
+                    <Box width={200}>
+                      <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
+                    </Box>
+                    <Checkbox onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)} />
+                  </Box>
+                </Grid>
+              )
+            })}
+          </Grid>
 
           {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
