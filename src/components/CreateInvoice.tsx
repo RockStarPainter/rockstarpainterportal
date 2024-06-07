@@ -774,8 +774,21 @@ const CreateInvoice = () => {
         </Box>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* <Button onClick={() => reset()}>Reset</Button> */}
-          <Typography variant='h4' sx={{ mb: 5, textAlign: 'center', mt: 10 }}>
-            Customer Details
+          <Typography
+            variant='h4'
+            sx={{
+              mb: 5,
+              textAlign: 'center',
+              mt: 10,
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+              color: 'white',
+              fontWeight: 'bold',
+              backgroundImage: 'linear-gradient(to right, #161615, #cbbeb5)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            CUSTOMER DETAILS
           </Typography>
           <Grid container spacing={5}>
             {customerDetailsArray.map((c: any) => {
@@ -872,10 +885,23 @@ const CreateInvoice = () => {
           )}
           {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
             <>
-              <Typography variant='h4' sx={{ mb: 5, textAlign: 'center', mt: 10 }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  mb: 5,
+                  textAlign: 'center',
+                  mt: 10,
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  backgroundImage: 'linear-gradient(to right, #161615, #cbbeb5)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
                 INTERIOR
               </Typography>
-              <Box display={'flex'} justifyContent={'space-between'}>
+              <Box marginLeft={'2%'} display={'flex'} justifyContent={'space-between'}>
                 <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px', height: '100%' }}>
                   <Table>
                     <TableHead>
@@ -886,10 +912,10 @@ const CreateInvoice = () => {
                           sx={{ border: '1px solid black', textAlign: 'center' }}
                         ></TableCell>
                         <TableCell colSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          INCLUDE
+                          <b> INCLUDE </b>
                         </TableCell>
                         <TableCell colSpan={6} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          PAINT CODE
+                          <b> PAINT CODE</b>
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -1050,10 +1076,24 @@ const CreateInvoice = () => {
           {/* exterior below */}
           {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
             <>
-              <Typography variant='h4' sx={{ mb: 5, textAlign: 'center', mt: 10 }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  mb: 5,
+                  textAlign: 'center',
+                  mt: 10,
+                  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  backgroundImage: 'linear-gradient(to right, #161615, #cbbeb5)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
                 EXTERIOR
               </Typography>
-              <Box display={'flex'} justifyContent={'space-between'}>
+
+              <Box marginLeft={'2%'} display={'flex'} justifyContent={'space-between'}>
                 <TableContainer component={Paper} sx={{ borderRadius: 0, width: '820px', height: '100%' }}>
                   <Table>
                     <TableHead>
@@ -1062,9 +1102,12 @@ const CreateInvoice = () => {
                           colSpan={1}
                           rowSpan={2}
                           sx={{ border: '1px solid black', textAlign: 'center' }}
-                        ></TableCell>
+                          style={{ fontSize: '23px' }}
+                        >
+                          Exterior Design
+                        </TableCell>
                         <TableCell colSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                          INCLUDE
+                          <b> INCLUDE </b>
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -1290,7 +1333,20 @@ const CreateInvoice = () => {
             </Box>
           </Box>
         </Box> */}
-          <Typography variant='h4' sx={{ textAlign: 'center', mt: 10 }}>
+          <Typography
+            variant='h4'
+            sx={{
+              mb: 5,
+              textAlign: 'center',
+              mt: 10,
+              textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
+              color: 'white',
+              fontWeight: 'bold',
+              backgroundImage: 'linear-gradient(to right, #161615, #cbbeb5)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
             PAYMENT DETAILS
           </Typography>
           <Grid container spacing={5} mt={5} mb={10}>
