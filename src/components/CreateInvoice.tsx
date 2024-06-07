@@ -160,6 +160,8 @@ const CreateInvoice = () => {
         setExteriorData(tableData.exteriorRows)
         setIsLoading(false)
         setStatus(tableData.status)
+        setSelectedBenjamin(tableData.benjamin_paints)
+        setSelectedSherwin(tableData.sherwin_paints)
       })
     } else {
       reset(defaultValues)
@@ -348,7 +350,9 @@ const CreateInvoice = () => {
         balance_due: parseInt(formData.balance_due),
         down_payment: parseInt(formData.down_payment),
         status: status,
-        pay_link: formData.pay_link
+        pay_link: formData.pay_link,
+        sherwin_paints: selectedSherwin,
+        benjamin_paints: selectedBenjamin
       }
 
       if (invoiceId) {
@@ -1276,15 +1280,23 @@ const CreateInvoice = () => {
           </Typography>
           <Grid container mt={10}>
             {sherwinPaints.map(p => {
+              if (view) {
+                if (!selectedSherwin.includes(p.d_name)) return
+              }
               return (
-                <Grid item xs={12} sm={4} key={p.name} mb={10}>
+                <Grid item xs={12} sm={4} key={p.d_name} mb={10}>
                   <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
                     <Typography variant='h5'>{p.name}</Typography>
                     <Typography>{p.sub_name}</Typography>
                     <Box width={200}>
                       <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
                     </Box>
-                    <Checkbox onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)} />
+                    {!view && (
+                      <Checkbox
+                        checked={selectedSherwin.includes(p.d_name)}
+                        onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
+                      />
+                    )}
                   </Box>
                 </Grid>
               )
@@ -1296,15 +1308,23 @@ const CreateInvoice = () => {
           </Typography>
           <Grid container mt={10}>
             {benjaminPaints.map(p => {
+              if (view) {
+                if (!selectedBenjamin.includes(p.d_name)) return
+              }
               return (
-                <Grid item xs={12} sm={4} key={p.name} mb={10}>
+                <Grid item xs={12} sm={4} key={p.d_name} mb={10}>
                   <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
                     <Typography variant='h5'>{p.name}</Typography>
                     <Typography>{p.paint_code}</Typography>
                     <Box width={200}>
                       <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
                     </Box>
-                    <Checkbox onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)} />
+                    {!view && (
+                      <Checkbox
+                        checked={selectedBenjamin.includes(p.d_name)}
+                        onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                      />
+                    )}
                   </Box>
                 </Grid>
               )

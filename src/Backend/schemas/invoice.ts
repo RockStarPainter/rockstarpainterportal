@@ -45,7 +45,9 @@ const invoiceSchema = new Schema(
     pay_link: { type: String, required: false },
     issue_date: { type: Date, required: false },
     interiorData: {},
-    exteriorData: {}
+    exteriorData: {},
+    sherwin_paints: [],
+    benjamin_paints: []
   },
   { timestamps: true }
 )
