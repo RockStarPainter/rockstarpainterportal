@@ -1,27 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Checkbox,
-  Button,
-  CircularProgress,
-  Grid,
-  FormControl,
-  TextField,
-  Typography,
-  Box,
-  Select,
-  MenuItem
-} from '@mui/material'
+import { Button, CircularProgress, FormControl, Box, Select, MenuItem } from '@mui/material'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { FormTypes, InvoiceTypes } from 'src/enums/FormTypes'
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
 import EditIcon from '@mui/icons-material/Edit'
 import Link from 'next/link'
@@ -30,7 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
 
-const Home = ({ tableId }: any) => {
+const Home = () => {
   const [data, setData] = useState<any>([])
   const router = useRouter()
   const fetchData = async () => {
@@ -43,13 +23,14 @@ const Home = ({ tableId }: any) => {
       toast.error('Error fetching data')
     }
   }
+
   useEffect(() => {
     fetchData()
   }, [])
 
   const updateStatus = async (_id: any, value: any) => {
     try {
-      const res = await axios.post('/api/update-status', { invoiceId: _id, value })
+      await axios.post('/api/update-status', { invoiceId: _id, value })
     } catch (error) {}
   }
 
@@ -169,7 +150,6 @@ const Home = ({ tableId }: any) => {
     []
   )
 
-  //pass table options to useMaterialReactTable
   const table = useMaterialReactTable({
     columns,
     data,
@@ -184,8 +164,6 @@ const Home = ({ tableId }: any) => {
     enableHiding: false
   })
 
-  //note: you can also pass table options as props directly to <MaterialReactTable /> instead of using useMaterialReactTable
-  //but the useMaterialReactTable hook will be the most recommended way to define table options
   return (
     <>
       <Box textAlign={'right'} mb={5}>

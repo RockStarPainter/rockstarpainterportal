@@ -247,10 +247,9 @@ const CreateInvoice = () => {
     const screenWidth = 1500 // Desired screen width in pixels
     const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
 
-    // Function to add a section to the PDF
     const addSectionToPdf = async (section: any, pdf: any) => {
       const canvas = await html2canvas(section, {
-        scale: 3, // Adjust as needed
+        scale: 2, // Adjust as needed
         useCORS: true,
         width: screenWidth,
         height: screenHeight,
@@ -266,19 +265,15 @@ const CreateInvoice = () => {
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST')
     }
 
-    // Add first section to the first page
     await addSectionToPdf(section1, pdf)
 
-    // Add a new page for the second section
     pdf.addPage()
 
-    // Add second section to the new page
     await addSectionToPdf(section2, pdf)
 
     pdf.addPage()
 
     if (showBenjaminPaints() || showSherwinPaints()) {
-      // Add second section to the new page
       await addSectionToPdf(section3, pdf)
 
       pdf.addPage()
@@ -286,11 +281,9 @@ const CreateInvoice = () => {
 
     // Add second section to the new page
     await addSectionToPdf(section4, pdf)
-
-    // Save the PDF locally
-    pdf.save('download.pdf')
-    const imageUrl = '/images/new-logo.png' // Path to your image in the public folder
-    const base64Image = await getBase64Image(imageUrl)
+    if (str !== 'email') {
+      pdf.save('download.pdf')
+    }
 
     // Save the PDF locally
     // if (str !== 'email') {
@@ -300,42 +293,45 @@ const CreateInvoice = () => {
     //   link.click()
     // }
     setPdfLoading(false)
-    // if (str === 'email') {
-    //   const reader = new FileReader()
-    //   reader.readAsDataURL(pdfBlob)
-    //   reader.onloadend = () => {
-    //     const base64data = reader.result as string
 
-    //     // EmailJS configuration
-    //     const serviceID = 'service_pypvnz1'
-    //     const templateID = 'template_1hlt1qp'
-    //     const userID = '1rRx93iEXQmVegiJX'
-    //     if (!allData.email) {
-    //       toast.error('No email address provided')
-    //       setemailLoading(false)
+    const pdfBlob = pdf.output('blob')
 
-    //       return
-    //     }
-    //     const templateParams = {
-    //       content: base64data,
-    //       customer_name: allData.customer_name,
-    //       to_email: allData.email
-    //     }
+    if (str === 'email') {
+      const reader = new FileReader()
+      reader.readAsDataURL(pdfBlob)
+      reader.onloadend = () => {
+        const base64data = reader.result as string
+        console.log(base64data)
+        // EmailJS configuration
+        const serviceID = 'service_pypvnz1'
+        const templateID = 'template_1hlt1qp'
+        const userID = '1rRx93iEXQmVegiJX'
+        if (!allData.email) {
+          toast.error('No email address provided')
+          setemailLoading(false)
 
-    //     emailjs
-    //       .send(serviceID, templateID, templateParams, userID)
-    //       .then(response => {
-    //         console.log('Email sent successfully:', response.status, response.text)
-    //         toast.success('Email sent')
-    //       })
-    //       .catch(error => {
-    //         console.error('Error sending email:', error)
-    //       })
-    //       .finally(() => {
-    //         setemailLoading(false)
-    //       })
-    //   }
-    // }
+          return
+        }
+        const templateParams = {
+          content: base64data,
+          customer_name: allData.customer_name,
+          to_email: allData.email
+        }
+
+        emailjs
+          .send(serviceID, templateID, templateParams, userID)
+          .then(response => {
+            console.log('Email sent successfully:', response.status, response.text)
+            toast.success('Email sent')
+          })
+          .catch(error => {
+            console.error('Error sending email:', error)
+          })
+          .finally(() => {
+            setemailLoading(false)
+          })
+      }
+    }
   }
 
   const onSubmit = async (formData: any) => {
