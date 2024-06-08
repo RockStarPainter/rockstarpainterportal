@@ -15,7 +15,9 @@ import {
   FormControl,
   TextField,
   Typography,
-  Box
+  Box,
+  Select,
+  MenuItem
 } from '@mui/material'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -26,6 +28,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
+import { statusValues } from 'src/enums'
 
 const Home = ({ tableId }: any) => {
   const [data, setData] = useState<any>([])
@@ -43,6 +46,12 @@ const Home = ({ tableId }: any) => {
   useEffect(() => {
     fetchData()
   }, [])
+
+  const updateStatus = async (_id: any, value: any) => {
+    try {
+      const res = await axios.post('/api/update-status', { invoiceId: _id, value })
+    } catch (error) {}
+  }
 
   const columns = useMemo(
     () => [
@@ -70,7 +79,39 @@ const Home = ({ tableId }: any) => {
       },
       {
         header: 'Status',
-        accessorKey: 'status' //simple recommended way to define a column
+        accessorKey: 'status', //simple recommended way to define a column,
+
+        Cell: ({ cell }: any) => {
+          const { _id } = cell.row.original
+          const defaultValue = cell.getValue() ? cell.getValue() : ''
+          const [value, setValue] = useState(defaultValue)
+
+          return (
+            <>
+              <FormControl>
+                <Select
+                  size='small'
+                  sx={{ fontSize: '14px' }}
+                  onChange={e => {
+                    setValue(e.target.value)
+                    updateStatus(_id, e.target.value)
+                  }}
+                  value={value}
+                  displayEmpty
+                  inputProps={{ 'aria-label': 'Without label' }}
+                >
+                  {statusValues.map((e: any) => {
+                    return (
+                      <MenuItem key={e} value={e}>
+                        {e}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
+            </>
+          )
+        }
       },
 
       {
