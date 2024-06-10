@@ -89,6 +89,7 @@ const CreateInvoice = () => {
     defaultValues.down_payment = ''
     defaultValues.issue_date = new Date()
     defaultValues.pay_link = ''
+    defaultValues.other_paints = ''
 
     return defaultValues
   }
@@ -153,6 +154,7 @@ const CreateInvoice = () => {
         defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
         defaultValues.pay_link = tableData.pay_link
+        defaultValues.other_paints = tableData.other_paints
         defaultValues.down_payment = tableData.down_payment
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
         setAllData(tableData)
@@ -273,7 +275,7 @@ const CreateInvoice = () => {
 
     pdf.addPage()
 
-    if (showBenjaminPaints() || showSherwinPaints()) {
+    if (showBenjaminPaints() || showSherwinPaints() || showOtherPaint()) {
       await addSectionToPdf(section3, pdf)
 
       pdf.addPage()
@@ -370,6 +372,7 @@ const CreateInvoice = () => {
         down_payment: parseInt(formData.down_payment),
         status: status,
         pay_link: formData.pay_link,
+        other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
         benjamin_paints: selectedBenjamin
       }
@@ -731,6 +734,18 @@ const CreateInvoice = () => {
   }
 
   const showBenjaminPaints = () => {
+    if (view) {
+      if (selectedBenjamin.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
+    }
+  }
+
+  const showOtherPaint = () => {
     if (view) {
       if (selectedBenjamin.length > 0) {
         return true
@@ -1406,6 +1421,31 @@ const CreateInvoice = () => {
                     )
                   })}
                 </Grid>
+              </>
+            )}{' '}
+            {showBenjaminPaints() && (
+              <>
+                <Typography variant='h4' textAlign={'center'} sx={{ mt: 8 }}>
+                  Other Paints
+                </Typography>
+
+                {!view && (
+                  <FormControl fullWidth>
+                    <Controller
+                      name='other_paints'
+                      control={control}
+                      render={({ field }) => <TextField rows={4} multiline label='Other Paints' fullWidth {...field} />}
+                    />
+                  </FormControl>
+                )}
+
+                {view && allData?.other_paints && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={150}>
+                      <Typography variant='h6'>{allData?.other_paints}</Typography>
+                    </Box>
+                  </Grid>
+                )}
               </>
             )}
           </div>
