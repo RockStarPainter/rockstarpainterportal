@@ -37,12 +37,13 @@ import { Status, statusValues } from 'src/enums'
 import Link from 'next/link'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
-import { moderateScale } from './Size'
+import { moderateScale, moderateScaleValue } from './Size'
 
 // import html2pdf from 'html2pdf.js'
 
 //Custom Libraries
 import CustomText from './CustomText'
+import PaintGridComponent from './PaintGrid'
 
 emailjs.init({
   publicKey: '1rRx93iEXQmVegiJX'
@@ -811,53 +812,33 @@ const CreateInvoice = () => {
       <div id='pdf-content' style={{ padding: 20 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div id='section1'>
-            <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-              <Box width={moderateScale(200)}>
-                <img src='/images/rockstar-logo.png' style={{ width: '100%' }} />
-              </Box>
-              <Box width={moderateScale(200)}>
-                <img src='/images/rockstarDetails.png' style={{ width: '100%' }} />
-              </Box>
-              {window.innerWidth > 1024 && (
-                <Box width={moderateScale(200)} display={'flex'} justifyContent={'end'}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={selectedOption === 'INVOICE'}
-                          onChange={handleCheckboxChange}
-                          name='INVOICE'
-                        />
-                      }
-                      label='INVOICE'
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={selectedOption === 'ESTIMATE'}
-                          onChange={handleCheckboxChange}
-                          name='ESTIMATE'
-                        />
-                      }
-                      label='ESTIMATE'
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={selectedOption === 'CONTRACT'}
-                          onChange={handleCheckboxChange}
-                          name='CONTRACT'
-                        />
-                      }
-                      label='CONTRACT'
-                    />
-                  </FormGroup>
+            <Box
+              display={'flex'}
+              alignItems={'center'}
+              flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
+              justifyContent={'space-between'}
+            >
+              <Box
+                width={window.innerWidth > 1024 ? window.innerWidth / 2 - 40 + moderateScaleValue(100) : '100%'}
+                display={'flex'}
+                alignItems={'center'}
+                justifyContent={'space-between'}
+              >
+                <Box width={moderateScale(200)}>
+                  <img src='/images/rockstar-logo.png' style={{ width: '100%' }} />
                 </Box>
-              )}
-            </Box>
-            {window.innerWidth > 1024 === false && (
-              <Box width={'100%'} display={'flex'} justifyContent={'center'} marginTop={'20px'}>
-                <FormGroup row={true}>
+                <Box width={moderateScale(200)}>
+                  <img src='/images/rockstarDetails.png' style={{ width: '100%' }} />
+                </Box>
+              </Box>
+
+              <Box
+                width={window.innerWidth > 1024 ? moderateScale(200) : '100%'}
+                display={'flex'}
+                justifyContent={window.innerWidth > 1024 ? 'end' : 'center'}
+                marginTop={window.innerWidth > 1024 ? 0 : '20px'}
+              >
+                <FormGroup row={window.innerWidth > 1024 ? false : true}>
                   <FormControlLabel
                     control={
                       <Checkbox checked={selectedOption === 'INVOICE'} onChange={handleCheckboxChange} name='INVOICE' />
@@ -886,8 +867,7 @@ const CreateInvoice = () => {
                   />
                 </FormGroup>
               </Box>
-            )}
-
+            </Box>
             {/* <Button onClick={() => reset()}>Reset</Button> */}
             <CustomText>CUSTOMER DETAILS</CustomText>
 
@@ -989,7 +969,12 @@ const CreateInvoice = () => {
             {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
                 <CustomText>INTERIOR</CustomText>
-                <Box marginLeft={window.innerWidth > 1024 ? '2%' : 0} display={'flex'} justifyContent={'space-between'}>
+                <Box
+                  marginLeft={window.innerWidth > 1024 ? '2%' : 0}
+                  display={'flex'}
+                  flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
+                  justifyContent={'space-between'}
+                >
                   <TableContainer
                     component={Paper}
                     sx={{
@@ -1052,8 +1037,18 @@ const CreateInvoice = () => {
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  {window.innerWidth > 1024 && (
-                    <Box sx={{ width: '35%' }}>
+
+                  <Box
+                    sx={{
+                      width: window.innerWidth > 1024 ? '35%' : '100%',
+                      marginTop: window.innerWidth > 1024 ? 0 : '20px'
+                    }}
+                  >
+                    <Box
+                      flexDirection={window.innerWidth > 1024 ? 'column' : 'row'}
+                      display={'flex'}
+                      justifyContent={'space-between'}
+                    >
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
@@ -1071,138 +1066,7 @@ const CreateInvoice = () => {
                           <Typography variant='h6'>{allData?.interiorData?.paint_textarea}</Typography>
                         </Box>
                       )}
-                      <Box sx={{ mt: 10 }}></Box>
-                      {!view && (
-                        <FormControl fullWidth>
-                          <Controller
-                            name='interiorData.stain_textarea'
-                            control={control}
-                            render={({ field }) => <TextField rows={4} multiline label='Stain' fullWidth {...field} />}
-                          />
-                        </FormControl>
-                      )}
-                      {view && allData?.interiorData?.stain_textarea && (
-                        <Box minHeight={150}>
-                          <Typography variant='h5' fontWeight={'bold'}>
-                            Stain :{' '}
-                          </Typography>
-                          <Typography variant='h6'>{allData?.interiorData?.stain_textarea}</Typography>
-                        </Box>
-                      )}
-                      {showInteriorWindow() && (
-                        <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
-                          <Table>
-                            <TableHead>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              ></TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> YES </p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>NO</p>
-                              </TableCell>
-                            </TableHead>
-                            <TableBody>
-                              <TableRow key={'0'}>
-                                <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                                  WINDOW TRIM
-                                </TableCell>
-                                <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-${0}-col-${1 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                                <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-${0}-col-${2 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                              </TableRow>
-                              <TableRow key={'1'}>
-                                <TableCell sx={{ border: '1px solid black' }}>WINDOW SEAL</TableCell>
-                                <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-${1}-col-${1 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                                <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-${1}-col-${2 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      )}
-                      {showExtras() && (
-                        <Grid container sx={{ mt: 10 }}>
-                          {extrasArray.map((e: any) => {
-                            return (
-                              <Grid item xs={12} sm={6} key={e.name}>
-                                <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                  <Typography width={'50%'} variant='h6'>
-                                    {e.label}
-                                  </Typography>
-                                  <Controller
-                                    name={e.name}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </Box>
-                              </Grid>
-                            )
-                          })}
-                        </Grid>
-                      )}
-                    </Box>
-                  )}
-                </Box>
-                {window.innerWidth > 1024 === false && (
-                  <Box sx={{ width: '100%', marginTop: '20px' }}>
-                    <Box flexDirection={'row'} display={'flex'} justifyContent={'space-between'}>
-                      {!view && (
-                        <FormControl fullWidth>
-                          <Controller
-                            name='interiorData.paint_textarea'
-                            control={control}
-                            render={({ field }) => <TextField rows={4} multiline label='Paint' fullWidth {...field} />}
-                          />
-                        </FormControl>
-                      )}
-                      {view && allData?.interiorData?.paint_textarea && (
-                        <Box minHeight={150}>
-                          <Typography variant='h5' fontWeight={'bold'}>
-                            Paint :{' '}
-                          </Typography>
-                          <Typography variant='h6'>{allData?.interiorData?.paint_textarea}</Typography>
-                        </Box>
-                      )}
-                      <Box sx={{ width: 10 }}></Box>
+                      <Box sx={{ width: 10, height: 10 }}></Box>
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
@@ -1304,7 +1168,7 @@ const CreateInvoice = () => {
                       </Grid>
                     )}
                   </Box>
-                )}
+                </Box>
               </>
             )}
           </div>
@@ -1313,8 +1177,12 @@ const CreateInvoice = () => {
             {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
                 <CustomText>EXTERIOR</CustomText>
-
-                <Box marginLeft={window.innerWidth > 1024 ? '2%' : 0} display={'flex'} justifyContent={'space-between'}>
+                <Box
+                  marginLeft={window.innerWidth > 1024 ? '2%' : 0}
+                  display={'flex'}
+                  flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
+                  justifyContent={'space-between'}
+                >
                   <TableContainer
                     component={Paper}
                     sx={{ borderRadius: 0, width: window.innerWidth > 1024 ? '820px' : '100%', height: '100%' }}
@@ -1373,8 +1241,18 @@ const CreateInvoice = () => {
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  {window.innerWidth > 1024 && (
-                    <Box sx={{ width: '35%' }}>
+
+                  <Box
+                    sx={{
+                      width: window.innerWidth > 1024 ? '35%' : '100%',
+                      marginTop: window.innerWidth > 1024 ? 0 : '20px'
+                    }}
+                  >
+                    <Box
+                      flexDirection={window.innerWidth > 1024 ? 'column' : 'row'}
+                      display={'flex'}
+                      justifyContent={'space-between'}
+                    >
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
@@ -1392,151 +1270,7 @@ const CreateInvoice = () => {
                           <Typography variant='h6'>{allData?.exteriorData?.paint_textarea}</Typography>
                         </Box>
                       )}
-                      <Box sx={{ mt: 10 }}></Box>
-                      {!view && (
-                        <FormControl fullWidth>
-                          <Controller
-                            name='exteriorData.stain_textarea'
-                            control={control}
-                            render={({ field }) => <TextField rows={4} multiline label='Stain' fullWidth {...field} />}
-                          />
-                        </FormControl>
-                      )}
-                      {view && allData?.exteriorData?.stain_textarea && (
-                        <Box minHeight={150}>
-                          <Typography variant='h5' fontWeight={'bold'}>
-                            Stain :{' '}
-                          </Typography>
-                          <Typography variant='h6'>{allData?.exteriorData?.stain_textarea}</Typography>
-                        </Box>
-                      )}
-                      {showExteriorWindow() && (
-                        <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
-                          <Table>
-                            <TableHead>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              ></TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.8rem' }}> SIDING</p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.8rem' }}> FACIAL </p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.8rem' }}> TRIM </p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.8rem' }}> SOFFITS </p>
-                              </TableCell>
-                            </TableHead>
-                            <TableBody>
-                              <TableRow key={'0'}>
-                                <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                                  REPAIRS
-                                </TableCell>
-
-                                <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-${0}-col-${1 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-
-                                <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-${0}-col-${2 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                                <TableCell key={'3'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-${0}-col-${3 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                                <TableCell key={'4'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-${0}-col-${4 + 1}`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      )}
-                      {showExteriorExtras() && (
-                        <Grid container sx={{ mt: 10 }}>
-                          {exteriorExtrasArray.map((e: any) => {
-                            return (
-                              <Grid item xs={12} sm={6} key={e.name}>
-                                <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                  <Typography width={'50%'} variant='h6'>
-                                    {e.label}
-                                  </Typography>
-                                  <Controller
-                                    name={e.name}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }) => <Checkbox {...field} checked={field.value} />}
-                                  />
-                                </Box>
-                              </Grid>
-                            )
-                          })}
-                        </Grid>
-                      )}
-                    </Box>
-                  )}
-                </Box>
-                {window.innerWidth > 1024 === false && (
-                  <Box sx={{ width: '100%', marginTop: '20px' }}>
-                    <Box display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
-                      {!view && (
-                        <FormControl fullWidth>
-                          <Controller
-                            name='exteriorData.paint_textarea'
-                            control={control}
-                            render={({ field }) => <TextField rows={4} multiline label='Paint' fullWidth {...field} />}
-                          />
-                        </FormControl>
-                      )}
-                      {view && allData?.exteriorData?.paint_textarea && (
-                        <Box minHeight={150}>
-                          <Typography variant='h5' fontWeight={'bold'}>
-                            Paint :{' '}
-                          </Typography>
-                          <Typography variant='h6'>{allData?.exteriorData?.paint_textarea}</Typography>
-                        </Box>
-                      )}
-                      <Box sx={{ width: 10 }}></Box>
+                      <Box sx={{ width: 10, height: 10 }}></Box>
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
@@ -1643,7 +1377,7 @@ const CreateInvoice = () => {
                       </Grid>
                     )}
                   </Box>
-                )}
+                </Box>
               </>
             )}
           </div>
@@ -1651,28 +1385,20 @@ const CreateInvoice = () => {
             {showSherwinPaints() && (
               <>
                 <CustomText>Brand Sherwin Williams Paints</CustomText>
-
                 <Grid container mt={10}>
                   {sherwinPaints.map(p => {
                     if (view) {
                       if (!selectedSherwin.includes(p.d_name)) return
                     }
                     return (
-                      <Grid item xs={12} sm={4} key={p.d_name} mb={10}>
-                        <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
-                          <Typography variant='h5'>{p.name}</Typography>
-                          <Typography variant='h6'>{p.sub_name}</Typography>
-                          <Box width={140}>
-                            <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
-                          </Box>
-                          {!view && (
-                            <Checkbox
-                              checked={selectedSherwin.includes(p.d_name)}
-                              onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
-                            />
-                          )}
-                        </Box>
-                      </Grid>
+                      <PaintGridComponent
+                        image={p.img}
+                        title={p.name}
+                        subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 && '..'}`}
+                        checked={selectedBenjamin.includes(p.d_name)}
+                        onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                        key={p.d_name}
+                      />
                     )
                   })}
                 </Grid>
@@ -1687,21 +1413,14 @@ const CreateInvoice = () => {
                       if (!selectedBenjamin.includes(p.d_name)) return
                     }
                     return (
-                      <Grid item xs={12} sm={4} key={p.d_name} mb={10}>
-                        <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>
-                          <Typography variant='h5'>{p.name}</Typography>
-                          <Typography variant='h6'>{p.paint_code}</Typography>
-                          <Box width={140}>
-                            <img style={{ width: '100%', marginTop: '8px' }} src={p.img} />
-                          </Box>
-                          {!view && (
-                            <Checkbox
-                              checked={selectedBenjamin.includes(p.d_name)}
-                              onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
-                            />
-                          )}
-                        </Box>
-                      </Grid>
+                      <PaintGridComponent
+                        image={p.img}
+                        title={p.name}
+                        subText={p.paint_code}
+                        checked={selectedBenjamin.includes(p.d_name)}
+                        onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                        key={p.d_name}
+                      />
                     )
                   })}
                 </Grid>
@@ -1709,10 +1428,7 @@ const CreateInvoice = () => {
             )}{' '}
             {showBenjaminPaints() && (
               <>
-                <Typography variant='h4' textAlign={'center'} sx={{ mt: 8 }}>
-                  Other Paints
-                </Typography>
-
+                <CustomText>Other Paints</CustomText>
                 {!view && (
                   <FormControl fullWidth>
                     <Controller
