@@ -15,6 +15,8 @@ import themeConfig from 'src/configs/themeConfig'
 // ** Type Import
 import { LayoutProps } from 'src/@core/layouts/types'
 
+import { useRouter } from 'next/router'
+
 // ** Components
 import AppBar from './components/vertical/appBar'
 import Customizer from 'src/@core/components/customizer'
@@ -47,6 +49,7 @@ const ContentWrapper = styled('main')(({ theme }) => ({
 }))
 
 const VerticalLayout = (props: LayoutProps) => {
+  const router = useRouter()
   // ** Props
   const { hidden, settings, children, scrollToTop, footerProps, contentHeightFixed, verticalLayoutProps } = props
 
@@ -61,7 +64,8 @@ const VerticalLayout = (props: LayoutProps) => {
   const [navVisible, setNavVisible] = useState<boolean>(false)
 
   // ** Toggle Functions
-  const toggleNavVisibility = () => setNavVisible(!navVisible)
+  // const toggleNavVisibility = () => setNavVisible(!navVisible)
+  const toggleNavVisibility = () => router.back()
 
   return (
     <>
