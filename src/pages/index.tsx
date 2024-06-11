@@ -56,6 +56,14 @@ const Home = () => {
     fetchData()
   }, [])
 
+  const updateStatus = async (_id: any, value: any) => {
+    try {
+      await axios.post('/api/update-status', { invoiceId: _id, value })
+      toast.success('Status Updated Successfully')
+    } catch (error) {
+      toast.error('Error To Update Status')
+    }
+  }
   const handleDeleteClick = (invoiceId: string) => {
     setSelectedInvoice(invoiceId)
     setOpenDialog(true)

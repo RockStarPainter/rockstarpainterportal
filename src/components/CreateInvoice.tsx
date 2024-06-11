@@ -123,6 +123,7 @@ const CreateInvoice = () => {
   }
 
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
+
   // const headers = ['YES', 'NO', 'WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
   const eheaders = ['YES', 'NO']
   useEffect(() => {
@@ -310,6 +311,7 @@ const CreateInvoice = () => {
       reader.onloadend = () => {
         const base64data = reader.result as string
         console.log(base64data)
+
         // EmailJS configuration
         const serviceID = 'service_pypvnz1'
         const templateID = 'template_1hlt1qp'
@@ -1390,14 +1392,16 @@ const CreateInvoice = () => {
                     if (view) {
                       if (!selectedSherwin.includes(p.d_name)) return
                     }
+
                     return (
                       <PaintGridComponent
                         image={p.img}
                         title={p.name}
                         subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 && '..'}`}
-                        checked={selectedBenjamin.includes(p.d_name)}
-                        onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                        checked={selectedSherwin.includes(p.d_name)}
+                        onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
                         key={p.d_name}
+                        view={view}
                       />
                     )
                   })}
@@ -1412,6 +1416,7 @@ const CreateInvoice = () => {
                     if (view) {
                       if (!selectedBenjamin.includes(p.d_name)) return
                     }
+
                     return (
                       <PaintGridComponent
                         image={p.img}
@@ -1420,12 +1425,13 @@ const CreateInvoice = () => {
                         checked={selectedBenjamin.includes(p.d_name)}
                         onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
                         key={p.d_name}
+                        view={view}
                       />
                     )
                   })}
                 </Grid>
               </>
-            )}{' '}
+            )}
             {showBenjaminPaints() && (
               <>
                 <CustomText>Other Paints</CustomText>
