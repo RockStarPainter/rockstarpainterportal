@@ -1,5 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Button, CircularProgress, FormControl, Box, Select, MenuItem } from '@mui/material'
+import { useForm, Controller } from 'react-hook-form'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Checkbox,
+  Button,
+  CircularProgress,
+  Grid,
+  FormControl,
+  TextField,
+  Typography,
+  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
+} from '@mui/material'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'
@@ -12,7 +34,11 @@ import { statusValues } from 'src/enums'
 
 const Home = () => {
   const [data, setData] = useState<any>([])
+  const [openDialog, setOpenDialog] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   const router = useRouter()
+
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/get-all')
@@ -28,10 +54,34 @@ const Home = () => {
     fetchData()
   }, [])
 
-  const updateStatus = async (_id: any, value: any) => {
+  const handleDeleteClick = (invoiceId: string) => {
+    setSelectedInvoice(invoiceId)
+    setOpenDialog(true)
+  }
+
+  const handleConfirmDelete = async () => {
     try {
-      await axios.post('/api/update-status', { invoiceId: _id, value })
-    } catch (error) {}
+      setDeleting(true)
+      await axios.post('/api/delete', { invoiceId: selectedInvoice })
+      setData((prev: any) => {
+        return prev.filter((p: any) => {
+          return p._id !== selectedInvoice
+        })
+      })
+      toast.success('Invoice deleted successfully')
+    } catch (error) {
+      console.log(error)
+      toast.error('Network Error')
+    } finally {
+      setDeleting(false)
+      setOpenDialog(false)
+      setSelectedInvoice(null)
+    }
+  }
+
+  const handleCancelDelete = () => {
+    setOpenDialog(false)
+    setSelectedInvoice(null)
   }
 
   const columns = useMemo(
@@ -100,64 +150,42 @@ const Home = () => {
         accessorKey: 'actions',
         Cell: ({ cell }: any) => {
           const { _id } = cell.row.original
-          const [deleting, setDeleting] = useState(false)
 
           return (
-            <>
-              <Box display={'flex'}>
-                <div
-                  onClick={() => {
-                    router.push(`create?invoiceId=${_id}&view=true`)
-                  }}
-                >
-                  <RemoveRedEyeIcon />
-                </div>
-                <div style={{ width: '15px' }}></div>
-                <div
-                  onClick={() => {
-                    router.push(`create?invoiceId=${_id}`)
-                  }}
-                >
-                  <EditIcon />
-                </div>
-                <div style={{ width: '15px' }}></div>
-                <div
-                  onClick={async () => {
-                    try {
-                      setDeleting(true)
-                      await axios.post('/api/delete', { invoiceId: _id })
-                      setData((prev: any) => {
-                        return prev.filter((p: any) => {
-                          return p._id !== _id
-                        })
-                      })
-                    } catch (error) {
-                      console.log(error)
-                      toast.error('Network Error')
-                    } finally {
-                      setDeleting(false)
-                    }
-                  }}
-                >
-                  {deleting ? <CircularProgress size={25} /> : <DeleteIcon />}
-                </div>
-              </Box>
-            </>
+            <Box display={'flex'}>
+              <div
+                onClick={() => {
+                  router.push(`create?invoiceId=${_id}&view=true`)
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <RemoveRedEyeIcon />
+              </div>
+              <div style={{ width: '15px' }}></div>
+              <div
+                onClick={() => {
+                  router.push(`create?invoiceId=${_id}`)
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                <EditIcon />
+              </div>
+              <div style={{ width: '15px' }}></div>
+              <div onClick={() => handleDeleteClick(_id)} style={{ cursor: 'pointer' }}>
+                {deleting && selectedInvoice === _id ? <CircularProgress size={25} /> : <DeleteIcon />}
+              </div>
+            </Box>
           )
         }
       }
     ],
-    []
+    [deleting, selectedInvoice, router]
   )
 
   const table = useMaterialReactTable({
     columns,
     data,
     enableColumnActions: false,
-
-    // enableColumnFilters: false,
-    // enablePagination: false,
-
     enableSorting: false,
     enableDensityToggle: false,
     enableFullScreenToggle: false,
@@ -172,6 +200,22 @@ const Home = () => {
         </Link>
       </Box>
       <MaterialReactTable table={table} />
+      <Dialog open={openDialog} onClose={handleCancelDelete}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this invoice? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelDelete} color='primary'>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color='primary' autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
