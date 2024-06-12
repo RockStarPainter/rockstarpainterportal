@@ -265,13 +265,13 @@ const CreateInvoice = () => {
         windowWidth: screenWidth
       })
 
-      const imgData = canvas.toDataURL('image/jpeg', 1) // Adjust quality as needed
+      const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
 
       const imgProps = pdf.getImageProperties(imgData)
       const imgWidth = pdfWidth
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      pdf.addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST')
     }
 
     await addSectionToPdf(section1, pdf)
@@ -817,13 +817,11 @@ const CreateInvoice = () => {
             <Box
               display={'flex'}
               alignItems={'center'}
-              flexDirection={'column'}
-              // flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
+              flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
               justifyContent={'space-between'}
             >
               <Box
-                width={'100%'}
-                // width={window.innerWidth > 1024 ? window.innerWidth / 2 - 40 + moderateScaleValue(100) : '100%'}
+                width={window.innerWidth > 1024 ? window.innerWidth / 2 - 40 + moderateScaleValue(100) : '100%'}
                 display={'flex'}
                 alignItems={'center'}
                 justifyContent={'space-between'}
@@ -837,18 +835,12 @@ const CreateInvoice = () => {
               </Box>
 
               <Box
-                width={'100%'}
-                // width={window.innerWidth > 1024 ? moderateScale(200) : '100%'}
+                width={window.innerWidth > 1024 ? moderateScale(200) : '100%'}
                 display={'flex'}
-                justifyContent={'center'}
-                // justifyContent={window.innerWidth > 1024 ? 'end' : 'center'}
-                marginTop={'20px'}
-                // marginTop={window.innerWidth > 1024 ? 0 : '20px'}
+                justifyContent={window.innerWidth > 1024 ? 'end' : 'center'}
+                marginTop={window.innerWidth > 1024 ? 0 : '20px'}
               >
-                <FormGroup
-                  row={true}
-                  //  row={window.innerWidth > 1024 ? false : true}
-                >
+                <FormGroup row={window.innerWidth > 1024 ? false : true}>
                   <FormControlLabel
                     control={
                       <Checkbox checked={selectedOption === 'INVOICE'} onChange={handleCheckboxChange} name='INVOICE' />
@@ -978,9 +970,7 @@ const CreateInvoice = () => {
             )}
             {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
-                <div className='beforeClass'>
-                  <CustomText>INTERIOR</CustomText>
-                </div>
+                <CustomText>INTERIOR</CustomText>
                 <Box
                   marginLeft={window.innerWidth > 1024 ? '2%' : 0}
                   display={'flex'}
@@ -1185,7 +1175,7 @@ const CreateInvoice = () => {
             )}
           </div>
           {/* exterior below */}
-          <div id='section2' className='beforeClass'>
+          <div id='section2'>
             {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
                 <CustomText>EXTERIOR</CustomText>
@@ -1393,7 +1383,7 @@ const CreateInvoice = () => {
               </>
             )}
           </div>
-          <div id='section3' className='beforeClass'>
+          <div id='section3'>
             {showSherwinPaints() && (
               <>
                 <CustomText>Brand Sherwin Williams Paints</CustomText>
@@ -1487,7 +1477,7 @@ const CreateInvoice = () => {
             </Box>
           </Box>
         </Box> */}
-          <div className='beforeClass' id='section4'>
+          <div id='section4'>
             <CustomText>PAYMENT DETAILS</CustomText>
             <Grid container spacing={5} mt={5} mb={10}>
               <Grid item xs={12} sm={3}>

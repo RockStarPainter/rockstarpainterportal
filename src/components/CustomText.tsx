@@ -2,12 +2,7 @@ import React from 'react'
 import { Box, Typography } from '@mui/material'
 import { moderateScale } from './Size'
 
-interface CustomTextProps {
-  children: string
-}
-
-const CustomText = (props: CustomTextProps) => {
-  const { children } = props
+const CustomText = ({ children }) => {
   return (
     <Box display={'flex'} flexDirection={'row'} justifyContent={'center'} alignItems={'center'} margin={10}>
       {children.split(' ').map(k => {
