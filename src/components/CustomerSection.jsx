@@ -39,19 +39,8 @@ const CustomerSection = ({ selectedOption, setSelectedOption }) => {
   }
 
   return (
-    <Box
-      display={'flex'}
-      alignItems={'center'}
-      flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
-      justifyContent={'space-between'}
-      marginTop={'2%'}
-    >
-      <Box
-        width={window.innerWidth > 1024 ? window.innerWidth / 2 - 40 + 100 : '100%'}
-        display={'flex'}
-        alignItems={'center'}
-        justifyContent={'space-between'}
-      >
+    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} justifyContent={'center'} marginTop={'2%'}>
+      <Box width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
         <Box width={250}>
           <img src='/images/rockstar-logo.png' style={{ width: '100%' }} />
         </Box>
@@ -60,8 +49,8 @@ const CustomerSection = ({ selectedOption, setSelectedOption }) => {
         </Box>
       </Box>
 
-      <Box width={window.innerWidth > 1024 ? 200 : '100%'}>
-        <FormGroup row={window.innerWidth > 1024 ? false : true}>
+      <Box width={'100%'} justifyContent={'center'} display={'flex'}>
+        <FormGroup row={true}>
           {renderCheckbox('INVOICE', 'INVOICE')}
           {renderCheckbox('ESTIMATE', 'ESTIMATE')}
           {renderCheckbox('CONTRACT', 'CONTRACT')}

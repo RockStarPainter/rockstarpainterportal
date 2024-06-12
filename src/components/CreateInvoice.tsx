@@ -275,7 +275,7 @@ const CreateInvoice = () => {
       const imgWidth = pdfWidth
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight, undefined, 'FAST')
+      pdf.addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
     }
 
     await addSectionToPdf(section1, pdf)
