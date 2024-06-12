@@ -2,7 +2,7 @@ import React from 'react'
 import { Grid, Box, Typography, Checkbox } from '@mui/material'
 import { moderateScale } from './Size'
 
-const PaintGridComponent = ({ image, title, subText, view, checked, onClick, key }) => {
+const PaintGridComponent = ({ image, title, subText, view, checked, onClick, key }: any) => {
   return (
     <Grid item xs={12} sm={4} key={key} mb={10}>
       <Box display={'flex'} flexDirection={'column'} justifyContent={'center'} alignItems={'center'}>

@@ -52,7 +52,7 @@ const Home = () => {
       toast.error('Error To Update Status')
     }
   }
-  const handleDeleteClick = (invoiceId: string) => {
+  const handleDeleteClick = (invoiceId: any) => {
     setSelectedInvoice(invoiceId)
     setOpenDialog(true)
   }

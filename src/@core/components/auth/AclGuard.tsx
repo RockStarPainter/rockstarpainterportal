@@ -36,7 +36,7 @@ const AclGuard = (props: AclGuardProps) => {
   const { aclAbilities, children, guestGuard = false, authGuard = true } = props
 
   // ** Hooks
-  const auth = useAuth()
+  const auth: any = useAuth()
   const router = useRouter()
 
   // ** Vars

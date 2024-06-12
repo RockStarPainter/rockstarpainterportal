@@ -20,7 +20,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
   Divider
 } from '@mui/material'
 import axios from 'axios'
@@ -120,9 +119,9 @@ const CreateInvoice = () => {
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
 
-  const handleCheckboxChange = (event: any) => {
-    setSelectedOption(event.target.name)
-  }
+  // const handleCheckboxChange = (event: any) => {
+  //   setSelectedOption(event.target.name)
+  // }
 
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
 
@@ -221,23 +220,6 @@ const CreateInvoice = () => {
     }
   }, [invoiceId])
 
-  const getBase64Image = (url: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest()
-      xhr.onload = function () {
-        const reader = new FileReader()
-        reader.onloadend = function () {
-          resolve(reader.result as string)
-        }
-        reader.readAsDataURL(xhr.response)
-      }
-      xhr.onerror = reject
-      xhr.open('GET', url)
-      xhr.responseType = 'blob'
-      xhr.send()
-    })
-  }
-
   const generatePdf = async (str?: string) => {
     if (typeof window === 'undefined') return
     if (str !== 'email') {
@@ -245,9 +227,7 @@ const CreateInvoice = () => {
     } else {
       setemailLoading(true)
     }
-    const html2pdf = (await import('html2pdf.js')).default
 
-    const input = document.getElementById('pdf-content') as HTMLElement
     const section1 = document.getElementById('section1') // First section
     const section2 = document.getElementById('section2') // Second section
     const section3 = document.getElementById('section3') // Second section
@@ -551,15 +531,16 @@ const CreateInvoice = () => {
       } else return false
     } else return true
   }
-  const showSingleExtra = (name: any) => {
-    if (view) {
-      if (getValues(name)) {
-        return true
-      } else return false
-    }
 
-    return true
-  }
+  // const showSingleExtra = (name: any) => {
+  //   if (view) {
+  //     if (getValues(name)) {
+  //       return true
+  //     } else return false
+  //   }
+
+  //   return true
+  // }
 
   const showInteriorWindow = () => {
     if (view) {
@@ -780,7 +761,7 @@ const CreateInvoice = () => {
         <FallbackSpinner />
       </div>
     )
-  const StyledTypography = styled(Typography)(({ theme }) => ({
+  const StyledTypography = styled(Typography)(({ theme }: any) => ({
     color: '#323232', // Text color from your theme
     fontSize: '2rem',
     fontWeight: 'bold',
@@ -794,28 +775,28 @@ const CreateInvoice = () => {
     margin: '2%'
   }))
 
-  const renderCheckbox = (name: any, label: any) => {
-    const isChecked = selectedOption === name
-    if (view && !isChecked) {
-      return null
-    }
+  // const renderCheckbox = (name: any, label: any) => {
+  //   const isChecked = selectedOption === name
+  //   if (view && !isChecked) {
+  //     return null
+  //   }
 
-    return (
-      <FormControlLabel
-        key={name}
-        control={
-          <Box display='flex' alignItems='center'>
-            {view && isChecked ? (
-              <CheckCircleIcon sx={{ color: green[500] }} />
-            ) : (
-              <Checkbox checked={isChecked} onChange={handleCheckboxChange} name={name} />
-            )}
-          </Box>
-        }
-        label={label}
-      />
-    )
-  }
+  //   return (
+  //     <FormControlLabel
+  //       key={name}
+  //       control={
+  //         <Box display='flex' alignItems='center'>
+  //           {view && isChecked ? (
+  //             <CheckCircleIcon sx={{ color: green[500] }} />
+  //           ) : (
+  //             <Checkbox checked={isChecked} onChange={handleCheckboxChange} name={name} />
+  //           )}
+  //         </Box>
+  //       }
+  //       label={label}
+  //     />
+  //   )
+  // }
 
   return (
     <Box>
@@ -992,9 +973,9 @@ const CreateInvoice = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {data.map((row, rowIndex) => {
+                        {data.map((row: any, rowIndex: any) => {
                           let rowFilled = false
-                          row.columns.forEach((c, i) => {
+                          row.columns.forEach((c: any, i: any) => {
                             if (getValues(`interiorRows.row-${rowIndex}-col-${i + 1}`)) {
                               rowFilled = true
                             }
@@ -1006,13 +987,13 @@ const CreateInvoice = () => {
                               <TableCell sx={{ border: '1px solid black' }}>
                                 <p style={{ fontWeight: 'bold' }}>{row.name}</p>
                               </TableCell>
-                              {row.columns.map((column, colIndex) => (
+                              {row.columns.map((column: any, colIndex: any) => (
                                 <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
                                   <Controller
                                     name={`interiorRows.row-${rowIndex}-col-${colIndex + 1}`}
                                     control={control}
                                     defaultValue={column.value}
-                                    render={({ field }) =>
+                                    render={({ field }: any) =>
                                       (view && field.value) || !view ? (
                                         <Checkbox
                                           {...field}
@@ -1032,7 +1013,9 @@ const CreateInvoice = () => {
                                           }
                                           checked={field.value}
                                         />
-                                      ) : null
+                                      ) : (
+                                        <></>
+                                      )
                                     }
                                   />
                                 </TableCell>
@@ -1127,7 +1110,7 @@ const CreateInvoice = () => {
                                   name={`interiorData.window.row-0-col-2`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1148,7 +1131,9 @@ const CreateInvoice = () => {
                                         checked={field.value}
                                         onChange={e => field.onChange(e.target.checked)}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1157,7 +1142,7 @@ const CreateInvoice = () => {
                                   name={`interiorData.window.row-0-col-3`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1178,7 +1163,9 @@ const CreateInvoice = () => {
                                         checked={field.value}
                                         onChange={e => field.onChange(e.target.checked)}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1190,7 +1177,7 @@ const CreateInvoice = () => {
                                   name={`interiorData.window.row-1-col-2`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1211,7 +1198,9 @@ const CreateInvoice = () => {
                                         checked={field.value}
                                         onChange={e => field.onChange(e.target.checked)}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1220,7 +1209,7 @@ const CreateInvoice = () => {
                                   name={`interiorData.window.row-1-col-3`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1241,7 +1230,9 @@ const CreateInvoice = () => {
                                         checked={field.value}
                                         onChange={e => field.onChange(e.target.checked)}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1341,9 +1332,9 @@ const CreateInvoice = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {exteriorData.map((row, rowIndex) => {
+                        {exteriorData.map((row: any, rowIndex: any) => {
                           let rowFilled = false
-                          row.columns.forEach((c, i) => {
+                          row.columns.forEach((c: any, i: any) => {
                             if (getValues(`exteriorRows.row-${rowIndex}-col-${i + 1}`)) {
                               rowFilled = true
                             }
@@ -1353,13 +1344,13 @@ const CreateInvoice = () => {
                           return rowFilled ? (
                             <TableRow key={rowIndex}>
                               <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
-                              {row.columns.map((column, colIndex) => (
+                              {row.columns.map((column: any, colIndex: any) => (
                                 <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
                                   <Controller
                                     name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
                                     control={control}
                                     defaultValue={column.value}
-                                    render={({ field }) =>
+                                    render={({ field }: any) =>
                                       (view && field.value) || !view ? (
                                         <Checkbox
                                           {...field}
@@ -1379,7 +1370,9 @@ const CreateInvoice = () => {
                                           }
                                           checked={field.value}
                                         />
-                                      ) : null
+                                      ) : (
+                                        <></>
+                                      )
                                     }
                                   />
                                 </TableCell>
@@ -1470,7 +1463,7 @@ const CreateInvoice = () => {
                                   name={`exteriorData.window.row-0-col-2`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1490,7 +1483,9 @@ const CreateInvoice = () => {
                                         }
                                         checked={field.value}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1499,7 +1494,7 @@ const CreateInvoice = () => {
                                   name={`exteriorData.window.row-0-col-3`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1519,7 +1514,9 @@ const CreateInvoice = () => {
                                         }
                                         checked={field.value}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1528,7 +1525,7 @@ const CreateInvoice = () => {
                                   name={`exteriorData.window.row-0-col-4`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1548,7 +1545,9 @@ const CreateInvoice = () => {
                                         }
                                         checked={field.value}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1557,7 +1556,7 @@ const CreateInvoice = () => {
                                   name={`exteriorData.window.row-0-col-5`}
                                   control={control}
                                   defaultValue={false}
-                                  render={({ field }) =>
+                                  render={({ field }: any) =>
                                     (view && field.value) || !view ? (
                                       <Checkbox
                                         {...field}
@@ -1577,7 +1576,9 @@ const CreateInvoice = () => {
                                         }
                                         checked={field.value}
                                       />
-                                    ) : null
+                                    ) : (
+                                      <></>
+                                    )
                                   }
                                 />
                               </TableCell>
@@ -1823,6 +1824,7 @@ const CreateInvoice = () => {
               </Grid>
             </>
           </div>
+
           {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
             APPROVED AND ACCEPTED
@@ -1845,6 +1847,7 @@ const CreateInvoice = () => {
             </Box>
           </Box>
         </Box> */}
+
           {!view && (
             <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
               {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
