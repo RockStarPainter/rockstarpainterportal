@@ -20,34 +20,32 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormGroup,
   FormControlLabel,
   Divider
 } from '@mui/material'
 import axios from 'axios'
-import toast, { LoaderIcon } from 'react-hot-toast'
 import { InvoiceTypes, InvoiceTypesValues } from 'src/enums/FormTypes'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import emailjs from '@emailjs/browser'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
-import Create from 'src/pages/create'
+
+// import Create from 'src/pages/create'
 import { Status, statusValues } from 'src/enums'
 import Link from 'next/link'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas'
-import { moderateScale, moderateScaleValue } from './Size'
 import { green } from '@mui/material/colors'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 // import html2pdf from 'html2pdf.js'
 
 //Custom Libraries
-import CustomText from './CustomText'
 import PaintGridComponent from './PaintGrid'
 import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
+import { toast } from 'react-hot-toast'
 
 emailjs.init({
   publicKey: '1rRx93iEXQmVegiJX'
@@ -126,7 +124,7 @@ const CreateInvoice = () => {
     setSelectedOption(event.target.name)
   }
 
-  const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
+  const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
 
   // const headers = ['YES', 'NO', 'WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
   const eheaders = ['YES', 'NO']
@@ -389,14 +387,14 @@ const CreateInvoice = () => {
 
       if (invoiceId) {
         await axios.post(`/api/update`, { payload, invoiceId })
+        toast.success('Updated Successfully')
       } else {
         const res = await axios.post('/api/create-invoice', payload)
-
         reset(defaultValues)
         setSelectedOption('')
-        console.log(res.data)
         const { _id } = res.data.payload.invoice
         router.push(`create?invoiceId=${_id}&view=true`)
+        toast.success('Invoice created successfully')
       }
     } catch (error) {
       console.log(error)
@@ -856,7 +854,7 @@ const CreateInvoice = () => {
             <Grid container spacing={5}>
               {customerDetailsArray.map((c: any) => {
                 return (
-                  <Grid item xs={12} sm={6} md={4} lg={3}>
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={c.name}>
                     {!view &&
                       (c.name === 'issue_date' ? (
                         <Controller
@@ -927,7 +925,11 @@ const CreateInvoice = () => {
                   onChange={(e: any) => setStatus(e.target.value)}
                 >
                   {statusValues.map(d => {
-                    return <MenuItem value={d}>{d}</MenuItem>
+                    return (
+                      <MenuItem key={d} value={d}>
+                        {d}
+                      </MenuItem>
+                    )
                   })}
                 </Select>
               </FormControl>
@@ -943,7 +945,11 @@ const CreateInvoice = () => {
                   onChange={e => setInvoiceType(e.target.value)}
                 >
                   {InvoiceTypesValues.map(d => {
-                    return <MenuItem value={d}>{d}</MenuItem>
+                    return (
+                      <MenuItem key={d} value={d}>
+                        {d}
+                      </MenuItem>
+                    )
                   })}
                 </Select>
               </FormControl>
@@ -979,8 +985,8 @@ const CreateInvoice = () => {
                         </TableRow>
                         <TableRow>
                           {headers.map((header, colIndex) => (
-                            <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                              <p style={{ margin: 0, padding: 0, fontSize: '0.8rem' }}>{header}</p>
+                            <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                              <p style={{ margin: 0, padding: 0, fontSize: '0.8rem', fontWeight: 'bold' }}>{header}</p>
                             </TableCell>
                           ))}
                         </TableRow>
@@ -997,7 +1003,9 @@ const CreateInvoice = () => {
 
                           return rowFilled ? (
                             <TableRow key={rowIndex}>
-                              <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
+                              <TableCell sx={{ border: '1px solid black' }}>
+                                <p style={{ fontWeight: 'bold' }}>{row.name}</p>
+                              </TableCell>
                               {row.columns.map((column, colIndex) => (
                                 <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
                                   <Controller
@@ -1111,7 +1119,7 @@ const CreateInvoice = () => {
                           </TableHead>
                           <TableBody>
                             <TableRow key={'0'}>
-                              <TableCell key={'0'} sx={{ border: '1px solid black' }}>
+                              <TableCell key={'0'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
                                 WINDOW TRIM
                               </TableCell>
                               <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
@@ -1176,7 +1184,7 @@ const CreateInvoice = () => {
                               </TableCell>
                             </TableRow>
                             <TableRow key={'1'}>
-                              <TableCell sx={{ border: '1px solid black' }}>WINDOW SEAL</TableCell>
+                              <TableCell sx={{ border: '1px solid black', fontWeight: 'bold' }}>WINDOW SEAL</TableCell>
                               <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
                                 <Controller
                                   name={`interiorData.window.row-1-col-2`}
@@ -1346,7 +1354,7 @@ const CreateInvoice = () => {
                             <TableRow key={rowIndex}>
                               <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
                               {row.columns.map((column, colIndex) => (
-                                <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
+                                <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
                                   <Controller
                                     name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
                                     control={control}

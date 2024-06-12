@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Box, FormGroup, FormControlLabel, Checkbox } from '@mui/material'
 import { green } from '@mui/material/colors'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'

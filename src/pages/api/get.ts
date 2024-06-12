@@ -6,6 +6,7 @@ const handler = async (req: any, res: any) => {
     try {
       const { invoiceId } = req.body
       const data = await InvoiceModel.findById({ _id: invoiceId })
+
       return res.send({
         message: 'invoice fetched successfully',
         payload: { data }

@@ -6,6 +6,7 @@ const handler = async (req: any, res: any) => {
     try {
       const { invoiceId } = req.body
       await InvoiceModel.findByIdAndDelete({ _id: invoiceId })
+
       return res.send({
         message: 'invoice deleted successfully',
         payload: {}

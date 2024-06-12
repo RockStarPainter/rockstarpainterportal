@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode } from 'react'
+// import { ReactNode } from 'react'
 
 // ** Next Imports
 import Head from 'next/head'
@@ -16,7 +16,7 @@ import type { EmotionCache } from '@emotion/cache'
 
 // ** Config Imports
 
-import { defaultACLObj } from 'src/configs/acl'
+// import { defaultACLObj } from 'src/configs/acl'
 import themeConfig from 'src/configs/themeConfig'
 
 // ** Third Party Import
@@ -24,16 +24,18 @@ import { Toaster } from 'react-hot-toast'
 
 // ** Component Imports
 import UserLayout from 'src/layouts/UserLayout'
-import AclGuard from 'src/@core/components/auth/AclGuard'
-import ThemeComponent from 'src/@core/theme/ThemeComponent'
-import AuthGuard from 'src/@core/components/auth/AuthGuard'
-import GuestGuard from 'src/@core/components/auth/GuestGuard'
 
-// ** Spinner Import
-import Spinner from 'src/@core/components/spinner'
+// import AclGuard from 'src/@core/components/auth/AclGuard'
+import ThemeComponent from 'src/@core/theme/ThemeComponent'
+
+// import AuthGuard from 'src/@core/components/auth/AuthGuard'
+// import GuestGuard from 'src/@core/components/auth/GuestGuard'
+
+// // ** Spinner Import
+// import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
-import { AuthProvider } from 'src/context/AuthContext'
+// import { AuthProvider } from 'src/context/AuthContext'
 import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
 
 // ** Styled Components
@@ -62,11 +64,11 @@ type ExtendedAppProps = AppProps & {
   emotionCache: EmotionCache
 }
 
-type GuardProps = {
-  authGuard: boolean
-  guestGuard: boolean
-  children: ReactNode
-}
+// type GuardProps = {
+//   authGuard: boolean
+//   guestGuard: boolean
+//   children: ReactNode
+// }
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -83,15 +85,15 @@ if (themeConfig.routingLoader) {
   })
 }
 
-const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
-  if (guestGuard) {
-    return <GuestGuard fallback={<Spinner />}>{children}</GuestGuard>
-  } else if (!guestGuard && !authGuard) {
-    return <>{children}</>
-  } else {
-    return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
-  }
-}
+// const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
+//   if (guestGuard) {
+//     return <GuestGuard fallback={<Spinner />}>{children}</GuestGuard>
+//   } else if (!guestGuard && !authGuard) {
+//     return <>{children}</>
+//   } else {
+//     return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
+//   }
+// }
 
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
@@ -104,11 +106,11 @@ const App = (props: ExtendedAppProps) => {
 
   const setConfig = Component.setConfig ?? undefined
 
-  const authGuard = Component.authGuard ?? true
+  // const authGuard = Component.authGuard ?? true
 
-  const guestGuard = Component.guestGuard ?? false
+  // const guestGuard = Component.guestGuard ?? false
 
-  const aclAbilities = Component.acl ?? defaultACLObj
+  // const aclAbilities = Component.acl ?? defaultACLObj
 
   return (
     <CacheProvider value={emotionCache}>

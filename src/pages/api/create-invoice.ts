@@ -2,9 +2,7 @@ import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
 
 const generateUniqueCustomId = async () => {
-  let customId: number
-
-  customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
+  const customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
 
   return customId
 }

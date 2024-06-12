@@ -11,7 +11,7 @@ import { styled } from '@mui/material/styles'
 import { LayoutProps } from 'src/@core/layouts/types'
 
 // ** Theme Config Import
-import themeConfig from 'src/configs/themeConfig'
+// import themeConfig from 'src/configs/themeConfig'
 
 interface Props {
   hidden: LayoutProps['hidden']
