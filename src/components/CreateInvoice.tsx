@@ -938,17 +938,12 @@ const CreateInvoice = () => {
             {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
                 <StyledTypography>INTERIOR</StyledTypography>
-                <Box
-                  marginLeft={window.innerWidth > 1024 ? '2%' : 0}
-                  display={'flex'}
-                  flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
-                  justifyContent={'space-between'}
-                >
+                <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
                   <TableContainer
                     component={Paper}
                     sx={{
                       borderRadius: 0,
-                      width: window.innerWidth > 1024 ? '820px' : '100%',
+                      width: '820px',
                       height: '100%'
                     }}
                   >
@@ -1032,15 +1027,11 @@ const CreateInvoice = () => {
 
                   <Box
                     sx={{
-                      width: window.innerWidth > 1024 ? '35%' : '100%',
-                      marginTop: window.innerWidth > 1024 ? 0 : '20px'
+                      width: '35%',
+                      marginTop: 0
                     }}
                   >
-                    <Box
-                      flexDirection={window.innerWidth > 1024 ? 'column' : 'row'}
-                      display={'flex'}
-                      justifyContent={'space-between'}
-                    >
+                    <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
@@ -1304,17 +1295,12 @@ const CreateInvoice = () => {
             {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
                 <StyledTypography>EXTERIOR</StyledTypography>
-                <Box
-                  marginLeft={window.innerWidth > 1024 ? '2%' : 0}
-                  display={'flex'}
-                  flexDirection={window.innerWidth > 1024 ? 'row' : 'column'}
-                  justifyContent={'space-between'}
-                >
+                <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
                   <TableContainer
                     component={Paper}
                     sx={{
                       borderRadius: 0,
-                      width: window.innerWidth > 1024 ? '820px' : '100%',
+                      width: '820px',
                       height: '100%'
                     }}
                   >
@@ -1403,15 +1389,11 @@ const CreateInvoice = () => {
 
                   <Box
                     sx={{
-                      width: window.innerWidth > 1024 ? '35%' : '100%',
-                      marginTop: window.innerWidth > 1024 ? 0 : '20px'
+                      width: '35%',
+                      marginTop: 0
                     }}
                   >
-                    <Box
-                      flexDirection={window.innerWidth > 1024 ? 'column' : 'row'}
-                      display={'flex'}
-                      justifyContent={'space-between'}
-                    >
+                    <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
                       {!view && (
                         <FormControl fullWidth>
                           <Controller
