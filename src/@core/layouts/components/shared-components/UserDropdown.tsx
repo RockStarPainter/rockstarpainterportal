@@ -79,6 +79,7 @@ const UserDropdown = (props: Props) => {
   const handleLogout = () => {
     logout()
     handleDropdownClose()
+    router.replace('/login')
   }
 
   return (
@@ -122,7 +123,6 @@ const UserDropdown = (props: Props) => {
             </Badge>
             <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 600 }}>Admin</Typography>
-            
             </Box>
           </Box>
         </Box>
