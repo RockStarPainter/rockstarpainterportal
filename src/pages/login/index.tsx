@@ -35,6 +35,7 @@ import * as yup from 'yup'
 // ** Hooks
 import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { useAuth } from 'src/hooks/useAuth'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
@@ -53,18 +54,6 @@ const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
     padding: theme.spacing(10)
   }
 }))
-
-// const LoginIllustration = styled('img')(({ theme }) => ({
-//   maxWidth: '25rem',
-//   [theme.breakpoints.down('xl')]: {
-//     maxWidth: '30rem'
-//   },
-//   [theme.breakpoints.down('lg')]: {
-//     maxWidth: '30rem'
-//   },
-//   width: '100%',
-//   height: 'auto' // Ensure the image scales appropriately
-// }))
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -119,7 +108,7 @@ const LoginPage = () => {
   const router = useRouter()
 
   // ** Hooks
-  // const auth = useAuth()
+  const auth = useAuth()
   const theme = useTheme()
   const bgColors = useBgColor()
   const { settings } = useSettings()
