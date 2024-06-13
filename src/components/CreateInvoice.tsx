@@ -763,7 +763,7 @@ const CreateInvoice = () => {
     )
   const StyledTypography = styled(Typography)(({ theme }: any) => ({
     color: '#323232', // Text color from your theme
-    fontSize: '2rem',
+    fontSize: '1.5rem',
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: '0.1em',
@@ -772,7 +772,7 @@ const CreateInvoice = () => {
     background: `linear-gradient(45deg, #719E37, #F7F7F9)`,
     borderRadius: theme.shape.borderRadius,
     boxShadow: theme.shadows[3],
-    margin: '2%'
+    margin: '1%'
   }))
 
   // const renderCheckbox = (name: any, label: any) => {
@@ -967,7 +967,7 @@ const CreateInvoice = () => {
                         <TableRow>
                           {headers.map((header, colIndex) => (
                             <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                              <p style={{ margin: 0, padding: 0, fontSize: '0.8rem', fontWeight: 'bold' }}>{header}</p>
+                              <p style={{ margin: 0, padding: 0, fontSize: '1rem', fontWeight: 'bold' }}>{header}</p>
                             </TableCell>
                           ))}
                         </TableRow>
@@ -985,7 +985,10 @@ const CreateInvoice = () => {
                           return rowFilled ? (
                             <TableRow key={rowIndex}>
                               <TableCell sx={{ border: '1px solid black' }}>
-                                <p style={{ fontWeight: 'bold' }}>{row.name}</p>
+                                {/* <p style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>{row.name}</p> */}
+                                <Typography fontWeight={'bold'} variant='h6'>
+                                  {row.name}
+                                </Typography>
                               </TableCell>
                               {row.columns.map((column: any, colIndex: any) => (
                                 <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
@@ -999,14 +1002,14 @@ const CreateInvoice = () => {
                                           {...field}
                                           icon={
                                             field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500] }} />
+                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                             ) : (
                                               <Checkbox {...field} checked={field.value} />
                                             )
                                           }
                                           checkedIcon={
                                             view ? (
-                                              <CheckCircleIcon sx={{ color: green[500] }} />
+                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                             ) : (
                                               <Checkbox {...field} checked={field.value} />
                                             )
@@ -1052,7 +1055,9 @@ const CreateInvoice = () => {
                           <Typography variant='h5' fontWeight={'bold'}>
                             Paint :{' '}
                           </Typography>
-                          <Typography variant='h6'>{allData?.interiorData?.paint_textarea}</Typography>
+                          <Typography variant='h6' fontWeight={'bold'}>
+                            {allData?.interiorData?.paint_textarea}
+                          </Typography>
                         </Box>
                       )}
                       <Box sx={{ width: 10, height: 10 }}></Box>
@@ -1070,7 +1075,9 @@ const CreateInvoice = () => {
                           <Typography variant='h5' fontWeight={'bold'}>
                             Stain :{' '}
                           </Typography>
-                          <Typography variant='h6'>{allData?.interiorData?.stain_textarea}</Typography>
+                          <Typography variant='h6' fontWeight={'bold'}>
+                            {allData?.interiorData?.stain_textarea}
+                          </Typography>
                         </Box>
                       )}
                     </Box>
@@ -1103,7 +1110,7 @@ const CreateInvoice = () => {
                           <TableBody>
                             <TableRow key={'0'}>
                               <TableCell key={'0'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                WINDOW TRIM
+                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW TRIM </p>
                               </TableCell>
                               <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
                                 <Controller
@@ -1116,14 +1123,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1148,14 +1155,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1171,7 +1178,10 @@ const CreateInvoice = () => {
                               </TableCell>
                             </TableRow>
                             <TableRow key={'1'}>
-                              <TableCell sx={{ border: '1px solid black', fontWeight: 'bold' }}>WINDOW SEAL</TableCell>
+                              <TableCell sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                                {' '}
+                                <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW SEAL </p>
+                              </TableCell>
                               <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
                                 <Controller
                                   name={`interiorData.window.row-1-col-2`}
@@ -1183,14 +1193,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1215,14 +1225,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1248,7 +1258,7 @@ const CreateInvoice = () => {
                             ((view && getValues(e.name)) || !view) && (
                               <Grid item xs={12} sm={6} key={e.name}>
                                 <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                  <Typography width={'50%'} variant='h6'>
+                                  <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
                                     {e.label}
                                   </Typography>
                                   <Controller
@@ -1260,14 +1270,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1326,7 +1336,10 @@ const CreateInvoice = () => {
                         <TableRow>
                           {eheaders.map((header, colIndex) => (
                             <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                              <p style={{ margin: 0, fontSize: '1rem' }}> {header}</p>
+                              {/* <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> {header}</p> */}
+                              <Typography fontWeight={'bold'} variant='h6'>
+                                {header}
+                              </Typography>
                             </TableCell>
                           ))}
                         </TableRow>
@@ -1343,7 +1356,11 @@ const CreateInvoice = () => {
 
                           return rowFilled ? (
                             <TableRow key={rowIndex}>
-                              <TableCell sx={{ border: '1px solid black' }}>{row.name}</TableCell>
+                              <TableCell sx={{ border: '1px solid black' }}>
+                                <Typography variant='h6' fontWeight={'bold'}>
+                                  {row.name}
+                                </Typography>
+                              </TableCell>
                               {row.columns.map((column: any, colIndex: any) => (
                                 <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
                                   <Controller
@@ -1356,14 +1373,14 @@ const CreateInvoice = () => {
                                           {...field}
                                           icon={
                                             field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500] }} />
+                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                             ) : (
                                               <Checkbox {...field} checked={field.value} />
                                             )
                                           }
                                           checkedIcon={
                                             view ? (
-                                              <CheckCircleIcon sx={{ color: green[500] }} />
+                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                             ) : (
                                               <Checkbox {...field} checked={field.value} />
                                             )
@@ -1409,7 +1426,9 @@ const CreateInvoice = () => {
                           <Typography variant='h5' fontWeight={'bold'}>
                             Paint :{' '}
                           </Typography>
-                          <Typography variant='h6'>{allData?.exteriorData?.paint_textarea}</Typography>
+                          <Typography variant='h6' fontWeight={'bold'}>
+                            {allData?.exteriorData?.paint_textarea}
+                          </Typography>
                         </Box>
                       )}
                       <Box sx={{ width: 10, height: 10 }}></Box>
@@ -1427,7 +1446,9 @@ const CreateInvoice = () => {
                           <Typography variant='h5' fontWeight={'bold'}>
                             Stain :{' '}
                           </Typography>
-                          <Typography variant='h6'>{allData?.exteriorData?.stain_textarea}</Typography>
+                          <Typography variant='h6' fontWeight={'bold'}>
+                            {allData?.exteriorData?.stain_textarea}
+                          </Typography>
                         </Box>
                       )}
                     </Box>
@@ -1441,22 +1462,22 @@ const CreateInvoice = () => {
                               sx={{ border: '1px solid black', textAlign: 'center' }}
                             ></TableCell>
                             <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <p style={{ margin: 0, fontSize: '0.8rem' }}> SIDING</p>
+                              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SIDING</p>
                             </TableCell>
                             <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <p style={{ margin: 0, fontSize: '0.8rem' }}> FACIAL </p>
+                              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> FACIAL </p>
                             </TableCell>
                             <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <p style={{ margin: 0, fontSize: '0.8rem' }}> TRIM </p>
+                              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> TRIM </p>
                             </TableCell>
                             <TableCell colSpan={1} rowSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <p style={{ margin: 0, fontSize: '0.8rem' }}> SOFFITS </p>
+                              <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SOFFITS </p>
                             </TableCell>
                           </TableHead>
                           <TableBody>
                             <TableRow key={'0'}>
                               <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                                REPAIRS
+                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> REPAIRS </p>
                               </TableCell>
                               <TableCell key={'1'} sx={{ border: '1px solid black' }}>
                                 <Controller
@@ -1469,14 +1490,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1500,14 +1521,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1531,14 +1552,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1551,7 +1572,7 @@ const CreateInvoice = () => {
                                   }
                                 />
                               </TableCell>
-                              <TableCell key={'4'} sx={{ border: '1px solid black' }}>
+                              <TableCell key={'4'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
                                 <Controller
                                   name={`exteriorData.window.row-0-col-5`}
                                   control={control}
@@ -1562,14 +1583,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
@@ -1594,7 +1615,7 @@ const CreateInvoice = () => {
                             ((view && getValues(e.name)) || !view) && (
                               <Grid item xs={12} sm={6} key={e.name}>
                                 <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                  <Typography width={'50%'} variant='h6'>
+                                  <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
                                     {e.label}
                                   </Typography>
                                   <Controller
@@ -1606,14 +1627,14 @@ const CreateInvoice = () => {
                                         {...field}
                                         icon={
                                           field.value && !view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )
                                         }
                                         checkedIcon={
                                           view ? (
-                                            <CheckCircleIcon sx={{ color: green[500] }} />
+                                            <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
                                           ) : (
                                             <Checkbox {...field} checked={field.value} />
                                           )

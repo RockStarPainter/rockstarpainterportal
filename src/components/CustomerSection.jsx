@@ -27,19 +27,19 @@ const CustomerSection = ({ selectedOption, setSelectedOption }) => {
         control={
           <Box display='flex' alignItems='center'>
             {isView && isChecked ? (
-              <CheckCircleIcon sx={{ color: green[500] }} />
+              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
             ) : (
               <Checkbox checked={isChecked} onChange={handleCheckboxChange} name={name} />
             )}
           </Box>
         }
-        label={label}
+        label={<span style={{ fontWeight: 'bold' }}>{label}</span>}
       />
     )
   }
 
   return (
-    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} justifyContent={'center'} marginTop={'2%'}>
+    <Box display={'flex'} alignItems={'center'} flexDirection={'column'} justifyContent={'center'} marginTop={'0.5%%'}>
       <Box width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
         <Box width={250}>
           <img src='/images/rockstar-logo.png' style={{ width: '100%' }} />
