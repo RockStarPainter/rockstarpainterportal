@@ -147,16 +147,19 @@ const LoginPage = () => {
     }
   }
 
+  
+
   // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
   // const imageSource = 'Rank-BPO-PVT-LTD-LOGO.png'
 
   return (
     <Box className='content-right'>
+      <img src='/images/rockstar-logo.png' style={{ width: '20%', height: '10%', margin: 10, marginTop: 15 }} />
       {!hidden ? (
         <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
           <LoginIllustrationWrapper>
-            {/* <LoginIllustration src={`/images/pages/${imageSource}`} /> */}
+            {/* <LoginIllustration src={'/public/images/rockstar-logo.png'} /> */}
           </LoginIllustrationWrapper>
           <FooterIllustrationsV2 />
         </Box>
