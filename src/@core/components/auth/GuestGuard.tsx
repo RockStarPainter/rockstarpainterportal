@@ -16,7 +16,6 @@ const GuestGuard = (props: GuestGuardProps) => {
   const { children, fallback } = props
   const auth = useAuth()
   const router = useRouter()
-
   useEffect(() => {
     if (!router.isReady) {
       return

@@ -6,16 +6,17 @@ const handler = async (req: any, res: any) => {
     try {
       const { user_name, password } = req.body
 
-      const user = await UserModel.findOne({ user_name })
-      if (!user) return res.status(401).send('Invalid username or password')
+      const userData = await UserModel.findOne({ user_name })
+      if (!userData) return res.status(401).send('Invalid username or password')
 
-      if (password !== user.password) return res.status(401).send('Invalid username or password')
+      if (password !== userData.password) return res.status(401).send('Invalid username or password')
 
       return res.send({
         message: 'login successful',
-        payload: { user }
+        payload: { userData }
       })
     } catch (error) {
+      console.log(error)
       res.status(500).send('Something went wrong')
     }
   } else {
