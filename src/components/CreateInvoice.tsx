@@ -168,6 +168,7 @@ const CreateInvoice = () => {
         setAllData(tableData)
         reset(defaultValues)
         setSelectedOption(tableData.form_type)
+        setInvoiceType(tableData.invoice_type) // Set the invoice type state
         setData(tableData.interiorRows)
         setExteriorData(tableData.exteriorRows)
         setIsLoading(false)
@@ -230,7 +231,7 @@ const CreateInvoice = () => {
 
     const section1 = document.getElementById('section1') // First section
     const section2 = document.getElementById('section2') // Second section
-    const section3 = document.getElementById('section3') // Second section
+    const section3 = document.getElementById('section3') // Third section
 
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = 210 // A4 width in mm
@@ -256,31 +257,35 @@ const CreateInvoice = () => {
       pdf.addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
     }
 
-    await addSectionToPdf(section1, pdf)
-
-    pdf.addPage()
-
-    await addSectionToPdf(section2, pdf)
-
-    pdf.addPage()
-
-    if (showBenjaminPaints() || showSherwinPaints() || showOtherPaint()) {
+    if (invoiceType === InvoiceTypes.INTERIOR) {
+      await addSectionToPdf(section1, pdf)
+      pdf.addPage()
       await addSectionToPdf(section3, pdf)
-
-      // pdf.addPage()
-
-      if (str !== 'email') {
-        pdf.save('download.pdf')
-      }
+    } else if (invoiceType === InvoiceTypes.EXTERIOR) {
+      await addSectionToPdf(section2, pdf)
+      pdf.addPage()
+      await addSectionToPdf(section3, pdf)
+    } else if (invoiceType === InvoiceTypes.BOTH) {
+      await addSectionToPdf(section1, pdf)
+      pdf.addPage()
+      await addSectionToPdf(section2, pdf)
+      pdf.addPage()
+      await addSectionToPdf(section3, pdf)
     }
 
-    // Save the PDF locally
-    // if (str !== 'email') {
-    //   const link = document.createElement('a')
-    //   link.href = pdfDataUri
-    //   link.download = 'download.pdf'
-    //   link.click()
+    // if (allData && allData['pay_link']) {
+    //   const linkPositionX = 150 // X position for the link
+    //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
+    //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
     // }
+    // if (allData && allData['pay_link']) {
+    //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
+    // }
+
+    if (str !== 'email') {
+      pdf.save('download.pdf')
+    }
+
     setPdfLoading(false)
 
     const pdfBlob = pdf.output('blob')
@@ -290,7 +295,6 @@ const CreateInvoice = () => {
       reader.readAsDataURL(pdfBlob)
       reader.onloadend = () => {
         const base64data = reader.result as string
-        console.log(base64data)
 
         // EmailJS configuration
         const serviceID = 'service_pypvnz1'
@@ -310,8 +314,7 @@ const CreateInvoice = () => {
 
         emailjs
           .send(serviceID, templateID, templateParams, userID)
-          .then(response => {
-            console.log('Email sent successfully:', response.status, response.text)
+          .then(() => {
             toast.success('Email sent')
           })
           .catch(error => {
@@ -797,6 +800,13 @@ const CreateInvoice = () => {
   //     />
   //   )
   // }
+
+  const payLink =
+    allData && allData['pay_link'] ? (
+      <Link href={allData['pay_link']} target='_blank'>
+        {allData['pay_link'].length > 30 ? allData['pay_link'] : allData['pay_link']}
+      </Link>
+    ) : null
 
   return (
     <Box>
@@ -1793,7 +1803,7 @@ const CreateInvoice = () => {
                     </Box>
                   )}
                 </Grid>
-                <Grid item xs={12} sm={3}>
+                {/* <Grid item xs={12} sm={3}>
                   {!view ? (
                     <FormControl fullWidth>
                       <Controller
@@ -1817,9 +1827,37 @@ const CreateInvoice = () => {
                       <Typography variant='h6' sx={{ textAlign: 'center' }}>
                         {allData && allData['pay_link'] ? (
                           <Link href={allData['pay_link']} target='_blank'>
-                            {allData['pay_link'].length > 30 ? `${allData['pay_link']}` : allData['pay_link']}
+                            {allData['pay_link'].length > 30 ? allData['pay_link'] : allData['pay_link']}
                           </Link>
                         ) : null}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid> */}
+
+                <Grid item xs={12} sm={3}>
+                  {!view ? (
+                    <FormControl fullWidth>
+                      <Controller
+                        name={'pay_link'}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={value}
+                            label={'Payment Link'}
+                            onChange={onChange}
+                            aria-describedby='validation-basic-last-name'
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  ) : (
+                    <Box>
+                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                        {'Pay Link'}
+                      </Typography>
+                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                        {payLink}
                       </Typography>
                     </Box>
                   )}
