@@ -232,6 +232,7 @@ const CreateInvoice = () => {
     const section1 = document.getElementById('section1') // First section
     const section2 = document.getElementById('section2') // Second section
     const section3 = document.getElementById('section3') // Third section
+    const section4 = document.getElementById('section4') // Fourth section
 
     const pdf = new jsPDF('p', 'mm', 'a4')
     const pdfWidth = 210 // A4 width in mm
@@ -239,14 +240,24 @@ const CreateInvoice = () => {
     const screenWidth = 1500 // Desired screen width in pixels
     const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
 
-    const addSectionToPdf = async (section: any, pdf: any) => {
-      const canvas = await html2canvas(section, {
-        scale: 2, // Adjust as needed
-        useCORS: true,
-        width: screenWidth,
-        height: screenHeight,
-        windowWidth: screenWidth
-      })
+    const addSectionToPdf = async (section: any, pdf: any, html?: any, doHtml = false) => {
+      const canvas = await html2canvas(
+        section,
+        doHtml
+          ? {
+              scale: 2, // Adjust as needed
+              useCORS: true,
+              width: screenWidth,
+              windowWidth: screenWidth
+            }
+          : {
+              scale: 2, // Adjust as needed
+              useCORS: true,
+              width: screenWidth,
+              height: screenHeight,
+              windowWidth: screenWidth
+            }
+      )
 
       const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
 
@@ -254,23 +265,36 @@ const CreateInvoice = () => {
       const imgWidth = pdfWidth
       const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      pdf.addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
+      await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
+      if (doHtml) {
+        await pdf.html(html.outerHTML, {
+          callback: function (pdf) {},
+          x: 6,
+          y: imgHeight + 5,
+          width: imgWidth,
+          windowWidth: screenWidth
+        })
+        await pdf.link(165, imgHeight + 16, 45, 10, { url: allData['pay_link'] })
+      }
     }
 
     if (invoiceType === InvoiceTypes.INTERIOR) {
+      await addSectionToPdf(section3, pdf, section4, true)
+
       await addSectionToPdf(section1, pdf)
-      pdf.addPage()
-      await addSectionToPdf(section3, pdf)
+      pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.EXTERIOR) {
+      await addSectionToPdf(section3, pdf, section4, true)
+
       await addSectionToPdf(section2, pdf)
-      pdf.addPage()
-      await addSectionToPdf(section3, pdf)
+      pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.BOTH) {
-      await addSectionToPdf(section1, pdf)
-      pdf.addPage()
+      await addSectionToPdf(section3, pdf, section4, true)
+
       await addSectionToPdf(section2, pdf)
-      pdf.addPage()
-      await addSectionToPdf(section3, pdf)
+
+      await addSectionToPdf(section1, pdf)
+      pdf.deletePage(4)
     }
 
     // if (allData && allData['pay_link']) {
@@ -1301,9 +1325,9 @@ const CreateInvoice = () => {
           </div>
           {/* exterior below */}
           <div id='section2'>
-            {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
             {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
               <>
+                {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
                 <StyledTypography>EXTERIOR</StyledTypography>
                 <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
                   <TableContainer
@@ -1721,89 +1745,92 @@ const CreateInvoice = () => {
             )}
             <>
               <StyledTypography>PAYMENT DETAILS</StyledTypography>
-              <Grid container spacing={5} mt={5} mb={10}>
-                <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'total_cost'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'Total Cost'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'Total Cost'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {allData && allData['total_cost']}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'down_payment'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'50% Down payment'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'50% Down payment'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {allData && allData['down_payment']}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
-                <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'balance_due'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'Balance Due'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'Balance Due'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {allData && allData['balance_due']}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
-                {/* <Grid item xs={12} sm={3}>
+            </>
+          </div>
+          <div id='section4'>
+            <Grid container spacing={5} mt={5} mb={10}>
+              <Grid item xs={12} sm={3}>
+                {!view ? (
+                  <FormControl fullWidth>
+                    <Controller
+                      name={'total_cost'}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label={'Total Cost'}
+                          onChange={onChange}
+                          aria-describedby='validation-basic-last-name'
+                        />
+                      )}
+                    />
+                  </FormControl>
+                ) : (
+                  <Box>
+                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                      {'Total Cost'}
+                    </Typography>
+                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                      {allData && allData['total_cost']}
+                    </Typography>
+                  </Box>
+                )}
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                {!view ? (
+                  <FormControl fullWidth>
+                    <Controller
+                      name={'down_payment'}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label={'50% Down payment'}
+                          onChange={onChange}
+                          aria-describedby='validation-basic-last-name'
+                        />
+                      )}
+                    />
+                  </FormControl>
+                ) : (
+                  <Box>
+                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                      {'50% Down payment'}
+                    </Typography>
+                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                      {allData && allData['down_payment']}
+                    </Typography>
+                  </Box>
+                )}
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                {!view ? (
+                  <FormControl fullWidth>
+                    <Controller
+                      name={'balance_due'}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label={'Balance Due'}
+                          onChange={onChange}
+                          aria-describedby='validation-basic-last-name'
+                        />
+                      )}
+                    />
+                  </FormControl>
+                ) : (
+                  <Box>
+                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                      {'Balance Due'}
+                    </Typography>
+                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                      {allData && allData['balance_due']}
+                    </Typography>
+                  </Box>
+                )}
+              </Grid>
+              {/* <Grid item xs={12} sm={3}>
                   {!view ? (
                     <FormControl fullWidth>
                       <Controller
@@ -1835,35 +1862,34 @@ const CreateInvoice = () => {
                   )}
                 </Grid> */}
 
-                <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'pay_link'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'Payment Link'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'Pay Link'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {payLink}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
+              <Grid item xs={12} sm={3}>
+                {!view ? (
+                  <FormControl fullWidth>
+                    <Controller
+                      name={'pay_link'}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label={'Payment Link'}
+                          onChange={onChange}
+                          aria-describedby='validation-basic-last-name'
+                        />
+                      )}
+                    />
+                  </FormControl>
+                ) : (
+                  <Box>
+                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                      {'Pay Link'}
+                    </Typography>
+                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                      {payLink}
+                    </Typography>
+                  </Box>
+                )}
               </Grid>
-            </>
+            </Grid>
           </div>
 
           {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
