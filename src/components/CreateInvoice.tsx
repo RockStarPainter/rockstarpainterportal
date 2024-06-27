@@ -1333,7 +1333,7 @@ const CreateInvoice = () => {
             <div id='section2'>
               {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
                 <>
-                  {(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
+                  {!(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
                     <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                   )}
                   <StyledTypography>EXTERIOR</StyledTypography>
