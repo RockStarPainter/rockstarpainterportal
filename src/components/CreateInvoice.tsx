@@ -269,7 +269,7 @@ const CreateInvoice = () => {
       await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
       if (doHtml) {
         await pdf.html(html.outerHTML, {
-          callback: function (pdf) {},
+          // callback: function (pdf) {},
           x: 6,
           y: imgHeight + 5,
           width: imgWidth,
