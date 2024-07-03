@@ -40,6 +40,7 @@ const invoiceSchema = new Schema(
 
     zip_code: { type: String, required: false },
     total_cost: { type: Number, required: false },
+    notes: { type: String, required: false },
     balance_due: { type: Number, required: false },
     down_payment: { type: Number, required: false },
     pay_link: { type: String, required: false },

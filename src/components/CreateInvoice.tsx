@@ -91,6 +91,7 @@ const CreateInvoice = () => {
 
     defaultValues.zip_code = ''
     defaultValues.total_cost = ''
+    defaultValues.notes = ''
     defaultValues.balance_due = ''
     defaultValues.down_payment = ''
     defaultValues.issue_date = new Date()
@@ -160,6 +161,7 @@ const CreateInvoice = () => {
         defaultValues.state = tableData.state
         defaultValues.zip_code = tableData.zip_code
         defaultValues.total_cost = tableData.total_cost
+        defaultValues.notes = tableData.notes
         defaultValues.balance_due = tableData.balance_due
         defaultValues.pay_link = tableData.pay_link
         defaultValues.other_paints = tableData.other_paints
@@ -384,6 +386,7 @@ const CreateInvoice = () => {
         interiorData: formData.interiorData,
         exteriorData: formData.exteriorData,
         total_cost: parseInt(formData.total_cost),
+        notes: formData.notes,
         balance_due: parseInt(formData.balance_due),
         down_payment: parseInt(formData.down_payment),
         status: status,
@@ -717,6 +720,48 @@ const CreateInvoice = () => {
       img: '/images/b-5.png',
       d_name: 'b-5.png',
       name: 'HIGH-GLOSS ALTO BRILLO'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-6.png',
+      d_name: 'b-6.png',
+      name: 'Aura Exterior'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-7.png',
+      d_name: 'b-7.png',
+      name: 'Regal Select Exterior'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-8.png',
+      d_name: 'b-8.png',
+      name: 'Element Guard'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-9.png',
+      d_name: 'b-9.png',
+      name: 'Aura Interior'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-10.png',
+      d_name: 'b-10.png',
+      name: 'Regal Select Interior'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-11.png',
+      d_name: 'b-11.png',
+      name: 'Ben Interior'
+    },
+    {
+      // paint_code: 'N794',
+      img: '/images/b-12.png',
+      d_name: 'b-12.png',
+      name: 'Ultra Spec 500 Interior'
     }
   ]
 
@@ -766,6 +811,14 @@ const CreateInvoice = () => {
     const otherPaints = allData?.other_paints || ''
     if (view) {
       return otherPaints.trim().length > 0
+    } else {
+      return true
+    }
+  }
+  const showNotes = () => {
+    const other_notes = allData?.notes || ''
+    if (view) {
+      return other_notes.trim().length > 0
     } else {
       return true
     }
@@ -1758,20 +1811,46 @@ const CreateInvoice = () => {
                     <Controller
                       name='other_paints'
                       control={control}
-                      render={({ field }) => <TextField rows={4} multiline label='Other Paints' fullWidth {...field} />}
+                      render={({ field }) => <TextField rows={2} multiline label='Other Paints' fullWidth {...field} />}
                     />
                   </FormControl>
                 )}
 
                 {view && allData?.other_paints && (
                   <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
-                    <Box minHeight={150}>
+                    <Box minHeight={50}>
                       <Typography variant='h6'>{allData?.other_paints}</Typography>
                     </Box>
                   </Grid>
                 )}
               </>
             )}
+            <>
+              {showNotes() && (
+                <>
+                  <StyledTypography>Comments</StyledTypography>
+                  {!view && (
+                    <FormControl fullWidth>
+                      <Controller
+                        name='notes'
+                        control={control}
+                        render={({ field }) => (
+                          <TextField rows={2} multiline label='Type Notes Here...' fullWidth {...field} />
+                        )}
+                      />
+                    </FormControl>
+                  )}
+                </>
+              )}
+
+              {view && allData?.notes && (
+                <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                  <Box minHeight={50}>
+                    <Typography variant='h6'>{allData?.notes}</Typography>
+                  </Box>
+                </Grid>
+              )}
+            </>
             <>
               <StyledTypography>PAYMENT DETAILS</StyledTypography>
             </>
