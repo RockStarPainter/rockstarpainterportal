@@ -2,9 +2,9 @@
 import { useState } from 'react'
 
 // ** MUI Imports
+import Box, { BoxProps } from '@mui/material/Box'
 import Fab from '@mui/material/Fab'
 import { styled } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -15,14 +15,11 @@ import themeConfig from 'src/configs/themeConfig'
 // ** Type Import
 import { LayoutProps } from 'src/@core/layouts/types'
 
-import { useRouter } from 'next/router'
-
 // ** Components
-import AppBar from './components/vertical/appBar'
 import Customizer from 'src/@core/components/customizer'
-import Navigation from './components/vertical/navigation'
-import Footer from './components/shared-components/footer'
 import ScrollToTop from 'src/@core/components/scroll-to-top'
+import AppBar from './components/vertical/appBar'
+import Navigation from './components/vertical/navigation'
 
 const VerticalLayoutWrapper = styled('div')({
   height: '100%',
@@ -49,10 +46,8 @@ const ContentWrapper = styled('main')(({ theme }) => ({
 }))
 
 const VerticalLayout = (props: LayoutProps) => {
-  const router = useRouter()
-
   // ** Props
-  const { hidden, settings, children, scrollToTop, footerProps, contentHeightFixed, verticalLayoutProps } = props
+  const { hidden, settings, children, scrollToTop, contentHeightFixed, verticalLayoutProps } = props
 
   // ** Vars
   const { skin, navHidden, contentWidth } = settings
@@ -65,8 +60,7 @@ const VerticalLayout = (props: LayoutProps) => {
   const [navVisible, setNavVisible] = useState<boolean>(false)
 
   // ** Toggle Functions
-  // const toggleNavVisibility = () => setNavVisible(!navVisible)
-  const toggleNavVisibility = () => router.back()
+  const toggleNavVisibility = () => setNavVisible(!navVisible)
 
   return (
     <>
@@ -120,9 +114,6 @@ const VerticalLayout = (props: LayoutProps) => {
           >
             {children}
           </ContentWrapper>
-
-          {/* Footer Component */}
-          <Footer footerStyles={footerProps?.sx} footerContent={footerProps?.content} {...props} />
         </MainContentWrapper>
       </VerticalLayoutWrapper>
 
