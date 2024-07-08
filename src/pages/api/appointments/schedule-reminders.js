@@ -6,6 +6,7 @@ import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
 const mailerSend = new MailerSend({
   apiKey: 'mlsn.9794f3c98a5782999dd8016e02407362789f797b5dea6675a25f9e6f5a1e5899'
 })
+
 // import dayjs from 'dayjs'
 
 const handler = async (req, res) => {
