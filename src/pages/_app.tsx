@@ -114,8 +114,6 @@ const App = (props: ExtendedAppProps) => {
 
   const guestGuard = Component.guestGuard ?? false
 
-  // const aclAbilities = Component.acl ?? defaultACLObj
-
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -135,9 +133,7 @@ const App = (props: ExtendedAppProps) => {
               return (
                 <ThemeComponent settings={settings}>
                   <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                    {/* <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard} authGuard={authGuard}> */}
                     {getLayout(<Component {...pageProps} />)}
-                    {/* </AclGuard> */}
                   </Guard>
                   <ReactHotToast>
                     <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />

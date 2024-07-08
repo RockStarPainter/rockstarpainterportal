@@ -1,8 +1,5 @@
 // ** React Imports
-import { ReactNode, useContext } from 'react'
-
-// ** Component Imports
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { ReactNode } from 'react'
 
 // ** Types
 import { NavSectionTitle } from 'src/@core/layouts/types'
@@ -16,13 +13,10 @@ const CanViewNavSectionTitle = (props: Props) => {
   // ** Props
   const { children, navTitle } = props
 
-  // ** Hook
-  const ability = useContext(AbilityContext)
-
   if (navTitle && navTitle.auth === false) {
     return <>{children}</>
   } else {
-    return ability && ability.can(navTitle?.action, navTitle?.subject) ? <>{children}</> : null
+    return children
   }
 }
 

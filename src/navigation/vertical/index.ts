@@ -4,21 +4,14 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Home',
-      path: '/home',
-      icon: 'mdi:home-outline',
+      title: 'Invoice Crm',
+      path: '/',
+      icon: 'mdi:home-outline'
     },
     {
-      title: 'Second Page',
-      path: '/second-page',
-      icon: 'mdi:email-outline',
-    },
-    {
-      path: '/acl',
-      action: 'read',
-      subject: 'acl-page',
-      title: 'Access Control',
-      icon: 'mdi:shield-outline',
+      title: 'Scheduling Crm',
+      path: '/scheduling-dashboard',
+      icon: 'mdi:home-outline'
     }
   ]
 }
