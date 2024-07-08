@@ -1,9 +1,4 @@
-// ** React Imports
 import { ReactNode } from 'react'
-
-// ** Component Imports
-
-// ** Types
 import { NavGroup } from 'src/@core/layouts/types'
 
 interface Props {
@@ -12,14 +7,13 @@ interface Props {
 }
 
 const CanViewNavGroup = (props: Props) => {
-  // ** Props
   const { children, navGroup } = props
 
   if (navGroup && navGroup.auth === false) {
     return <>{children}</>
-  } else {
-    return children
   }
+
+  return <>{children}</>
 }
 
 export default CanViewNavGroup
