@@ -26,6 +26,7 @@ import UpdateAppointmentDialog from 'src/views/pages/UpdateAppointmentDialog'
 import formatTime from 'src/utilis/formatTime'
 import Appointments24Hours from 'src/views/pages/Appointments24Hours'
 import SendIcon from '@mui/icons-material/Send' // Import the send icon
+import Tooltip from '@mui/material/Tooltip'
 
 const Home = () => {
   const [data, setData] = useState([])
@@ -34,7 +35,6 @@ const Home = () => {
   const [editDialog, setEditDialog] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState(null)
 
-  // const [loadingDetails, setLoadingDetails] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const router = useRouter()
 
@@ -62,11 +62,7 @@ const Home = () => {
     try {
       setDeleting(true)
       await axios.delete('/api/appointments/delete', { data: { appointmentId: selectedAppointment } })
-      setData(prev => {
-        return prev.filter(p => {
-          return p._id !== selectedAppointment
-        })
-      })
+      setData(prev => prev.filter(p => p._id !== selectedAppointment))
       toast.success('Appointment deleted successfully')
     } catch (error) {
       console.log(error)
@@ -150,10 +146,16 @@ const Home = () => {
         accessorKey: 'appointment_date',
         Cell: ({ cell }) => {
           const value = cell.getValue()
+          const formattedDate = value ? new Date(value).toLocaleDateString('en-GB') : ''
 
-          return value ? new Date(value).toLocaleDateString() : ''
+          return (
+            <Tooltip title={'DD-MM-YYYY'}>
+              <span>{formattedDate}</span>
+            </Tooltip>
+          )
         }
       },
+
       {
         header: 'Appointment Time',
         accessorKey: 'appointment_time',

@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { MaterialReactTable } from 'material-react-table'
 import { AppointmentType } from 'src/Backend/constants'
 import formatTime from 'src/utilis/formatTime'
+import Tooltip from '@mui/material/Tooltip'
 
 const Appointments24Hours = () => {
   const [data24Hours, setData24Hours] = useState([])
@@ -39,8 +40,13 @@ const Appointments24Hours = () => {
         accessorKey: 'appointment_date',
         Cell: ({ cell }) => {
           const value = cell.getValue()
+          const formattedDate = value ? new Date(value).toLocaleDateString('en-GB') : ''
 
-          return value ? new Date(value).toLocaleDateString() : ''
+          return (
+            <Tooltip title={'DD-MM-YYYY'}>
+              <span>{formattedDate}</span>
+            </Tooltip>
+          )
         }
       },
       {

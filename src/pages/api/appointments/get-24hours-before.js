@@ -1,19 +1,22 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
-import moment from 'moment/moment'
 
 const handler = async (req, res) => {
   if (req.method === 'GET') {
     try {
-      const currentDate = moment()
-      const startDate = currentDate.clone().subtract(24, 'hours').toDate()
+      const currentDate = new Date()
+      const endDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000) // 24 hours later
 
       const appointments = await AppointmentModel.find({
         appointment_date: {
-          $gte: startDate,
-          $lte: currentDate.toDate()
+          $gte: currentDate,
+          $lte: endDate
         }
       })
+
+      // Log the start and end dates
+      console.log('Start:', currentDate)
+      console.log('End:', endDate)
 
       return res.status(200).send({
         message: 'Appointments fetched successfully',
