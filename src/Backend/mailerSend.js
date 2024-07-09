@@ -3,7 +3,6 @@ import { MailerSend, EmailParams, Recipient, Scheduling } from 'mailersend'
 const mailerSend = new MailerSend({
   api_key: process.env.MAILERSEND_API_KEY // Ensure you have this in your .env.local
 })
-console.log('MailerSend API Key:', process.env.MAILERSEND_API_KEY) // Add this line
 
 const sendEmail = async (to, subject, text) => {
   const emailParams = new EmailParams()

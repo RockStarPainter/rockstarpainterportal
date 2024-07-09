@@ -41,7 +41,8 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/appointments/get-all')
-      console.log(res.data.payload.appointments)
+
+      // console.log(res.data.payload.appointments)
       setData(res.data.payload.appointments)
     } catch (error) {
       console.log(error)

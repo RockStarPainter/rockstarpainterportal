@@ -13,7 +13,8 @@ const Appointments24Hours = () => {
   const fetchData24Hours = async () => {
     try {
       const res = await axios.get('/api/appointments/get-24hours-before')
-      console.log(res.data.payload.appointments)
+
+      // console.log(res.data.payload.appointments)
       setData24Hours(res.data.payload.appointments)
     } catch (error) {
       console.log(error)
@@ -74,7 +75,7 @@ const Appointments24Hours = () => {
   return (
     <Box mt={5}>
       <Typography mt={15} variant='h4' textAlign={'center'}>
-        Appointments 24 Hours Before
+        Reminder 1 Day Before Appointment
       </Typography>
       <MaterialReactTable
         columns={columns24Hours}

@@ -23,11 +23,11 @@ const utils_1 = require('@iconify/utils')
 const sources = {
   json: [
     // Iconify JSON file (@iconify/json is a package name, /json/ is directory where files are, then filename)
-    require.resolve('@iconify/json/json/mdi.json'),
+    require.resolve('@iconify/json/json/mdi.json')
 
     // Custom file with only few icons
 
-/* 
+    /*
      {
       filename: require.resolve('@iconify/json/json/line-md.json'),
       icons: ['home-twotone-alt', 'github', 'document-list', 'document-code', 'image-twotone']
@@ -38,7 +38,7 @@ const sources = {
     // 'json/gg.json'
   ],
 
-/* 
+  /*
    icons: [
     'bx:basket',
     'bi:airplane-engines',
@@ -197,7 +197,8 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
 
   // Save to file
   await fs_1.promises.writeFile(target, bundle, 'utf8')
-  console.log(`Saved ${target} (${bundle.length} bytes)`)
+
+  // console.log(`Saved ${target} (${bundle.length} bytes)`)
 })().catch(err => {
   console.error(err)
 })

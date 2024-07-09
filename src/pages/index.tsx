@@ -32,7 +32,8 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/get-all')
-      console.log(res.data.payload.data)
+
+      // console.log(res.data.payload.data)
       setData(res.data.payload.data)
     } catch (error) {
       console.log(error)

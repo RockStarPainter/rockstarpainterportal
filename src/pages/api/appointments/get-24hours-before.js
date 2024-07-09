@@ -1,5 +1,6 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
+import { AppointmentType } from 'src/Backend/constants'
 
 const handler = async (req, res) => {
   if (req.method === 'GET') {
@@ -11,12 +12,13 @@ const handler = async (req, res) => {
         appointment_date: {
           $gte: currentDate,
           $lte: endDate
-        }
+        },
+        status: AppointmentType.UP_COMING
       })
 
-      // Log the start and end dates
-      console.log('Start:', currentDate)
-      console.log('End:', endDate)
+      // // Log the start and end dates
+      // console.log('Start:', currentDate)
+      // console.log('End:', endDate)
 
       return res.status(200).send({
         message: 'Appointments fetched successfully',
