@@ -1,7 +1,6 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
 
-// import { sendEmail } from 'src/Backend/mailerSend'
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
 import dayjs from 'dayjs'
 
