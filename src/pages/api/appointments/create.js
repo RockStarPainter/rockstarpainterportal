@@ -2,26 +2,27 @@ import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
 
 const handler = async (req, res) => {
-  const { appointmentId } = req.query
-
-  if (req.method === 'GET') {
+  if (req.method === 'POST') {
     try {
-      const appointment = await AppointmentModel.findById(appointmentId)
+      const newAppointment = new AppointmentModel({ ...req.body })
 
-      if (!appointment) {
-        return res.status(404).send('Appointment not found')
+      const saved = await newAppointment.save()
+
+      if (!saved) {
+        return res.status(404).send('Not able to save appointment')
       }
 
-      return res.send({
-        message: 'Appointment fetched successfully',
-        payload: { appointment }
+      return res.status(201).send({
+        message: 'Appointment created successfully',
+        payload: { appointment: saved }
       })
     } catch (error) {
-      console.error('Error fetching appointment:', error)
-      res.status(500).send('Something went wrong')
+      console.error('Error saving appointment:', error)
+
+      return res.status(500).send('Something went wrong')
     }
   } else {
-    res.setHeader('Allow', ['GET'])
+    res.setHeader('Allow', ['POST'])
 
     return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
