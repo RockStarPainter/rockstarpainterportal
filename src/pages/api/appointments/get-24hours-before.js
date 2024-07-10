@@ -16,18 +16,14 @@ const handler = async (req, res) => {
         status: AppointmentType.UP_COMING
       })
 
-      // // Log the start and end dates
-      // console.log('Start:', currentDate)
-      // console.log('End:', endDate)
-
-      return res.status(200).send({
+      return res.status(200).json({
         message: 'Appointments fetched successfully',
         payload: { appointments }
       })
     } catch (error) {
       console.error('Error fetching appointments:', error)
 
-      return res.status(500).send('Something went wrong')
+      return res.status(500).json({ message: 'Something went wrong' })
     }
   } else {
     res.setHeader('Allow', ['GET'])

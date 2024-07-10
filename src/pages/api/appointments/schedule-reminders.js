@@ -6,7 +6,7 @@ import { AppointmentType } from 'src/Backend/constants'
 import dayjs from 'dayjs'
 
 const mailerSend = new MailerSend({
-  apiKey: 'mlsn.9794f3c98a5782999dd8016e02407362789f797b5dea6675a25f9e6f5a1e5899'
+  apiKey: 'mlsn.544897ec14ebe9d972a8d04b94822641ebf83adeb29ba8554f9afa351c38f516'
 })
 
 const handler = async (req, res) => {
@@ -200,7 +200,7 @@ export default connectDb(handler)
 // import dayjs from 'dayjs'
 
 // const mailerSend = new MailerSend({
-//   apiKey: 'mlsn.9794f3c98a5782999dd8016e02407362789f797b5dea6675a25f9e6f5a1e5899'
+//   apiKey: 'mlsn.544897ec14ebe9d972a8d04b94822641ebf83adeb29ba8554f9afa351c38f516'
 // })
 
 // const handler = async (req, res) => {
