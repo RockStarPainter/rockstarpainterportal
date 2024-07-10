@@ -6,7 +6,7 @@ import { AppointmentType } from 'src/Backend/constants'
 import dayjs from 'dayjs'
 
 const mailerSend = new MailerSend({
-  apiKey: 'mlsn.544897ec14ebe9d972a8d04b94822641ebf83adeb29ba8554f9afa351c38f516'
+  apiKey: 'mlsn.9c77df47fbe9081e10c6ed4186e62c9405412f383294e0db5452e870c41379cf'
 })
 
 const handler = async (req, res) => {
@@ -38,7 +38,8 @@ const handler = async (req, res) => {
         const twoHoursBeforeTimestamp = Math.floor(twoHoursBeforeDate.getTime() / 1000)
         const twelveHoursBeforeTimestamp = Math.floor(twelveHoursBeforeDate.getTime() / 1000)
 
-        const sentFrom = new Sender('info@rockstarpainting.us', 'RockStar Paints')
+        // Update the sender email to match the verified domain
+        const sentFrom = new Sender('info@rockstarpaintingdenver.com', 'Rockstar Painting')
         const recipients = [new Recipient(appointment.client_email, appointment.client_name)]
         const html = `<!DOCTYPE html>
         <html lang="en">
@@ -126,14 +127,14 @@ const handler = async (req, res) => {
                         <p><strong>Date:</strong> ${dayjs(appointment.appointment_date).format('D-MMMM-YYYY')}</p>
                         <p><strong>Time:</strong> ${appointment.appointment_time}</p>
                     </div>
-                    <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaints.us">info@rockstarpaints.us</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
+                    <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaintingdenver.com">info@rockstarpaintingdenver.com</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
                     <p>Thank you for choosing our services. We look forward to seeing you!</p>
                     <p>Best regards,</p>
-                    <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">RockStar Paints</a></strong></p>
+                    <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
                 </div>
                 <div class="footer">
                     <a href="https://rockstarpaintingdenver.com/"
-                    <p>&copy; 2024 RockStar Paints. All rights reserved.</p>
+                    <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
                     </a>
                 </div>
             </div>
@@ -200,7 +201,7 @@ export default connectDb(handler)
 // import dayjs from 'dayjs'
 
 // const mailerSend = new MailerSend({
-//   apiKey: 'mlsn.544897ec14ebe9d972a8d04b94822641ebf83adeb29ba8554f9afa351c38f516'
+//   apiKey: 'mlsn.9c77df47fbe9081e10c6ed4186e62c9405412f383294e0db5452e870c41379cf'
 // })
 
 // const handler = async (req, res) => {
@@ -230,7 +231,7 @@ export default connectDb(handler)
 //         twelveHoursBeforeDate.setHours(twelveHoursBeforeDate.getHours() - 12)
 //         const twelveHoursBeforeTimestamp = Math.floor(twelveHoursBeforeDate.getTime() / 1000)
 
-//         const sentFrom = new Sender('info@rockstarpainting.us', 'RockStar Paints')
+//         const sentFrom = new Sender('rockstarpaintingdenver.com', 'Rockstar Painting')
 
 //         const recipients = [new Recipient(appointment.client_email, appointment.client_name)]
 
@@ -323,11 +324,11 @@ export default connectDb(handler)
 //                   <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaints.us">info@rockstarpaints.us</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
 //                   <p>Thank you for choosing our services. We look forward to seeing you!</p>
 //                   <p>Best regards,</p>
-//                   <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">RockStar Paints</a></strong></p>
+//                   <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
 //               </div>
 //               <div class="footer">
 //                   <a href="https://rockstarpaintingdenver.com/"
-//                   <p>&copy; 2024 RockStar Paints. All rights reserved.</p>
+//                   <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
 //                   </a>
 //               </div>
 //           </div>

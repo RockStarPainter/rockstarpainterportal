@@ -5,7 +5,7 @@ import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
 import dayjs from 'dayjs'
 
 const mailerSend = new MailerSend({
-  apiKey: 'mlsn.544897ec14ebe9d972a8d04b94822641ebf83adeb29ba8554f9afa351c38f516'
+  apiKey: 'mlsn.9c77df47fbe9081e10c6ed4186e62c9405412f383294e0db5452e870c41379cf'
 })
 
 const handler = async (req, res) => {
@@ -18,7 +18,7 @@ const handler = async (req, res) => {
         return res.status(404).send('Appointment not found')
       }
 
-      const sentFrom = new Sender('info@rockstarpainting.us', 'RockStar Paints')
+      const sentFrom = new Sender('info@rockstarpaintingdenver.com', 'Rockstar Painting')
 
       const recipients = [new Recipient(saved.client_email, saved.client_name)]
 
@@ -117,11 +117,11 @@ const handler = async (req, res) => {
             <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaints.us">info@rockstarpaints.us</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
             <p>Thank you for choosing our services. We look forward to seeing you!</p>
             <p>Best regards,</p>
-            <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">RockStar Paints</a></strong></p>
+            <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
         </div>
         <div class="footer">
             <a href="https://rockstarpaintingdenver.com/"
-            <p>&copy; 2024 RockStar Paints. All rights reserved.</p>
+            <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
             </a>
         </div>
     </div>
