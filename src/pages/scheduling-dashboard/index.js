@@ -117,6 +117,8 @@ const Home = () => {
     }
   }
 
+  // a comment
+
   const handleSendEmail = async appointment => {
     try {
       // Send initial email
