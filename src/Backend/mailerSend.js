@@ -1,4 +1,4 @@
-import { MailerSend, EmailParams, Recipient, Scheduling } from 'mailersend'
+import { MailerSend, EmailParams, Recipient, Scheduling, SmsParams } from 'mailersend'
 
 const mailerSend = new MailerSend({
   api_key: process.env.MAILERSEND_API_KEY // Ensure you have this in your .env.local
@@ -7,8 +7,6 @@ const mailerSend = new MailerSend({
 const sendEmail = async (to, subject, text) => {
   const emailParams = new EmailParams()
     .setFrom('info@rockstarpaintingdenver.com')
-
-    // .setFromName('Rockstar Painting')
     .setTo([new Recipient(to)])
     .setSubject(subject)
     .setHtml(text)
@@ -27,8 +25,6 @@ const scheduleEmail = async (to, subject, text, sendAt) => {
 
   const emailParams = new EmailParams()
     .setFrom('info@rockstarpaintingdenver.com')
-
-    // .setFromName('Rockstar Painting')
     .setTo([new Recipient(to)])
     .setSubject(subject)
     .setHtml(text)
@@ -43,4 +39,19 @@ const scheduleEmail = async (to, subject, text, sendAt) => {
   }
 }
 
-export { sendEmail, scheduleEmail }
+const sendSMS = async (to, text) => {
+  const smsParams = new SmsParams()
+    .setFrom('+18332552485') // Replace with your MailerSend virtual number
+    .setRecipients([to])
+    .setText(text)
+
+  try {
+    await mailerSend.sms.send(smsParams)
+    console.log('SMS sent successfully')
+  } catch (error) {
+    console.error('Error sending SMS:', error.response ? error.response.data : error)
+    throw error
+  }
+}
+
+export { sendEmail, scheduleEmail, sendSMS }
