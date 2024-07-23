@@ -1,9 +1,10 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
-import { MailerSend, SmsParams } from 'mailersend'
+import { MailerSend, SMSParams } from 'mailersend'
+import dayjs from 'dayjs'
 
 const mailerSend = new MailerSend({
-  api_key: process.env.MAILERSEND_API_KEY // Ensure you have this in your .env.local
+  apiKey: 'mlsn.9c77df47fbe9081e10c6ed4186e62c9405412f383294e0db5452e870c41379cf'
 })
 
 const handler = async (req, res) => {
@@ -16,11 +17,17 @@ const handler = async (req, res) => {
         return res.status(404).send('Appointment not found')
       }
 
-      const smsParams = new SmsParams()
+      const smsParams = new SMSParams()
         .setFrom('+18332552485') // Replace with your MailerSend virtual number
-        .setRecipients([saved.client_phone]) // Ensure client_phone is a field in your appointment schema
+        .setTo([saved.client_phone]) // Ensure client_phone is a field in your appointment schema
         .setText(
-          `Hello ${saved.client_name}, your appointment is confirmed for ${saved.appointment_date} at ${saved.appointment_time}.`
+          `Hello ${saved.client_name},\n
+This is a reminder for your upcoming appointment with Rockstar Painting. We look forward to bringing color and life to your space!\n
+📅 Date: ${dayjs(saved.appointment_date).format('D-MMMM-YYYY')}\n
+⏰ Time: ${saved.appointment_time}\n
+🌐 www.rockstarpainting.com\n
+📞 Contact: 720 771 5791\n
+Thank you for choosing Rockstar Painting. See you soon!`
         )
 
       await mailerSend.sms.send(smsParams)
