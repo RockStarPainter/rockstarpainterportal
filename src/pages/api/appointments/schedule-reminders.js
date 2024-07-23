@@ -273,7 +273,7 @@ const handler = async (req, res) => {
 
           await mailerSend.email.send(emailParams2Hours)
 
-          const recipients2 = [new Recipient('info@rockstarpaintingdenver.com', 'Rockstar Painting')]
+          const recipients2 = [new Recipient('rockstarpainting33@gmail.com', 'Rockstar Painting')]
           const emailParams2Hours2 = new EmailParams()
             .setFrom(sentFrom)
             .setTo(recipients2)
