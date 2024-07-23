@@ -114,7 +114,7 @@ const handler = async (req, res) => {
                 <p><strong>Date:</strong> ${dayjs(saved.appointment_date).format('D-MMMM-YYYY')}</p>
                 <p><strong>Time:</strong> ${saved.appointment_time}</p>
             </div>
-            <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaints.us">info@rockstarpaints.us</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
+            <p>If you have any questions or need to reschedule, please contact us at <a href="mailto:info@rockstarpaintingdenver.com">info@rockstarpaintingdenver.com</a> or call us at <a href="tel:+17207715791">(720) 771-5791</a>.</p>
             <p>Thank you for choosing our services. We look forward to seeing you!</p>
             <p>Best regards,</p>
             <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
