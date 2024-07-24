@@ -45,6 +45,7 @@ import PaintGridComponent from './PaintGrid'
 import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
+import WarrantyContent from './WarrantyContent'
 
 emailjs.init({
   publicKey: '1rRx93iEXQmVegiJX'
@@ -56,6 +57,7 @@ const CreateInvoice = () => {
   const eNumCols = 2 // Number of columns in each row
   const router = useRouter()
   const { invoiceId, view } = router.query
+  const [warrantyType, setWarrantyType] = useState<'None' | 'Interior' | 'Exterior' | 'Both'>('None')
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -235,6 +237,7 @@ const CreateInvoice = () => {
     const section2 = document.getElementById('section2') // Second section
     const section3 = document.getElementById('section3') // Third section
     const section4 = document.getElementById('section4') // Fourth section
+    const section5 = document.getElementById('section5') // Fourth section
     const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
 
     const pdf = new jsPDF('p', 'mm', 'a4')
@@ -1021,6 +1024,21 @@ const CreateInvoice = () => {
                         </MenuItem>
                       )
                     })}
+                  </Select>
+                </FormControl>
+              )}
+              {/* Add Warranty Dropdown */}
+              {!view && (
+                <FormControl fullWidth margin='normal'>
+                  <InputLabel>Add Warranty</InputLabel>
+                  <Select
+                    value={warrantyType}
+                    onChange={e => setWarrantyType(e.target.value as 'None' | 'Interior' | 'Exterior' | 'Both')}
+                  >
+                    <MenuItem value='None'>None</MenuItem>
+                    <MenuItem value='Interior'>Interior</MenuItem>
+                    <MenuItem value='Exterior'>Exterior</MenuItem>
+                    <MenuItem value='Both'>Both</MenuItem>
                   </Select>
                 </FormControl>
               )}
@@ -1999,7 +2017,16 @@ const CreateInvoice = () => {
               </Grid>
             </Grid>
           </div>
-
+          {/* Warranty Content */}
+          <div id='section5'>
+            <Grid container spacing={5} mt={5} mb={10}>
+              {warrantyType && (
+                <Box mt={4}>
+                  <WarrantyContent type={warrantyType} />
+                </Box>
+              )}
+            </Grid>
+          </div>
           {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
             APPROVED AND ACCEPTED
