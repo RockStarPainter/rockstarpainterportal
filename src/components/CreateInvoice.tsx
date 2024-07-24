@@ -58,6 +58,8 @@ const CreateInvoice = () => {
   const router = useRouter()
   const { invoiceId, view } = router.query
   const [warrantyType, setWarrantyType] = useState<'None' | 'Interior' | 'Exterior' | 'Both'>('None')
+  const [interiorWarranty, setInteriorWarranty] = useState('')
+  const [exteriorWarranty, setExteriorWarranty] = useState('')
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -179,6 +181,21 @@ const CreateInvoice = () => {
         setStatus(tableData.status)
         setSelectedBenjamin(tableData.benjamin_paints)
         setSelectedSherwin(tableData.sherwin_paints)
+        setWarrantyType(tableData.warranty_type)
+        setInteriorWarranty(
+          tableData.warranty_type === 'Interior'
+            ? tableData.interior_warranty
+            : tableData.warranty_type === 'Both'
+            ? tableData.interior_warranty
+            : ''
+        )
+        setExteriorWarranty(
+          tableData.warranty_type === 'Exterior'
+            ? tableData.exterior_warranty
+            : tableData.warranty_type === 'Both'
+            ? tableData.exterior_warranty
+            : ''
+        )
       })
     } else {
       reset(defaultValues)
@@ -284,23 +301,31 @@ const CreateInvoice = () => {
       }
     }
 
+    if (warrantyType !== 'None') {
+      await addSectionToPdf(section5, pdf)
+    }
     if (invoiceType === InvoiceTypes.INTERIOR) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(section1, pdf)
-      pdf.deletePage(3)
+      // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.EXTERIOR) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(ExteriorWithCustomer, pdf)
-      pdf.deletePage(3)
+      // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.BOTH) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(section2, pdf)
 
       await addSectionToPdf(section1, pdf)
-      pdf.deletePage(4)
+      // pdf.deletePage(4)
+    }
+    if (warrantyType !== 'None') {
+      pdf.deletePage(invoiceType === InvoiceTypes.BOTH ? 5 : 4)
+    } else {
+      pdf.deletePage(invoiceType === InvoiceTypes.BOTH ? 4 : 3)
     }
 
     // if (allData && allData['pay_link']) {
@@ -396,7 +421,10 @@ const CreateInvoice = () => {
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
-        benjamin_paints: selectedBenjamin
+        benjamin_paints: selectedBenjamin,
+        warranty_type: warrantyType,
+        exterior_warranty: exteriorWarranty,
+        interior_warranty: interiorWarranty
       }
 
       if (invoiceId) {
@@ -2019,10 +2047,21 @@ const CreateInvoice = () => {
           </div>
           {/* Warranty Content */}
           <div id='section5'>
+            {warrantyType !== 'None' && view && (
+              <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+            )}
+            {warrantyType && warrantyType !== 'None' && <StyledTypography>Warranty</StyledTypography>}
             <Grid container spacing={5} mt={5} mb={10}>
               {warrantyType && (
                 <Box mt={4}>
-                  <WarrantyContent type={warrantyType} />
+                  <WarrantyContent
+                    interiorWarranty={interiorWarranty}
+                    setInteriorWarranty={setInteriorWarranty}
+                    exteriorWarranty={exteriorWarranty}
+                    setExteriorWarranty={setExteriorWarranty}
+                    type={warrantyType}
+                    view={view}
+                  />
                 </Box>
               )}
             </Grid>
