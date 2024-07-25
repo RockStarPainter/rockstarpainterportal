@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from 'react'
 
-import { useForm, Controller, Control, FieldValues } from 'react-hook-form'
+import { useForm, Controller, Control } from 'react-hook-form'
 import {
   Table,
   TableBody,
