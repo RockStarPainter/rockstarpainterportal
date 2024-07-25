@@ -91,6 +91,43 @@ interface WarrantyContentProps {
   interiorWarranty: string
   exteriorWarranty: string
   view: any
+  customerName: string
+  warrantyDate: string
+  setWarrantyDate: (newDate: string) => void
+}
+
+const Something = ({ value, title }: any) => {
+  return (
+    <Box width={'12%'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
+      <Typography>{value}</Typography>
+      <Typography
+        style={{
+          borderTop: '2px solid',
+          width: '100%',
+          textAlign: 'center'
+        }}
+      >
+        {title}
+      </Typography>
+    </Box>
+  )
+}
+
+const SetDate = ({ value, setValue, title }: any) => {
+  return (
+    <Box width={'12%'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
+      <TextField value={value} onChange={setValue} type='date' inputProps={{ min: 0 }} />
+      <Typography
+        style={{
+          borderTop: '2px solid',
+          width: '100%',
+          textAlign: 'center'
+        }}
+      >
+        {title}
+      </Typography>
+    </Box>
+  )
 }
 
 const WarrantyContent: React.FC<WarrantyContentProps> = ({
@@ -99,7 +136,10 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
   setExteriorWarranty,
   interiorWarranty,
   exteriorWarranty,
-  view
+  view,
+  customerName,
+  warrantyDate,
+  setWarrantyDate
 }) => {
   const handleInteriorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInteriorWarranty(event.target.value)
@@ -150,6 +190,17 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
           {renderWarranty('Interior', interiorWarranty, handleInteriorChange)}
           {renderWarranty('Exterior', exteriorWarranty, handleExteriorChange)}
         </>
+      )}
+      {type !== 'None' && (
+        <Box display={'flex'} justifyContent={'space-around'} flexDirection={'row'}>
+          <Something value={customerName} title='Customer' />
+          <Something value='Angel Verde' title='Contractor' />
+          {view ? (
+            <Something value={warrantyDate} title='Date' />
+          ) : (
+            <SetDate value={warrantyDate} setValue={setWarrantyDate} title='Date' />
+          )}
+        </Box>
       )}
     </Box>
   )

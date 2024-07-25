@@ -60,6 +60,7 @@ const CreateInvoice = () => {
   const [warrantyType, setWarrantyType] = useState<'None' | 'Interior' | 'Exterior' | 'Both'>('None')
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
+  const [warrantyDate, setWarrantyDate] = useState('')
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -2061,6 +2062,9 @@ const CreateInvoice = () => {
                     setExteriorWarranty={setExteriorWarranty}
                     type={warrantyType}
                     view={view}
+                    customerName={allData?.customer_name}
+                    warrantyDate={warrantyDate}
+                    setWarrantyDate={setWarrantyDate}
                   />
                 </Box>
               )}

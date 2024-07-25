@@ -50,7 +50,8 @@ const invoiceSchema = new Schema(
     other_paints: { type: String, required: false },
     interior_warranty: { type: Number, required: false },
     exterior_warranty: { type: Number, required: false },
-    warranty_type: { type: String, enum: ['None', 'Interior', 'Exterior', 'Both'], default: 'None' } // Add warranty_type field
+    warranty_type: { type: String, enum: ['None', 'Interior', 'Exterior', 'Both'], default: 'None' }, // Add warranty_type field
+    warranty_date: { type: Date, required: false }
   },
   { timestamps: true }
 )
