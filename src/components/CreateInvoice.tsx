@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from 'react'
 
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, Control, FieldValues } from 'react-hook-form'
 import {
   Table,
   TableBody,
@@ -46,6 +46,61 @@ import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import WarrantyContent from './WarrantyContent'
+
+interface FormItemProps {
+  name: string
+  label: string
+  control: Control
+  allData?: { [key: string]: any }
+  view: boolean
+  payLink?: string
+  disabled?: boolean
+}
+
+const FormItem: React.FC<FormItemProps> = ({ name, label, control, allData, view, payLink, disabled = false }) => {
+  return (
+    <Grid item xs={12} sm={4}>
+      {!view && !disabled ? (
+        <FormControl fullWidth>
+          <Controller
+            name={name}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label={label}
+                onChange={e => {
+                  // Ensure the value is non-negative if the field is 'total_cost' or 'handyMan_total_cost'
+                  const value = parseFloat(e.target.value)
+                  if ((name === 'total_cost' || name === 'handyMan_total_cost') && value < 0) {
+                    field.onChange(0) // Reset to 0 if negative value is input
+                  } else {
+                    field.onChange(e.target.value) // Otherwise, pass the value through normally
+                  }
+                }}
+                aria-describedby='validation-basic-last-name'
+                disabled={disabled}
+              />
+            )}
+          />
+        </FormControl>
+      ) : (
+        <Box>
+          <Typography variant='h5' fontWeight='bold' sx={{ textAlign: 'center' }}>
+            {label}
+          </Typography>
+          <Typography variant='h6' sx={{ textAlign: 'center' }}>
+            {name === 'pay_link'
+              ? payLink
+              : disabled
+              ? allData?.['handyMan_total_cost'] + allData?.['total_cost']
+              : allData?.[name]}
+          </Typography>
+        </Box>
+      )}
+    </Grid>
+  )
+}
 
 emailjs.init({
   publicKey: '1rRx93iEXQmVegiJX'
@@ -165,12 +220,16 @@ const CreateInvoice = () => {
         defaultValues.city = tableData.city
         defaultValues.state = tableData.state
         defaultValues.zip_code = tableData.zip_code
-        defaultValues.total_cost = tableData.total_cost
         defaultValues.notes = tableData.notes
+        defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
+        defaultValues.down_payment = tableData.down_payment
+        defaultValues.handyMan_total_cost = tableData.handyMan_total_cost
+        defaultValues.handyMan_balance_due = tableData.handyMan_balance_due
+        defaultValues.handyMan_down_payment = tableData.handyMan_down_payment
+        defaultValues.grand_total = tableData.grand_total
         defaultValues.pay_link = tableData.pay_link
         defaultValues.other_paints = tableData.other_paints
-        defaultValues.down_payment = tableData.down_payment
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
         setAllData(tableData)
         reset(defaultValues)
@@ -197,7 +256,7 @@ const CreateInvoice = () => {
             ? tableData.exterior_warranty
             : ''
         )
-        setWarrantyDate(new Date(tableData.warranty_date).toLocaleDateString())
+        setWarrantyDate(new Date(tableData?.warranty_date).toLocaleDateString())
       })
     } else {
       reset(defaultValues)
@@ -418,10 +477,14 @@ const CreateInvoice = () => {
         issue_date: formData.issue_date,
         interiorData: formData.interiorData,
         exteriorData: formData.exteriorData,
-        total_cost: parseInt(formData.total_cost),
         notes: formData.notes,
         balance_due: parseInt(formData.balance_due),
         down_payment: parseInt(formData.down_payment),
+        total_cost: parseInt(formData.total_cost),
+        handyMan_balance_due: parseInt(formData.handyMan_balance_due),
+        handyMan_down_payment: parseInt(formData.handyMan_down_payment),
+        handyMan_total_cost: parseInt(formData.handyMan_total_cost),
+        grand_total: parseInt(formData.grand_total),
         status: status,
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
@@ -1903,12 +1966,95 @@ const CreateInvoice = () => {
                 </Grid>
               )}
             </>
-            <>
-              <StyledTypography>PAYMENT DETAILS</StyledTypography>
-            </>
+            <StyledTypography>PAINTING PAYMENT DETAILS</StyledTypography>
+            <Grid container spacing={5} mt={5} mb={10}>
+              <FormItem
+                name='total_cost'
+                label='Total Cost'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+              <FormItem
+                name='down_payment'
+                label='50% Down Payment'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+              <FormItem
+                name='balance_due'
+                label='Balance Due'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+            </Grid>
+            <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
+            <Grid container spacing={5} mt={5} mb={10}>
+              <FormItem
+                name='handyMan_total_cost'
+                label='Total Cost'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+              <FormItem
+                name='handyMan_down_payment'
+                label='50% Down Payment'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+              <FormItem
+                name='handyMan_balance_due'
+                label='Balance Due'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+              />
+            </Grid>
+            <StyledTypography>TOTAL COST</StyledTypography>
           </div>
           <div id='section4'>
-            <Grid container spacing={5} mt={5} mb={10}>
+            <Grid container spacing={5} mt={5} mb={10} justifyContent={'space-between'}>
+              <FormItem
+                name='grand_total'
+                label='Grand Total'
+                control={control}
+                allData={allData}
+                view={view === 'true'}
+                disabled={true}
+              />
+              <Grid item xs={12} sm={4}>
+                {!view ? (
+                  <FormControl fullWidth>
+                    <Controller
+                      name={'pay_link'}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <TextField
+                          value={value}
+                          label={'Payment Link'}
+                          onChange={onChange}
+                          aria-describedby='validation-basic-last-name'
+                        />
+                      )}
+                    />
+                  </FormControl>
+                ) : (
+                  <Box>
+                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                      {'Pay Link'}
+                    </Typography>
+                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                      {payLink}
+                    </Typography>
+                  </Box>
+                )}
+              </Grid>
+            </Grid>
+            {/* <Grid container spacing={5} mt={5} mb={10}>
               <Grid item xs={12} sm={3}>
                 {!view ? (
                   <FormControl fullWidth>
@@ -1945,7 +2091,7 @@ const CreateInvoice = () => {
                       render={({ field: { value, onChange } }) => (
                         <TextField
                           value={value}
-                          label={'50% Down payment'}
+                          label={'50% Down Payment'}
                           onChange={onChange}
                           aria-describedby='validation-basic-last-name'
                         />
@@ -1955,7 +2101,7 @@ const CreateInvoice = () => {
                 ) : (
                   <Box>
                     <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'50% Down payment'}
+                      {'50% Down Payment'}
                     </Typography>
                     <Typography variant='h6' sx={{ textAlign: 'center' }}>
                       {allData && allData['down_payment']}
@@ -1990,37 +2136,6 @@ const CreateInvoice = () => {
                   </Box>
                 )}
               </Grid>
-              {/* <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'pay_link'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'Payment Link'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'Pay Link'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {allData && allData['pay_link'] ? (
-                          <Link href={allData['pay_link']} target='_blank'>
-                            {allData['pay_link'].length > 30 ? allData['pay_link'] : allData['pay_link']}
-                          </Link>
-                        ) : null}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid> */}
 
               <Grid item xs={12} sm={3}>
                 {!view ? (
@@ -2049,8 +2164,9 @@ const CreateInvoice = () => {
                   </Box>
                 )}
               </Grid>
-            </Grid>
+            </Grid> */}
           </div>
+
           {/* Warranty Content */}
           <div id='section5'>
             {warrantyType !== 'None' && view && (

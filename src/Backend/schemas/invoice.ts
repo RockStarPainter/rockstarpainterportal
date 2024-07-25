@@ -38,9 +38,9 @@ const invoiceSchema = new Schema(
     state: { type: String, required: false },
     zip_code: { type: String, required: false },
     total_cost: { type: Number, required: false },
-    notes: { type: String, required: false },
     balance_due: { type: Number, required: false },
     down_payment: { type: Number, required: false },
+    notes: { type: String, required: false },
     pay_link: { type: String, required: false },
     issue_date: { type: Date, required: false },
     interiorData: {},
@@ -51,7 +51,11 @@ const invoiceSchema = new Schema(
     interior_warranty: { type: Number, required: false },
     exterior_warranty: { type: Number, required: false },
     warranty_type: { type: String, enum: ['None', 'Interior', 'Exterior', 'Both'], default: 'None' }, // Add warranty_type field
-    warranty_date: { type: Date, required: false }
+    warranty_date: { type: Date, required: false },
+    handyMan_total_cost: { type: Number, required: false },
+    handyMan_balance_due: { type: Number, required: false },
+    handyMan_down_payment: { type: Number, required: false },
+    grand_total: { type: Number, required: false }
   },
   { timestamps: true }
 )
