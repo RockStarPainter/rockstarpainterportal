@@ -85,7 +85,7 @@ import React from 'react'
 import { Typography, Box, TextField } from '@mui/material'
 
 interface WarrantyContentProps {
-  type: 'Interior' | 'Exterior' | 'Both'
+  type: 'Interior' | 'Exterior' | 'Both' | 'None'
   setInteriorWarranty: (months: string) => void
   setExteriorWarranty: (months: string) => void
   interiorWarranty: string
