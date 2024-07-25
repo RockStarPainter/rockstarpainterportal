@@ -197,6 +197,7 @@ const CreateInvoice = () => {
             ? tableData.exterior_warranty
             : ''
         )
+        setWarrantyDate(new Date(tableData.warranty_date).toLocaleDateString())
       })
     } else {
       reset(defaultValues)

@@ -16,12 +16,21 @@ interface WarrantyContentProps {
 const Something = ({ value, title }: any) => {
   return (
     <Box width={'12%'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
-      <Typography>{value}</Typography>
+      <Typography
+        style={{
+          height: '30px',
+          marginTop: '30px',
+          fontSize: '20px'
+        }}
+      >
+        {value}
+      </Typography>
       <Typography
         style={{
           borderTop: '2px solid',
           width: '100%',
-          textAlign: 'center'
+          textAlign: 'center',
+          fontSize: '20px'
         }}
       >
         {title}
@@ -37,12 +46,21 @@ const SetDate = ({ value, setValue, title }: any) => {
 
   return (
     <Box width={'12%'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
-      <TextField value={value} onChange={handleChange} type='date' />
+      <TextField
+        value={value}
+        onChange={handleChange}
+        type='date'
+        style={{
+          height: '60px',
+          fontSize: '20px'
+        }}
+      />
       <Typography
         style={{
           borderTop: '2px solid',
           width: '100%',
-          textAlign: 'center'
+          textAlign: 'center',
+          fontSize: '20px'
         }}
       >
         {title}
@@ -76,8 +94,8 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   ) => (
     <Box width={'90%'} marginBottom={'2%'}>
-      <Typography variant='h6'>{title} Warranty</Typography>
-      <Typography>
+      <Typography variant='h4'>{title} Warranty</Typography>
+      <Typography fontSize={'20px'}>
         A warranty of{' '}
         {view ? (
           <b> {warranty}</b>
@@ -113,7 +131,7 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
         </>
       )}
       {type !== 'None' && (
-        <Box display={'flex'} justifyContent={'space-around'} flexDirection={'row'}>
+        <Box display={'flex'} justifyContent={'space-around'} flexDirection={'row'} alignItems={'center'}>
           <Something value={customerName} title='Customer' />
           <Something value='Angel Verde' title='Contractor' />
           {view ? (
