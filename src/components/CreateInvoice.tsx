@@ -309,11 +309,13 @@ const CreateInvoice = () => {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(section1, pdf)
+
       // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.EXTERIOR) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(ExteriorWithCustomer, pdf)
+
       // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.BOTH) {
       await addSectionToPdf(section3, pdf, section4, true)
@@ -321,6 +323,7 @@ const CreateInvoice = () => {
       await addSectionToPdf(section2, pdf)
 
       await addSectionToPdf(section1, pdf)
+
       // pdf.deletePage(4)
     }
     if (warrantyType !== 'None') {
@@ -425,7 +428,8 @@ const CreateInvoice = () => {
         benjamin_paints: selectedBenjamin,
         warranty_type: warrantyType,
         exterior_warranty: exteriorWarranty,
-        interior_warranty: interiorWarranty
+        interior_warranty: interiorWarranty,
+        warranty_date: warrantyDate
       }
 
       if (invoiceId) {
@@ -2064,7 +2068,7 @@ const CreateInvoice = () => {
                     view={view}
                     customerName={allData?.customer_name}
                     warrantyDate={warrantyDate}
-                    setWarrantyDate={setWarrantyDate}
+                    setWarrantyDate={newDate => setWarrantyDate(newDate)}
                   />
                 </Box>
               )}
