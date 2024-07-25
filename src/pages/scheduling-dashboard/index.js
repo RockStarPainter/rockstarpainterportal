@@ -25,8 +25,9 @@ import ViewAppointmentDetailsDialog from 'src/views/pages/ViewAppointmentDetails
 import UpdateAppointmentDialog from 'src/views/pages/UpdateAppointmentDialog'
 import formatTime from 'src/utilis/formatTime'
 import Appointments24Hours from 'src/views/pages/Appointments24Hours'
-import SendIcon from '@mui/icons-material/Send' // Import the send icon
+import SendIcon from '@mui/icons-material/Send'
 import Tooltip from '@mui/material/Tooltip'
+import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
 
 const Home = () => {
   const [data, setData] = useState([])
@@ -41,8 +42,6 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/appointments/get-all')
-
-      // console.log(res.data.payload.appointments)
       setData(res.data.payload.appointments)
     } catch (error) {
       console.log(error)
@@ -132,6 +131,16 @@ const Home = () => {
     }
   }
 
+  const handleSendSMS = async appointment => {
+    try {
+      await axios.post('/api/appointments/send-sms', { appointmentId: appointment._id })
+      toast.success('SMS sent successfully')
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      toast.error('Error sending SMS')
+    }
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -156,7 +165,6 @@ const Home = () => {
           )
         }
       },
-
       {
         header: 'Appointment Time',
         accessorKey: 'appointment_time',
@@ -218,6 +226,10 @@ const Home = () => {
               <div onClick={() => handleSendEmail(appointment)} style={{ cursor: 'pointer' }}>
                 <SendIcon />
               </div>
+              <div style={{ width: '15px' }}></div>
+              <div onClick={() => handleSendSMS(appointment)} style={{ cursor: 'pointer' }}>
+                <SmsIcon />
+              </div>
             </Box>
           )
         }
@@ -244,7 +256,7 @@ const Home = () => {
         </Link>
       </Box>
       <MaterialReactTable table={table} />
-      <Appointments24Hours /> {/* Use the new component here */}
+      <Appointments24Hours />
       <Dialog open={openDialog} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
@@ -265,7 +277,7 @@ const Home = () => {
         _id={selectedAppointment}
         open={viewDialog}
         onClose={handleCloseViewDialog}
-        onUpdateComplete={fetchData} // Pass the fetchData function as a callback
+        onUpdateComplete={fetchData}
       />
       <UpdateAppointmentDialog
         appointmentId={selectedAppointment}

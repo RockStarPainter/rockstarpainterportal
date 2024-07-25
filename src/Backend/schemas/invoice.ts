@@ -33,11 +33,9 @@ const invoiceSchema = new Schema(
     customer_name: { type: String, required: true },
     phone_number: { type: String, required: false },
     email: { type: String, required: true },
-
     address: { type: String, required: false },
     city: { type: String, required: false },
     state: { type: String, required: false },
-
     zip_code: { type: String, required: false },
     total_cost: { type: Number, required: false },
     notes: { type: String, required: false },
@@ -49,7 +47,11 @@ const invoiceSchema = new Schema(
     exteriorData: {},
     sherwin_paints: [],
     benjamin_paints: [],
-    other_paints: { type: String, required: false }
+    other_paints: { type: String, required: false },
+    interior_warranty: { type: Number, required: false },
+    exterior_warranty: { type: Number, required: false },
+    warranty_type: { type: String, enum: ['None', 'Interior', 'Exterior', 'Both'], default: 'None' }, // Add warranty_type field
+    warranty_date: { type: Date, required: false }
   },
   { timestamps: true }
 )
