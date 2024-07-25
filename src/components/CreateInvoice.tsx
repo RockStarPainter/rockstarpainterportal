@@ -108,6 +108,59 @@ const CreateInvoice = () => {
         pullTrowel: '',
         customTexture: '',
         popCornRemoval: ''
+      },
+      vinylFlooring: {
+        removal: '',
+        debrisRemoval: '',
+        stairs: '',
+        prepping: '',
+        baseboardInstallation: '',
+        repairs: ''
+      },
+      tile: {
+        removal: '',
+        reguardWaterProofingApplication: '',
+        debrisRemoval: '',
+        prepping: '',
+        groutInstallation: '',
+        ditraInstallation: '',
+        showerPan: ''
+      },
+      carpetInstallation: {
+        squareYard: '',
+        removal: '',
+        debrisRemoval: '',
+        stairWay: '',
+        carpetStretching: '',
+        repairs: ''
+      },
+      carpentry: {
+        framing: '',
+        doorInstallation: '',
+        debrisRemoval: '',
+        baseboardInstallation: '',
+        doorCasingInstallation: '',
+        quarterRoundMolding: '',
+        crownMolding: '',
+        windowSill: ''
+      },
+      plumbing: {
+        GarbageDesposalRemovalInstallation: '',
+        faucetRemovalInstallation: '',
+        toiletRemovalInstallation: '',
+        replaceValves: '',
+        sinkRemovalInstallation: '',
+        showerDoorInstallation: '',
+        debrisRemoval: '',
+        kitRepair: ''
+      },
+      fixtures: {
+        mirrorInstallation: '',
+        vanityInstallation: '',
+        lightReplacement: '',
+        towelBar: '',
+        hardware: '',
+        blindInstallation: ''
       }
     }
 
