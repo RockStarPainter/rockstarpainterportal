@@ -1,36 +1,52 @@
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, Typography, Box } from '@mui/material'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
-
-function CustomSelectField({ name, label, ...others }) {
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { green } from '@mui/material/colors'
+function CustomSelectField({ name, label, view, ...others }) {
   const methods = useFormContext()
-  const { control } = methods
+  const { control, getValues } = methods
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field: { onChange, value, ref } }) => (
-        <FormControl fullWidth>
-          <InputLabel id='demo-simple-select-label'>{label}</InputLabel>
-          <Select
-            labelId='demo-simple-select-label'
-            id='demo-simple-select'
-            value={value}
-            onChange={onChange}
-            inputRef={ref}
-            label={label}
-            {...others}
-          >
-            <MenuItem key={'Yes'} value={'Yes'}>
-              {'Yes'}
-            </MenuItem>
-            <MenuItem key={'No'} value={'No'}>
-              {'No'}
-            </MenuItem>
-          </Select>
-        </FormControl>
+    <>
+      {!view ? (
+        <Controller
+          name={name}
+          control={control}
+          render={({ field: { onChange, value, ref } }) => (
+            <FormControl fullWidth>
+              <InputLabel id='demo-simple-select-label'>{label}</InputLabel>
+              <Select
+                labelId='demo-simple-select-label'
+                id='demo-simple-select'
+                value={value}
+                onChange={onChange}
+                inputRef={ref}
+                label={label}
+                {...others}
+              >
+                <MenuItem key={'Yes'} value={'Yes'}>
+                  {'Yes'}
+                </MenuItem>
+                <MenuItem key={'No'} value={'No'}>
+                  {'No'}
+                </MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
+      ) : (
+        <>
+          {Boolean(getValues(name)) && getValues(name) !== 'No' && (
+            <>
+              <Typography textAlign={'center'}>{label}</Typography>
+              <Box sx={{ textAlign: 'center' }}>
+                <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+              </Box>
+            </>
+          )}
+        </>
       )}
-    />
+    </>
   )
 }
 

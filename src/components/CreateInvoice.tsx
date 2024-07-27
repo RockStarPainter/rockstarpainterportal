@@ -161,6 +161,27 @@ const CreateInvoice = () => {
         towelBar: '',
         hardware: '',
         blindInstallation: ''
+      },
+      cleaning: {
+        deepCleaning: '',
+        basicCleaning: '',
+        insideWindows: 0,
+        stove: '',
+        microwave: '',
+        baseBoard: '',
+        refrigerator: '',
+        cabinets: '',
+        walls: '',
+        pantry: '',
+        stoveHood: '',
+        bathrooms: 0,
+        mopping: '',
+        bedrooms: 0,
+        carpetVacuum: '',
+        powerWash: '',
+        basement: '',
+        garage: '',
+        patio: ''
       }
     }
 
@@ -186,12 +207,43 @@ const CreateInvoice = () => {
   const [emailLoading, setemailLoading] = useState(false)
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
+  const [newForm, setNewForm] = useState({
+    dryWall: false,
+    textureRepair: false,
+    vinylFlooring: false,
+    tile: false,
+    carpetInstallation: false,
+    carpentry: false,
+    plumbing: false,
+    fixtures: false,
+    cleaning: false
+  })
 
   // const handleCheckboxChange = (event: any) => {
   //   setSelectedOption(event.target.name)
   // }
 
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
+
+  const checkValues = (obj: any) => {
+    return !Object.values(obj).every(value => value === null || value === 0 || value === '' || value === 'No')
+  }
+
+  const showNewFormOrNot = (newFormData: any) => {
+    const obj = { ...newForm }
+    obj.dryWall = checkValues(newFormData.dryWall)
+    obj.textureRepair = checkValues(newFormData.textureRepair)
+    obj.vinylFlooring = checkValues(newFormData.vinylFlooring)
+    obj.tile = checkValues(newFormData.tile)
+
+    obj.carpetInstallation = checkValues(newFormData.carpetInstallation)
+    obj.carpentry = checkValues(newFormData.carpentry)
+    obj.plumbing = checkValues(newFormData.plumbing)
+    obj.fixtures = checkValues(newFormData.fixtures)
+    obj.cleaning = checkValues(newFormData.cleaning)
+
+    setNewForm(obj)
+  }
 
   // const headers = ['YES', 'NO', 'WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
   const eheaders = ['YES', 'NO']
@@ -234,6 +286,7 @@ const CreateInvoice = () => {
         defaultValues.other_paints = tableData.other_paints
         defaultValues.down_payment = tableData.down_payment
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
+        defaultValues.newForm = tableData.moreDetails
         setAllData(tableData)
         reset(defaultValues)
         setSelectedOption(tableData.form_type)
@@ -244,6 +297,7 @@ const CreateInvoice = () => {
         setStatus(tableData.status)
         setSelectedBenjamin(tableData.benjamin_paints)
         setSelectedSherwin(tableData.sherwin_paints)
+        showNewFormOrNot(tableData.moreDetails)
       })
     } else {
       reset(defaultValues)
@@ -460,7 +514,8 @@ const CreateInvoice = () => {
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
-        benjamin_paints: selectedBenjamin
+        benjamin_paints: selectedBenjamin,
+        moreDetails: formData.newForm
       }
 
       if (invoiceId) {
@@ -987,7 +1042,7 @@ const CreateInvoice = () => {
               <div id='section1'>
                 <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                 {/* <Button onClick={() => reset()}>Reset</Button> */}
-                <NewForm />
+                <NewForm view={view} newForm={newForm} />
                 <StyledTypography>CUSTOMER DETAILS</StyledTypography>
 
                 <Grid container spacing={5}>

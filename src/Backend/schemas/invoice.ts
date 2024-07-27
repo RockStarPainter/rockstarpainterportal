@@ -49,7 +49,8 @@ const invoiceSchema = new Schema(
     exteriorData: {},
     sherwin_paints: [],
     benjamin_paints: [],
-    other_paints: { type: String, required: false }
+    other_paints: { type: String, required: false },
+    moreDetails: {}
   },
   { timestamps: true }
 )
