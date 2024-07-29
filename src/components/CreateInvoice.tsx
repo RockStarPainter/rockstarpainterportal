@@ -46,6 +46,7 @@ import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import NewForm from './NewForm'
+import WarrantyContent from './WarrantyContent'
 
 emailjs.init({
   publicKey: '1rRx93iEXQmVegiJX'
@@ -57,6 +58,10 @@ const CreateInvoice = () => {
   const eNumCols = 2 // Number of columns in each row
   const router = useRouter()
   const { invoiceId, view } = router.query
+  const [warrantyType, setWarrantyType] = useState<'None' | 'Interior' | 'Exterior' | 'Both'>('None')
+  const [interiorWarranty, setInteriorWarranty] = useState('')
+  const [exteriorWarranty, setExteriorWarranty] = useState('')
+  const [warrantyDate, setWarrantyDate] = useState('')
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -298,6 +303,22 @@ const CreateInvoice = () => {
         setSelectedBenjamin(tableData.benjamin_paints)
         setSelectedSherwin(tableData.sherwin_paints)
         showNewFormOrNot(tableData.moreDetails)
+        setWarrantyType(tableData.warranty_type)
+        setInteriorWarranty(
+          tableData.warranty_type === 'Interior'
+            ? tableData.interior_warranty
+            : tableData.warranty_type === 'Both'
+            ? tableData.interior_warranty
+            : ''
+        )
+        setExteriorWarranty(
+          tableData.warranty_type === 'Exterior'
+            ? tableData.exterior_warranty
+            : tableData.warranty_type === 'Both'
+            ? tableData.exterior_warranty
+            : ''
+        )
+        setWarrantyDate(new Date(tableData.warranty_date).toLocaleDateString())
       })
     } else {
       reset(defaultValues)
@@ -357,6 +378,7 @@ const CreateInvoice = () => {
     const section3 = document.getElementById('section3') // Third section
     const section4 = document.getElementById('section4') // Fourth section
     const section6 = document.getElementById('section6') // Sixth section
+    const section5 = document.getElementById('section5') // Fourth section
     const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
 
     const pdf = new jsPDF('p', 'mm', 'a4')
@@ -403,16 +425,21 @@ const CreateInvoice = () => {
       }
     }
 
+    if (warrantyType !== 'None') {
+      await addSectionToPdf(section5, pdf)
+    }
     if (invoiceType === InvoiceTypes.INTERIOR) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(section1, pdf)
-      pdf.deletePage(3)
+
+      // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.EXTERIOR) {
       await addSectionToPdf(section3, pdf, section4, true)
 
       await addSectionToPdf(ExteriorWithCustomer, pdf)
-      pdf.deletePage(3)
+
+      // pdf.deletePage(3)
     } else if (invoiceType === InvoiceTypes.HANDYMAN) {
       await addSectionToPdf(section6, pdf, section4, true)
 
@@ -425,7 +452,7 @@ const CreateInvoice = () => {
       await addSectionToPdf(section2, pdf)
 
       await addSectionToPdf(section1, pdf)
-      pdf.deletePage(5)
+      pdf.deletePage(4)
     }
 
     // if (allData && allData['pay_link']) {
@@ -522,7 +549,11 @@ const CreateInvoice = () => {
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
         benjamin_paints: selectedBenjamin,
-        moreDetails: formData.newForm
+        moreDetails: formData.newForm,
+        warranty_type: warrantyType,
+        exterior_warranty: exteriorWarranty,
+        interior_warranty: interiorWarranty,
+        warranty_date: warrantyDate
       }
 
       if (invoiceId) {
@@ -1151,6 +1182,21 @@ const CreateInvoice = () => {
                           </MenuItem>
                         )
                       })}
+                    </Select>
+                  </FormControl>
+                )}
+                {/* Add Warranty Dropdown */}
+                {!view && (
+                  <FormControl fullWidth margin='normal'>
+                    <InputLabel>Add Warranty</InputLabel>
+                    <Select
+                      value={warrantyType}
+                      onChange={e => setWarrantyType(e.target.value as 'None' | 'Interior' | 'Exterior' | 'Both')}
+                    >
+                      <MenuItem value='None'>None</MenuItem>
+                      <MenuItem value='Interior'>Interior</MenuItem>
+                      <MenuItem value='Exterior'>Exterior</MenuItem>
+                      <MenuItem value='Both'>Both</MenuItem>
                     </Select>
                   </FormControl>
                 )}
@@ -2146,6 +2192,30 @@ const CreateInvoice = () => {
                 </Grid>
               </Grid>
             </div>{' '}
+            {/* Warranty Content */}
+            <div id='section5'>
+              {warrantyType !== 'None' && view && (
+                <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+              )}
+              {warrantyType && warrantyType !== 'None' && <StyledTypography>Warranty</StyledTypography>}
+              <Grid container spacing={5} mt={5} mb={10}>
+                {warrantyType && (
+                  <Box mt={4}>
+                    <WarrantyContent
+                      interiorWarranty={interiorWarranty}
+                      setInteriorWarranty={setInteriorWarranty}
+                      exteriorWarranty={exteriorWarranty}
+                      setExteriorWarranty={setExteriorWarranty}
+                      type={warrantyType}
+                      view={view}
+                      customerName={allData?.customer_name}
+                      warrantyDate={warrantyDate}
+                      setWarrantyDate={newDate => setWarrantyDate(newDate)}
+                    />
+                  </Box>
+                )}
+              </Grid>
+            </div>
             {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
             APPROVED AND ACCEPTED
