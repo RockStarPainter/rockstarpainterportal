@@ -366,146 +366,149 @@ const CreateInvoice = () => {
   }, [invoiceId])
 
   const generatePdf = async (str?: string) => {
-    if (typeof window === 'undefined') return
-    if (str !== 'email') {
-      setPdfLoading(true)
-    } else {
-      setemailLoading(true)
-    }
-
-    const section1 = document.getElementById('section1') // First section
-    const section2 = document.getElementById('section2') // Second section
-    const section3 = document.getElementById('section3') // Third section
-    const section4 = document.getElementById('section4') // Fourth section
-    const section6 = document.getElementById('section6') // Sixth section
-    const section5 = document.getElementById('section5') // Fourth section
-    const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
-
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pdfWidth = 210 // A4 width in mm
-    const pdfHeight = 297 // A4 height in mm
-    const screenWidth = 1500 // Desired screen width in pixels
-    const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
-
-    const addSectionToPdf = async (section: any, pdf: any, html?: any, doHtml = false) => {
-      const canvas = await html2canvas(
-        section,
-        doHtml
-          ? {
-              scale: 2, // Adjust as needed
-              useCORS: true,
-              width: screenWidth,
-              windowWidth: screenWidth
-            }
-          : {
-              scale: 2, // Adjust as needed
-              useCORS: true,
-              width: screenWidth,
-              height: screenHeight,
-              windowWidth: screenWidth
-            }
-      )
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
-
-      const imgProps = pdf.getImageProperties(imgData)
-      const imgWidth = pdfWidth
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-      await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
-      if (doHtml) {
-        await pdf.html(html.outerHTML, {
-          // callback: function (pdf) {},
-          x: 6,
-          y: imgHeight + 5,
-          width: imgWidth,
-          windowWidth: screenWidth
-        })
-        await pdf.link(165, imgHeight + 16, 45, 10, { url: allData['pay_link'] })
+    try {
+      if (typeof window === 'undefined') return
+      if (str !== 'email') {
+        setPdfLoading(true)
+      } else {
+        setemailLoading(true)
       }
-    }
 
-    if (warrantyType !== 'None') {
-      await addSectionToPdf(section5, pdf)
-    }
-    if (invoiceType === InvoiceTypes.INTERIOR) {
-      await addSectionToPdf(section3, pdf, section4, true)
+      const section1 = document.getElementById('section1') // First section
+      const section2 = document.getElementById('section2') // Second section
+      const section3 = document.getElementById('section3') // Third section
+      const section4 = document.getElementById('section4') // Fourth section
+      const section6 = document.getElementById('section6') // Sixth section
+      const section5 = document.getElementById('section5') // Fourth section
+      const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
 
-      await addSectionToPdf(section1, pdf)
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfWidth = 210 // A4 width in mm
+      const pdfHeight = 297 // A4 height in mm
+      const screenWidth = 1500 // Desired screen width in pixels
+      const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
 
-      // pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.EXTERIOR) {
-      await addSectionToPdf(section3, pdf, section4, true)
+      const addSectionToPdf = async (section: any, pdf: any, html?: any, doHtml = false) => {
+        const canvas = await html2canvas(
+          section,
+          doHtml
+            ? {
+                scale: 2, // Adjust as needed
+                useCORS: true,
+                width: screenWidth,
+                windowWidth: screenWidth
+              }
+            : {
+                scale: 2, // Adjust as needed
+                useCORS: true,
+                width: screenWidth,
+                height: screenHeight,
+                windowWidth: screenWidth
+              }
+        )
 
-      await addSectionToPdf(ExteriorWithCustomer, pdf)
+        const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
 
-      // pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.HANDYMAN) {
-      await addSectionToPdf(section6, pdf, section4, true)
+        const imgProps = pdf.getImageProperties(imgData)
+        const imgWidth = pdfWidth
+        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      await addSectionToPdf(ExteriorWithCustomer, pdf)
-      pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.ALL) {
-      await addSectionToPdf(section3, pdf, section4, true)
-      await addSectionToPdf(section6, pdf)
-
-      await addSectionToPdf(section2, pdf)
-
-      await addSectionToPdf(section1, pdf)
-      pdf.deletePage(4)
-    }
-
-    // if (allData && allData['pay_link']) {
-    //   const linkPositionX = 150 // X position for the link
-    //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
-    //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
-    // }
-    // if (allData && allData['pay_link']) {
-    //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
-    // }
-
-    if (str !== 'email') {
-      pdf.save('download.pdf')
-    }
-
-    setPdfLoading(false)
-
-    const pdfBlob = pdf.output('blob')
-
-    if (str === 'email') {
-      const reader = new FileReader()
-      reader.readAsDataURL(pdfBlob)
-      reader.onloadend = () => {
-        const base64data = reader.result as string
-
-        // EmailJS configuration
-        const serviceID = 'service_pypvnz1'
-        const templateID = 'template_1hlt1qp'
-        const userID = '1rRx93iEXQmVegiJX'
-        if (!allData.email) {
-          toast.error('No email address provided')
-          setemailLoading(false)
-
-          return
-        }
-        const templateParams = {
-          content: base64data,
-          customer_name: allData.customer_name,
-          to_email: allData.email
-        }
-
-        emailjs
-          .send(serviceID, templateID, templateParams, userID)
-          .then(() => {
-            toast.success('Email sent')
+        await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
+        if (doHtml) {
+          await pdf.html(html.outerHTML, {
+            // callback: function (pdf) {},
+            x: 6,
+            y: imgHeight + 5,
+            width: imgWidth,
+            windowWidth: screenWidth
           })
-          .catch(error => {
-            console.error('Error sending email:', error)
-          })
-          .finally(() => {
+          await pdf.link(165, imgHeight + 16, 45, 10, { url: allData['pay_link'] })
+        }
+      }
+
+      if (warrantyType !== 'None') {
+        await addSectionToPdf(section5, pdf)
+      }
+      if (invoiceType === InvoiceTypes.INTERIOR) {
+        await addSectionToPdf(section3, pdf, section4, true)
+
+        await addSectionToPdf(section1, pdf)
+
+        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+      } else if (invoiceType === InvoiceTypes.EXTERIOR) {
+        await addSectionToPdf(section3, pdf, section4, true)
+
+        await addSectionToPdf(ExteriorWithCustomer, pdf)
+
+        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+      } else if (invoiceType === InvoiceTypes.HANDYMAN) {
+        await addSectionToPdf(section6, pdf, section4, true)
+
+        await addSectionToPdf(ExteriorWithCustomer, pdf)
+        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+      } else if (invoiceType === InvoiceTypes.ALL) {
+        await addSectionToPdf(section6, pdf)
+        await addSectionToPdf(section3, pdf, section4, true)
+        await addSectionToPdf(section2, pdf)
+
+        await addSectionToPdf(section1, pdf)
+        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
+      }
+
+      // if (allData && allData['pay_link']) {
+      //   const linkPositionX = 150 // X position for the link
+      //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
+      //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
+      // }
+      // if (allData && allData['pay_link']) {
+      //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
+      // }
+
+      if (str !== 'email') {
+        pdf.save('download.pdf')
+      }
+
+      setPdfLoading(false)
+
+      const pdfBlob = pdf.output('blob')
+
+      if (str === 'email') {
+        const reader = new FileReader()
+        reader.readAsDataURL(pdfBlob)
+        reader.onloadend = () => {
+          const base64data = reader.result as string
+
+          // EmailJS configuration
+          const serviceID = 'service_pypvnz1'
+          const templateID = 'template_1hlt1qp'
+          const userID = '1rRx93iEXQmVegiJX'
+          if (!allData.email) {
+            toast.error('No email address provided')
             setemailLoading(false)
-          })
+
+            return
+          }
+          const templateParams = {
+            content: base64data,
+            customer_name: allData.customer_name,
+            to_email: allData.email
+          }
+
+          emailjs
+            .send(serviceID, templateID, templateParams, userID)
+            .then(() => {
+              toast.success('Email sent')
+            })
+            .catch(error => {
+              console.error('Error sending email:', error)
+            })
+            .finally(() => {
+              setemailLoading(false)
+            })
+        }
       }
+    } catch (error) {
+      console.log(error)
     }
   }
 
