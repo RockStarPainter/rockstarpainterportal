@@ -13,8 +13,10 @@ function NewForm(props) {
       if (bool) return true
       else return false
     }
+
     return true
   }
+
   return (
     <>
       {show(newForm.dryWall) && (

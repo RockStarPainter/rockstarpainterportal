@@ -7,7 +7,8 @@ export enum FormTypes {
 export enum InvoiceTypes {
   INTERIOR = 'INTERIOR',
   EXTERIOR = 'EXTERIOR',
-  BOTH = 'BOTH'
+  ALL = 'ALL',
+  HANDYMAN = 'HANDYMAN'
 }
 
 export const InvoiceTypesValues: InvoiceTypes[] = Object.values(InvoiceTypes)

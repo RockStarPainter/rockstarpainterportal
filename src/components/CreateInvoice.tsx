@@ -199,7 +199,7 @@ const CreateInvoice = () => {
   const [apiLoading, setApiLoading] = useState(false)
   const [data, setData] = useState<any>([])
   const [exteriorData, setExteriorData] = useState<any>([])
-  const [invoiceType, setInvoiceType] = useState<any>(InvoiceTypes.BOTH)
+  const [invoiceType, setInvoiceType] = useState<any>(InvoiceTypes.ALL)
   const [selectedOption, setSelectedOption] = useState('')
   const [allData, setAllData] = useState<any>()
   const [pdfLoading, setPdfLoading] = useState(false)
@@ -356,6 +356,7 @@ const CreateInvoice = () => {
     const section2 = document.getElementById('section2') // Second section
     const section3 = document.getElementById('section3') // Third section
     const section4 = document.getElementById('section4') // Fourth section
+    const section6 = document.getElementById('section6') // Sixth section
     const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
 
     const pdf = new jsPDF('p', 'mm', 'a4')
@@ -412,13 +413,19 @@ const CreateInvoice = () => {
 
       await addSectionToPdf(ExteriorWithCustomer, pdf)
       pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.BOTH) {
+    } else if (invoiceType === InvoiceTypes.HANDYMAN) {
+      await addSectionToPdf(section6, pdf, section4, true)
+
+      await addSectionToPdf(ExteriorWithCustomer, pdf)
+      pdf.deletePage(3)
+    } else if (invoiceType === InvoiceTypes.ALL) {
       await addSectionToPdf(section3, pdf, section4, true)
+      await addSectionToPdf(section6, pdf)
 
       await addSectionToPdf(section2, pdf)
 
       await addSectionToPdf(section1, pdf)
-      pdf.deletePage(4)
+      pdf.deletePage(5)
     }
 
     // if (allData && allData['pay_link']) {
@@ -1042,7 +1049,6 @@ const CreateInvoice = () => {
               <div id='section1'>
                 <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                 {/* <Button onClick={() => reset()}>Reset</Button> */}
-                <NewForm view={view} newForm={newForm} />
                 <StyledTypography>CUSTOMER DETAILS</StyledTypography>
 
                 <Grid container spacing={5}>
@@ -1148,7 +1154,7 @@ const CreateInvoice = () => {
                     </Select>
                   </FormControl>
                 )}
-                {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
+                {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.ALL) && (
                   <>
                     <StyledTypography>INTERIOR</StyledTypography>
                     <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
@@ -1510,7 +1516,7 @@ const CreateInvoice = () => {
               </div>
               {/* exterior below */}
               <div id='section2'>
-                {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
+                {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.ALL) && (
                   <>
                     {!(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
                       <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
@@ -1878,6 +1884,19 @@ const CreateInvoice = () => {
                   </>
                 )}
               </div>
+              <div id='section6'>
+                {(invoiceType === InvoiceTypes.HANDYMAN || invoiceType === InvoiceTypes.ALL) && (
+                  <>
+                    <StyledTypography>HANDYMAN SERVICES</StyledTypography>
+
+                    <Grid container spacing={5} mt={5} mb={10}>
+                      <Grid item xs={12} sm={12}>
+                        <NewForm view={view} newForm={newForm} />
+                      </Grid>
+                    </Grid>
+                  </>
+                )}
+              </div>
             </div>
             <div id='section3'>
               {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
@@ -2126,8 +2145,7 @@ const CreateInvoice = () => {
                   )}
                 </Grid>
               </Grid>
-            </div>
-
+            </div>{' '}
             {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
             APPROVED AND ACCEPTED
@@ -2150,7 +2168,6 @@ const CreateInvoice = () => {
             </Box>
           </Box>
         </Box> */}
-
             {!view && (
               <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
                 {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
