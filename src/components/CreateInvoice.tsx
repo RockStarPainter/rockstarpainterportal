@@ -267,7 +267,8 @@ const CreateInvoice = () => {
   const [emailLoading, setemailLoading] = useState(false)
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
-  const [statusLoading, setStatusLoading] = useState(false)
+
+  // const [statusLoading, setStatusLoading] = useState(false)
 
   const [newForm, setNewForm] = useState({
     dryWall: false,

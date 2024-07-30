@@ -3,9 +3,11 @@ import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { green } from '@mui/material/colors'
+
 function CustomSelectField({ name, label, view, ...others }) {
   const methods = useFormContext()
   const { control, getValues } = methods
+
   return (
     <>
       {!view ? (
