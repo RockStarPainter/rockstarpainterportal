@@ -21,11 +21,19 @@ function NewForm(props) {
   return (
     <>
       {show(newForm.dryWall) && (
-        <Box mb={10} mt={10}>
+        <Box mb={10} mt={10} textAlign={'center'}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Dry Wall
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomTextField label='Sheets Quantity' name='newForm.dryWall.sheets' view={view} />
             </Grid>
@@ -50,7 +58,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Texture or Repair Backing & Drywall included
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Orange Peel'} name='newForm.textureRepair.orangePeel' view={view} />
             </Grid>
@@ -85,7 +101,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Vinyl Flooring
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Removal'} name='newForm.vinylFlooring.removal' view={view} />
             </Grid>
@@ -117,7 +141,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Tile
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Removal'} name='newForm.tile.removal' view={view} />
             </Grid>
@@ -152,7 +184,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Carpet Installation
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomTextField label='Square Y/D' name='newForm.carpetInstallation.squareYard' view={view} />
             </Grid>
@@ -184,7 +224,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Carpentry
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Framing'} name='newForm.carpentry.framing' view={view} />
             </Grid>
@@ -230,7 +278,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Plumbing
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField
                 label={'Garbage Disposal Removal Installation'}
@@ -284,7 +340,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Fixtures
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Mirror Installation'} name='newForm.fixtures.mirrorInstallation' view={view} />
             </Grid>
@@ -312,7 +376,15 @@ function NewForm(props) {
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
             Cleaning
           </Typography>
-          <Grid container spacing={5}>
+          <Grid
+            container
+            spacing={5}
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField label={'Deep Cleaning'} name='newForm.cleaning.deepCleaning' view={view} />
             </Grid>

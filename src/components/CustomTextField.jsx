@@ -2,9 +2,6 @@ import { Box, TextField, Typography } from '@mui/material'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
-// import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-// import { green } from '@mui/material/colors'
-
 function CustomTextField({ name, label, view, ...others }) {
   const methods = useFormContext()
   const { control, getValues } = methods
@@ -23,8 +20,10 @@ function CustomTextField({ name, label, view, ...others }) {
         <>
           {Boolean(getValues(name)) && (
             <>
-              <Typography textAlign={'center'}>{label}</Typography>
-              <Box sx={{ textAlign: 'center' }}>{getValues(name)}</Box>
+              <Typography textAlign={'center'} sx={{ display: 'inline-block', borderRight: '2px solid', pr: 1 }}>
+                {label}
+              </Typography>
+              <Box sx={{ textAlign: 'center', display: 'inline-block', pl: 1 }}>{getValues(name)}</Box>
             </>
           )}
         </>
