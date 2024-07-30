@@ -27,10 +27,10 @@ function CustomSelectField({ name, label, view, ...others }) {
                 {...others}
               >
                 <MenuItem key={'Yes'} value={'Yes'}>
-                  {'Yes'}
+                  Yes
                 </MenuItem>
                 <MenuItem key={'No'} value={'No'}>
-                  {'No'}
+                  No
                 </MenuItem>
               </Select>
             </FormControl>
