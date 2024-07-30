@@ -1,11 +1,12 @@
 import { Box, Grid, Typography } from '@mui/material'
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
+
+// import { useFormContext } from 'react-hook-form'
 import CustomTextField from './CustomTextField'
 import CustomSelectField from './CustomSelectField'
 
 function NewForm(props) {
-  const methods = useFormContext()
+  // const methods = useFormContext()
   const { view, newForm } = props
 
   const show = bool => {
