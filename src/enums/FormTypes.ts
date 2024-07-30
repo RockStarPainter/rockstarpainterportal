@@ -7,7 +7,11 @@ export enum FormTypes {
 export enum InvoiceTypes {
   INTERIOR = 'INTERIOR',
   EXTERIOR = 'EXTERIOR',
-  BOTH = 'BOTH'
+  HANDYMAN = 'HANDYMAN',
+  INTERIOR_WITH_EXTERIOR = 'INTERIOR WITH EXTERIOR',
+  INTERIOR_WITH_HANDYMAN = 'INTERIOR WITH HANDYMAN',
+  EXTERIOR_WITH_HANDYMAN = 'EXTERIOR WITH HANDYMAN',
+  ALL = 'ALL'
 }
 
 export const InvoiceTypesValues: InvoiceTypes[] = Object.values(InvoiceTypes)

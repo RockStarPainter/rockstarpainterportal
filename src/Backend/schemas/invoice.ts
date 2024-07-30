@@ -55,7 +55,8 @@ const invoiceSchema = new Schema(
     handyMan_total_cost: { type: Number, required: false },
     handyMan_balance_due: { type: Number, required: false },
     handyMan_down_payment: { type: Number, required: false },
-    grand_total: { type: Number, required: false }
+    grand_total: { type: Number, required: false },
+    moreDetails: {}
   },
   { timestamps: true }
 )

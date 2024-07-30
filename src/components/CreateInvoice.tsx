@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from 'react'
 
-import { useForm, Controller, Control } from 'react-hook-form'
+import { useForm, Controller, Control, FormProvider } from 'react-hook-form'
 import {
   Table,
   TableBody,
@@ -45,6 +45,7 @@ import PaintGridComponent from './PaintGrid'
 import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
+import NewForm from './NewForm'
 import WarrantyContent from './WarrantyContent'
 
 interface FormItemProps {
@@ -157,21 +158,108 @@ const CreateInvoice = () => {
     defaultValues.issue_date = new Date()
     defaultValues.pay_link = ''
     defaultValues.other_paints = ''
+    defaultValues.newForm = {
+      dryWall: { sheets: 0, corners: '', tapping: '', sheetRock: '', repairs: '' },
+      textureRepair: {
+        orangePeel: '',
+        knockDown: '',
+        level: '',
+        slapBrush: '',
+        pullTrowel: '',
+        customTexture: '',
+        popCornRemoval: ''
+      },
+      vinylFlooring: {
+        removal: '',
+        debrisRemoval: '',
+        stairs: '',
+        prepping: '',
+        baseboardInstallation: '',
+        repairs: ''
+      },
+      tile: {
+        removal: '',
+        reguardWaterProofingApplication: '',
+        debrisRemoval: '',
+        prepping: '',
+        groutInstallation: '',
+        ditraInstallation: '',
+        showerPan: ''
+      },
+      carpetInstallation: {
+        squareYard: '',
+        removal: '',
+        debrisRemoval: '',
+        stairWay: '',
+        carpetStretching: '',
+        repairs: ''
+      },
+      carpentry: {
+        framing: '',
+        doorInstallation: '',
+        debrisRemoval: '',
+        baseboardInstallation: '',
+        doorCasingInstallation: '',
+        quarterRoundMolding: '',
+        crownMolding: '',
+        windowSill: ''
+      },
+      plumbing: {
+        GarbageDesposalRemovalInstallation: '',
+        faucetRemovalInstallation: '',
+        toiletRemovalInstallation: '',
+        replaceValves: '',
+        sinkRemovalInstallation: '',
+        showerDoorInstallation: '',
+        debrisRemoval: '',
+        kitRepair: ''
+      },
+      fixtures: {
+        mirrorInstallation: '',
+        vanityInstallation: '',
+        lightReplacement: '',
+        towelBar: '',
+        hardware: '',
+        blindInstallation: ''
+      },
+      cleaning: {
+        deepCleaning: '',
+        basicCleaning: '',
+        insideWindows: 0,
+        stove: '',
+        microwave: '',
+        baseBoard: '',
+        refrigerator: '',
+        cabinets: '',
+        walls: '',
+        pantry: '',
+        stoveHood: '',
+        bathrooms: 0,
+        mopping: '',
+        bedrooms: 0,
+        carpetVacuum: '',
+        powerWash: '',
+        basement: '',
+        garage: '',
+        patio: ''
+      }
+    }
 
     return defaultValues
   }
 
   const defaultValues = generateDefaultValues(numRows, numCols)
 
-  const { control, handleSubmit, reset, getValues } = useForm({
+  const methods = useForm({
     defaultValues
   })
+  const { control, handleSubmit, reset, getValues } = methods
 
   const [isLoading, setIsLoading] = useState(true)
   const [apiLoading, setApiLoading] = useState(false)
   const [data, setData] = useState<any>([])
   const [exteriorData, setExteriorData] = useState<any>([])
-  const [invoiceType, setInvoiceType] = useState<any>(InvoiceTypes.BOTH)
+  const [invoiceType, setInvoiceType] = useState<any>(InvoiceTypes.ALL)
   const [selectedOption, setSelectedOption] = useState('')
   const [allData, setAllData] = useState<any>()
   const [pdfLoading, setPdfLoading] = useState(false)
@@ -179,12 +267,45 @@ const CreateInvoice = () => {
   const [emailLoading, setemailLoading] = useState(false)
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
+  const [statusLoading, setStatusLoading] = useState(false)
+
+  const [newForm, setNewForm] = useState({
+    dryWall: false,
+    textureRepair: false,
+    vinylFlooring: false,
+    tile: false,
+    carpetInstallation: false,
+    carpentry: false,
+    plumbing: false,
+    fixtures: false,
+    cleaning: false
+  })
 
   // const handleCheckboxChange = (event: any) => {
   //   setSelectedOption(event.target.name)
   // }
 
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
+
+  const checkValues = (obj: any) => {
+    return !Object.values(obj).every(value => value === null || value === 0 || value === '' || value === 'No')
+  }
+
+  const showNewFormOrNot = (newFormData: any) => {
+    const obj = { ...newForm }
+    obj.dryWall = checkValues(newFormData.dryWall)
+    obj.textureRepair = checkValues(newFormData.textureRepair)
+    obj.vinylFlooring = checkValues(newFormData.vinylFlooring)
+    obj.tile = checkValues(newFormData.tile)
+
+    obj.carpetInstallation = checkValues(newFormData.carpetInstallation)
+    obj.carpentry = checkValues(newFormData.carpentry)
+    obj.plumbing = checkValues(newFormData.plumbing)
+    obj.fixtures = checkValues(newFormData.fixtures)
+    obj.cleaning = checkValues(newFormData.cleaning)
+
+    setNewForm(obj)
+  }
 
   // const headers = ['YES', 'NO', 'WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'DASHBOARD']
   const eheaders = ['YES', 'NO']
@@ -231,6 +352,7 @@ const CreateInvoice = () => {
         defaultValues.pay_link = tableData.pay_link
         defaultValues.other_paints = tableData.other_paints
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
+        defaultValues.newForm = tableData.moreDetails
         setAllData(tableData)
         reset(defaultValues)
         setSelectedOption(tableData.form_type)
@@ -241,6 +363,7 @@ const CreateInvoice = () => {
         setStatus(tableData.status)
         setSelectedBenjamin(tableData.benjamin_paints)
         setSelectedSherwin(tableData.sherwin_paints)
+        showNewFormOrNot(tableData.moreDetails)
         setWarrantyType(tableData.warranty_type)
         setInteriorWarranty(
           tableData.warranty_type === 'Interior'
@@ -304,145 +427,150 @@ const CreateInvoice = () => {
   }, [invoiceId])
 
   const generatePdf = async (str?: string) => {
-    if (typeof window === 'undefined') return
-    if (str !== 'email') {
-      setPdfLoading(true)
-    } else {
-      setemailLoading(true)
-    }
-
-    const section1 = document.getElementById('section1') // First section
-    const section2 = document.getElementById('section2') // Second section
-    const section3 = document.getElementById('section3') // Third section
-    const section4 = document.getElementById('section4') // Fourth section
-    const section5 = document.getElementById('section5') // Fourth section
-    const ExteriorWithCustomer = document.getElementById('ExteriorWithCustomer') // This is so if only exterior is selected then we could print customer details on top
-
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const pdfWidth = 210 // A4 width in mm
-    const pdfHeight = 297 // A4 height in mm
-    const screenWidth = 1500 // Desired screen width in pixels
-    const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
-
-    const addSectionToPdf = async (section: any, pdf: any, html?: any, doHtml = false) => {
-      const canvas = await html2canvas(
-        section,
-        doHtml
-          ? {
-              scale: 2, // Adjust as needed
-              useCORS: true,
-              width: screenWidth,
-              windowWidth: screenWidth
-            }
-          : {
-              scale: 2, // Adjust as needed
-              useCORS: true,
-              width: screenWidth,
-              height: screenHeight,
-              windowWidth: screenWidth
-            }
-      )
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
-
-      const imgProps = pdf.getImageProperties(imgData)
-      const imgWidth = pdfWidth
-      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-      await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
-      if (doHtml) {
-        await pdf.html(html.outerHTML, {
-          // callback: function (pdf) {},
-          x: 6,
-          y: imgHeight + 5,
-          width: imgWidth,
-          windowWidth: screenWidth
-        })
-        await pdf.link(165, imgHeight + 16, 45, 10, { url: allData['pay_link'] })
+    try {
+      if (typeof window === 'undefined') return
+      if (str !== 'email') {
+        setPdfLoading(true)
+      } else {
+        setemailLoading(true)
       }
-    }
 
-    if (warrantyType !== 'None') {
-      await addSectionToPdf(section5, pdf)
-    }
-    if (invoiceType === InvoiceTypes.INTERIOR) {
-      await addSectionToPdf(section3, pdf, section4, true)
+      const section1 = document.getElementById('section1') // First section
+      const section2 = document.getElementById('section2') // Second section
+      const section3 = document.getElementById('section3') // Third section
+      const section4 = document.getElementById('section4') // Fourth section
+      const section6 = document.getElementById('section6') // Sixth section
+      const section5 = document.getElementById('section5') // Fourth section
+      const CustomerWithSingle = document.getElementById('CustomerWithSingle') // This is so if only exterior is selected then we could print customer details on top
+      const CustomerWithExterior = document.getElementById('CustomerWithExterior')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfWidth = 210 // A4 width in mm
+      const pdfHeight = 297 // A4 height in mm
+      const screenWidth = 1500 // Desired screen width in pixels
+      const screenHeight = (pdfHeight / pdfWidth) * screenWidth // Scale height proportionally to screen width
 
-      await addSectionToPdf(section1, pdf)
+      const addSectionToPdf = async (section: any, pdf: any, html?: any, doHtml = false) => {
+        const canvas = await html2canvas(
+          section,
+          doHtml
+            ? {
+                scale: 2, // Adjust as needed
+                useCORS: true,
+                width: screenWidth,
+                windowWidth: screenWidth
+              }
+            : {
+                scale: 2, // Adjust as needed
+                useCORS: true,
+                width: screenWidth,
+                height: screenHeight,
+                windowWidth: screenWidth
+              }
+        )
 
-      // pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.EXTERIOR) {
-      await addSectionToPdf(section3, pdf, section4, true)
+        const imgData = canvas.toDataURL('image/jpeg', 0.5) // Adjust quality as needed
 
-      await addSectionToPdf(ExteriorWithCustomer, pdf)
+        const imgProps = pdf.getImageProperties(imgData)
+        const imgWidth = pdfWidth
+        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-      // pdf.deletePage(3)
-    } else if (invoiceType === InvoiceTypes.BOTH) {
-      await addSectionToPdf(section3, pdf, section4, true)
-
-      await addSectionToPdf(section2, pdf)
-
-      await addSectionToPdf(section1, pdf)
-
-      // pdf.deletePage(4)
-    }
-    if (warrantyType !== 'None') {
-      pdf.deletePage(invoiceType === InvoiceTypes.BOTH ? 5 : 4)
-    } else {
-      pdf.deletePage(invoiceType === InvoiceTypes.BOTH ? 4 : 3)
-    }
-
-    // if (allData && allData['pay_link']) {
-    //   const linkPositionX = 150 // X position for the link
-    //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
-    //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
-    // }
-    // if (allData && allData['pay_link']) {
-    //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
-    // }
-
-    if (str !== 'email') {
-      pdf.save('download.pdf')
-    }
-
-    setPdfLoading(false)
-
-    const pdfBlob = pdf.output('blob')
-
-    if (str === 'email') {
-      const reader = new FileReader()
-      reader.readAsDataURL(pdfBlob)
-      reader.onloadend = () => {
-        const base64data = reader.result as string
-
-        // EmailJS configuration
-        const serviceID = 'service_pypvnz1'
-        const templateID = 'template_1hlt1qp'
-        const userID = '1rRx93iEXQmVegiJX'
-        if (!allData.email) {
-          toast.error('No email address provided')
-          setemailLoading(false)
-
-          return
-        }
-        const templateParams = {
-          content: base64data,
-          customer_name: allData.customer_name,
-          to_email: allData.email
-        }
-
-        emailjs
-          .send(serviceID, templateID, templateParams, userID)
-          .then(() => {
-            toast.success('Email sent')
+        await pdf.insertPage(1).addImage(imgData, 'JPEG', 6, 5, imgWidth, imgHeight, undefined, 'FAST')
+        if (doHtml) {
+          await pdf.html(html.outerHTML, {
+            // callback: function (pdf) {},
+            x: 6,
+            y: imgHeight + 5,
+            width: imgWidth,
+            windowWidth: screenWidth
           })
-          .catch(error => {
-            console.error('Error sending email:', error)
-          })
-          .finally(() => {
+          await pdf.link(165, imgHeight + 16, 45, 10, { url: allData['pay_link'] })
+        }
+      }
+
+      if (warrantyType !== 'None') {
+        await addSectionToPdf(section5, pdf)
+      }
+      await addSectionToPdf(section3, pdf, section4, true)
+      if (
+        invoiceType === InvoiceTypes.INTERIOR ||
+        invoiceType === InvoiceTypes.HANDYMAN ||
+        invoiceType === InvoiceTypes.EXTERIOR
+      ) {
+        await addSectionToPdf(CustomerWithSingle, pdf)
+        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+      } else if (invoiceType === InvoiceTypes.ALL) {
+        await addSectionToPdf(section6, pdf)
+        await addSectionToPdf(section2, pdf)
+        await addSectionToPdf(section1, pdf)
+        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
+      } else {
+        if (invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR) {
+          await addSectionToPdf(section2, pdf)
+          await addSectionToPdf(section1, pdf)
+        } else if (invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN) {
+          await addSectionToPdf(section6, pdf)
+          await addSectionToPdf(section1, pdf)
+        } else if (invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) {
+          await addSectionToPdf(section6, pdf)
+          await addSectionToPdf(CustomerWithExterior, pdf)
+        }
+        pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
+      }
+
+      // if (allData && allData['pay_link']) {
+      //   const linkPositionX = 150 // X position for the link
+      //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
+      //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
+      // }
+      // if (allData && allData['pay_link']) {
+      //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
+      // }
+
+      if (str !== 'email') {
+        pdf.save('download.pdf')
+      }
+
+      setPdfLoading(false)
+
+      const pdfBlob = pdf.output('blob')
+
+      if (str === 'email') {
+        const reader = new FileReader()
+        reader.readAsDataURL(pdfBlob)
+        reader.onloadend = () => {
+          const base64data = reader.result as string
+
+          // EmailJS configuration
+          const serviceID = 'service_pypvnz1'
+          const templateID = 'template_1hlt1qp'
+          const userID = '1rRx93iEXQmVegiJX'
+          if (!allData.email) {
+            toast.error('No email address provided')
             setemailLoading(false)
-          })
+
+            return
+          }
+          const templateParams = {
+            content: base64data,
+            customer_name: allData.customer_name,
+            to_email: allData.email
+          }
+
+          emailjs
+            .send(serviceID, templateID, templateParams, userID)
+            .then(() => {
+              toast.success('Email sent')
+            })
+            .catch(error => {
+              console.error('Error sending email:', error)
+            })
+            .finally(() => {
+              setemailLoading(false)
+            })
+        }
       }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -490,6 +618,7 @@ const CreateInvoice = () => {
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
         benjamin_paints: selectedBenjamin,
+        moreDetails: formData.newForm,
         warranty_type: warrantyType,
         exterior_warranty: exteriorWarranty,
         interior_warranty: interiorWarranty,
@@ -986,6 +1115,41 @@ const CreateInvoice = () => {
       </Link>
     ) : null
 
+  // const sendStatusEmail = () => {
+  //   setStatusLoading(true)
+
+  //   const serviceID = 'service_pypvnz1'
+  //   const templateID = 'template_nz7lf5l'
+  //   const userID = '1rRx93iEXQmVegiJX'
+
+  //   const templateParams = {
+  //     customer_name: allData.customer_name,
+  //     to_email: allData.email
+
+  //     // status: allData.status // Assuming you have a status field in your data
+  //   }
+
+  //   if (!allData.email) {
+  //     toast.error('No email address provided')
+  //     setStatusLoading(false)
+
+  //     return
+  //   }
+
+  //   emailjs
+  //     .send(serviceID, templateID, templateParams, userID)
+  //     .then(() => {
+  //       toast.success('Status email sent')
+  //     })
+  //     .catch(error => {
+  //       console.error('Error sending status email:', error)
+  //       toast.error('Error sending status email')
+  //     })
+  //     .finally(() => {
+  //       setStatusLoading(false)
+  //     })
+  // }
+
   return (
     <Box>
       {view && (
@@ -1009,279 +1173,163 @@ const CreateInvoice = () => {
           >
             Send Email
           </Button>
+          {/* <Box sx={{ width: '20px' }}></Box>
+          <Button
+            variant='contained'
+            color='secondary'
+            onClick={sendStatusEmail}
+            disabled={statusLoading} // Use a separate loading state if needed
+            startIcon={statusLoading ? <CircularProgress size={15} /> : null}
+          >
+            Send Status
+          </Button> */}
         </Box>
       )}
 
       <Divider sx={{ mt: 6 }} />
       <div id='pdf-content' style={{ padding: 20 }}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div id='ExteriorWithCustomer'>
-            <div id='section1'>
-              <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
-              {/* <Button onClick={() => reset()}>Reset</Button> */}
-              <StyledTypography>CUSTOMER DETAILS</StyledTypography>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div id='CustomerWithSingle'>
+              <div id='CustomerWithExterior'>
+                <div id='section1'>
+                  <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                  {/* <Button onClick={() => reset()}>Reset</Button> */}
+                  <StyledTypography>CUSTOMER DETAILS</StyledTypography>
 
-              <Grid container spacing={5}>
-                {customerDetailsArray.map((c: any) => {
-                  return (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={c.name}>
-                      {!view &&
-                        (c.name === 'issue_date' ? (
-                          <Controller
-                            name='issue_date'
-                            control={control}
-                            render={({ field: { value, onChange } }) => (
-                              <DatePickerWrapper>
-                                <DatePicker
-                                  selected={value}
-                                  showYearDropdown
-                                  showMonthDropdown
-                                  onChange={e => onChange(e)}
-                                  placeholderText='MM/DD/YYYY'
-                                  customInput={
-                                    <CustomInput
-                                      value={value}
-                                      onChange={onChange}
-                                      label={'Issue Date'}
-                                      error={false}
-                                      aria-describedby='validation-basic-dob'
-                                    />
-                                  }
-                                />
-                              </DatePickerWrapper>
-                            )}
-                          />
-                        ) : (
-                          <FormControl fullWidth>
-                            <Controller
-                              name={c.name}
-                              control={control}
-                              render={({ field: { value, onChange } }) => (
-                                <TextField
-                                  value={value}
-                                  label={c.label}
-                                  onChange={onChange}
-                                  aria-describedby='validation-basic-last-name'
-                                />
-                              )}
-                            />
-                          </FormControl>
-                        ))}
-                      {view && (
-                        <Box>
-                          <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-                            {c.label}
-                          </Typography>
-                          <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                            {allData &&
-                              (c.name === 'issue_date'
-                                ? new Date(allData[c.name]).toLocaleDateString()
-                                : allData[c.name])}
-                          </Typography>
-                        </Box>
-                      )}
-                    </Grid>
-                  )
-                })}
-              </Grid>
-              {!view && (
-                <FormControl fullWidth sx={{ mt: 10 }}>
-                  <InputLabel id='demo-simple-select-label'>Select Status</InputLabel>
-                  <Select
-                    labelId='demo-simple-select-label'
-                    id='demo-simple-select'
-                    value={status}
-                    label='Select Status'
-                    onChange={(e: any) => setStatus(e.target.value)}
-                  >
-                    {statusValues.map(d => {
+                  <Grid container spacing={5}>
+                    {customerDetailsArray.map((c: any) => {
                       return (
-                        <MenuItem key={d} value={d}>
-                          {d}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
-                </FormControl>
-              )}
-              {!view && (
-                <FormControl fullWidth sx={{ mt: 10 }}>
-                  <InputLabel id='demo-simple-select-label'>Select Service</InputLabel>
-                  <Select
-                    labelId='demo-simple-select-label'
-                    id='demo-simple-select'
-                    value={invoiceType}
-                    label='Select Service'
-                    onChange={e => setInvoiceType(e.target.value)}
-                  >
-                    {InvoiceTypesValues.map(d => {
-                      return (
-                        <MenuItem key={d} value={d}>
-                          {d}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
-                </FormControl>
-              )}
-              {/* Add Warranty Dropdown */}
-              {!view && (
-                <FormControl fullWidth margin='normal'>
-                  <InputLabel>Add Warranty</InputLabel>
-                  <Select
-                    value={warrantyType}
-                    onChange={e => setWarrantyType(e.target.value as 'None' | 'Interior' | 'Exterior' | 'Both')}
-                  >
-                    <MenuItem value='None'>None</MenuItem>
-                    <MenuItem value='Interior'>Interior</MenuItem>
-                    <MenuItem value='Exterior'>Exterior</MenuItem>
-                    <MenuItem value='Both'>Both</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-              {(invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.BOTH) && (
-                <>
-                  <StyledTypography>INTERIOR</StyledTypography>
-                  <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
-                    <TableContainer
-                      component={Paper}
-                      sx={{
-                        borderRadius: 0,
-                        width: '820px',
-                        height: '100%'
-                      }}
-                    >
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell
-                              colSpan={1}
-                              rowSpan={2}
-                              sx={{ border: '1px solid black', textAlign: 'center' }}
-                            ></TableCell>
-                            <TableCell colSpan={6} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <b style={{ fontSize: '1.2rem' }}> PAINT CODE</b>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            {headers.map((header, colIndex) => (
-                              <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                <p style={{ margin: 0, padding: 0, fontSize: '1rem', fontWeight: 'bold' }}>{header}</p>
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {data.map((row: any, rowIndex: any) => {
-                            let rowFilled = false
-                            row.columns.forEach((c: any, i: any) => {
-                              if (getValues(`interiorRows.row-${rowIndex}-col-${i + 1}`)) {
-                                rowFilled = true
-                              }
-                            })
-                            if (!view) rowFilled = true
-
-                            return rowFilled ? (
-                              <TableRow key={rowIndex}>
-                                <TableCell sx={{ border: '1px solid black' }}>
-                                  {/* <p style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>{row.name}</p> */}
-                                  <Typography fontWeight={'bold'} variant='h6'>
-                                    {row.name}
-                                  </Typography>
-                                </TableCell>
-                                {row.columns.map((column: any, colIndex: any) => (
-                                  <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                                    <Controller
-                                      name={`interiorRows.row-${rowIndex}-col-${colIndex + 1}`}
-                                      control={control}
-                                      defaultValue={column.value}
-                                      render={({ field }: any) =>
-                                        (view && field.value) || !view ? (
-                                          <Checkbox
-                                            {...field}
-                                            icon={
-                                              field.value && !view ? (
-                                                <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                              ) : (
-                                                <Checkbox {...field} checked={field.value} />
-                                              )
-                                            }
-                                            checkedIcon={
-                                              view ? (
-                                                <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                              ) : (
-                                                <Checkbox {...field} checked={field.value} />
-                                              )
-                                            }
-                                            checked={field.value}
-                                          />
-                                        ) : (
-                                          <></>
-                                        )
+                        <Grid item xs={12} sm={6} md={4} lg={3} key={c.name}>
+                          {!view &&
+                            (c.name === 'issue_date' ? (
+                              <Controller
+                                name='issue_date'
+                                control={control}
+                                render={({ field: { value, onChange } }) => (
+                                  <DatePickerWrapper>
+                                    <DatePicker
+                                      selected={value}
+                                      showYearDropdown
+                                      showMonthDropdown
+                                      onChange={e => onChange(e)}
+                                      placeholderText='MM/DD/YYYY'
+                                      customInput={
+                                        <CustomInput
+                                          value={value}
+                                          onChange={onChange}
+                                          label={'Issue Date'}
+                                          error={false}
+                                          aria-describedby='validation-basic-dob'
+                                        />
                                       }
                                     />
-                                  </TableCell>
-                                ))}
-                              </TableRow>
-                            ) : null
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-
-                    <Box
-                      sx={{
-                        width: '35%',
-                        marginTop: 0
-                      }}
-                    >
-                      <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
-                        {!view && (
-                          <FormControl fullWidth>
-                            <Controller
-                              name='interiorData.paint_textarea'
-                              control={control}
-                              render={({ field }) => (
-                                <TextField rows={4} multiline label='Paint' fullWidth {...field} />
-                              )}
-                            />
-                          </FormControl>
-                        )}
-                        {view && allData?.interiorData?.paint_textarea && (
-                          <Box minHeight={150}>
-                            <Typography variant='h5' fontWeight={'bold'}>
-                              Paint :{' '}
-                            </Typography>
-                            <Typography variant='h6' fontWeight={'bold'}>
-                              {allData?.interiorData?.paint_textarea}
-                            </Typography>
-                          </Box>
-                        )}
-                        <Box sx={{ width: 10, height: 10 }}></Box>
-                        {!view && (
-                          <FormControl fullWidth>
-                            <Controller
-                              name='interiorData.stain_textarea'
-                              control={control}
-                              render={({ field }) => (
-                                <TextField rows={4} multiline label='Stain' fullWidth {...field} />
-                              )}
-                            />
-                          </FormControl>
-                        )}
-                        {view && allData?.interiorData?.stain_textarea && (
-                          <Box minHeight={150}>
-                            <Typography variant='h5' fontWeight={'bold'}>
-                              Stain :{' '}
-                            </Typography>
-                            <Typography variant='h6' fontWeight={'bold'}>
-                              {allData?.interiorData?.stain_textarea}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                      {showInteriorWindow() && (
-                        <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
+                                  </DatePickerWrapper>
+                                )}
+                              />
+                            ) : (
+                              <FormControl fullWidth>
+                                <Controller
+                                  name={c.name}
+                                  control={control}
+                                  render={({ field: { value, onChange } }) => (
+                                    <TextField
+                                      value={value}
+                                      label={c.label}
+                                      onChange={onChange}
+                                      aria-describedby='validation-basic-last-name'
+                                    />
+                                  )}
+                                />
+                              </FormControl>
+                            ))}
+                          {view && (
+                            <Box>
+                              <Typography variant='h5' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+                                {c.label}
+                              </Typography>
+                              <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                                {allData &&
+                                  (c.name === 'issue_date'
+                                    ? new Date(allData[c.name]).toLocaleDateString()
+                                    : allData[c.name])}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Grid>
+                      )
+                    })}
+                  </Grid>
+                  {!view && (
+                    <FormControl fullWidth sx={{ mt: 10 }}>
+                      <InputLabel id='demo-simple-select-label'>Select Status</InputLabel>
+                      <Select
+                        labelId='demo-simple-select-label'
+                        id='demo-simple-select'
+                        value={status}
+                        label='Select Status'
+                        onChange={(e: any) => setStatus(e.target.value)}
+                      >
+                        {statusValues.map(d => {
+                          return (
+                            <MenuItem key={d} value={d}>
+                              {d}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {!view && (
+                    <FormControl fullWidth sx={{ mt: 10 }}>
+                      <InputLabel id='demo-simple-select-label'>Select Service</InputLabel>
+                      <Select
+                        labelId='demo-simple-select-label'
+                        id='demo-simple-select'
+                        value={invoiceType}
+                        label='Select Service'
+                        onChange={e => setInvoiceType(e.target.value)}
+                      >
+                        {InvoiceTypesValues.map(d => {
+                          return (
+                            <MenuItem key={d} value={d}>
+                              {d}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {/* Add Warranty Dropdown */}
+                  {!view && (
+                    <FormControl fullWidth margin='normal'>
+                      <InputLabel>Add Warranty</InputLabel>
+                      <Select
+                        value={warrantyType}
+                        onChange={e => setWarrantyType(e.target.value as 'None' | 'Interior' | 'Exterior' | 'Both')}
+                      >
+                        <MenuItem value='None'>None</MenuItem>
+                        <MenuItem value='Interior'>Interior</MenuItem>
+                        <MenuItem value='Exterior'>Exterior</MenuItem>
+                        <MenuItem value='Both'>Both</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
+                  {(invoiceType === InvoiceTypes.INTERIOR ||
+                    invoiceType === InvoiceTypes.ALL ||
+                    invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR ||
+                    invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN) && (
+                    <>
+                      <StyledTypography>INTERIOR</StyledTypography>
+                      <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
+                        <TableContainer
+                          component={Paper}
+                          sx={{
+                            borderRadius: 0,
+                            width: '820px',
+                            height: '100%'
+                          }}
+                        >
                           <Table>
                             <TableHead>
                               <TableRow>
@@ -1290,771 +1338,927 @@ const CreateInvoice = () => {
                                   rowSpan={2}
                                   sx={{ border: '1px solid black', textAlign: 'center' }}
                                 ></TableCell>
-                                <TableCell
-                                  colSpan={1}
-                                  rowSpan={2}
-                                  sx={{ border: '1px solid black', textAlign: 'center' }}
-                                >
-                                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>YES</p>
-                                </TableCell>
-                                <TableCell
-                                  colSpan={1}
-                                  rowSpan={2}
-                                  sx={{ border: '1px solid black', textAlign: 'center' }}
-                                >
-                                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>NO</p>
+                                <TableCell colSpan={6} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                  <b style={{ fontSize: '1.2rem' }}> PAINT CODE</b>
                                 </TableCell>
                               </TableRow>
-                            </TableHead>
-                            <TableBody>
-                              <TableRow key={'0'}>
-                                <TableCell key={'0'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW TRIM </p>
-                                </TableCell>
-                                <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-0-col-2`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                          onChange={e => field.onChange(e.target.checked)}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                                <TableCell key={'2'} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-0-col-3`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                          onChange={e => field.onChange(e.target.checked)}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                              </TableRow>
-                              <TableRow key={'1'}>
-                                <TableCell sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                  {' '}
-                                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW SEAL </p>
-                                </TableCell>
-                                <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-1-col-2`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                          onChange={e => field.onChange(e.target.checked)}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                                <TableCell key={'2'} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                                  <Controller
-                                    name={`interiorData.window.row-1-col-3`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                          onChange={e => field.onChange(e.target.checked)}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </TableContainer>
-                      )}
-                      {showExtras() && (
-                        <Grid container sx={{ mt: 10 }}>
-                          {extrasArray.map(e => {
-                            return (
-                              ((view && getValues(e.name)) || !view) && (
-                                <Grid item xs={12} sm={6} key={e.name}>
-                                  <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                    <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
-                                      {e.label}
-                                    </Typography>
-                                    <Controller
-                                      name={e.name}
-                                      control={control}
-                                      defaultValue={false}
-                                      render={({ field }) => (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                        />
-                                      )}
-                                    />
-                                  </Box>
-                                </Grid>
-                              )
-                            )
-                          })}
-                        </Grid>
-                      )}
-                    </Box>
-                  </Box>
-                </>
-              )}
-            </div>
-            {/* exterior below */}
-            <div id='section2'>
-              {(invoiceType === InvoiceTypes.EXTERIOR || invoiceType === InvoiceTypes.BOTH) && (
-                <>
-                  {!(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
-                    <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
-                  )}
-                  <StyledTypography>EXTERIOR</StyledTypography>
-                  <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
-                    <TableContainer
-                      component={Paper}
-                      sx={{
-                        borderRadius: 0,
-                        width: '820px',
-                        height: '100%'
-                      }}
-                    >
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell
-                              colSpan={1}
-                              rowSpan={2}
-                              sx={{ border: '1px solid black', textAlign: 'center' }}
-                              style={{ fontSize: '23px', fontWeight: 'bold' }}
-                            >
-                              Exterior Design
-                            </TableCell>
-                            <TableCell colSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
-                              <b style={{ fontSize: '1.2rem' }}> INCLUDE </b>
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            {eheaders.map((header, colIndex) => (
-                              <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
-                                {/* <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> {header}</p> */}
-                                <Typography fontWeight={'bold'} variant='h6'>
-                                  {header}
-                                </Typography>
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {exteriorData.map((row: any, rowIndex: any) => {
-                            let rowFilled = false
-                            row.columns.forEach((c: any, i: any) => {
-                              if (getValues(`exteriorRows.row-${rowIndex}-col-${i + 1}`)) {
-                                rowFilled = true
-                              }
-                            })
-                            if (!view) rowFilled = true
-
-                            return rowFilled ? (
-                              <TableRow key={rowIndex}>
-                                <TableCell sx={{ border: '1px solid black' }}>
-                                  <Typography variant='h6' fontWeight={'bold'}>
-                                    {row.name}
-                                  </Typography>
-                                </TableCell>
-                                {row.columns.map((column: any, colIndex: any) => (
+                              <TableRow>
+                                {headers.map((header, colIndex) => (
                                   <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                    <Controller
-                                      name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
-                                      control={control}
-                                      defaultValue={column.value}
-                                      render={({ field }: any) =>
-                                        (view && field.value) || !view ? (
-                                          <Checkbox
-                                            {...field}
-                                            icon={
-                                              field.value && !view ? (
-                                                <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                              ) : (
-                                                <Checkbox {...field} checked={field.value} />
-                                              )
-                                            }
-                                            checkedIcon={
-                                              view ? (
-                                                <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                              ) : (
-                                                <Checkbox {...field} checked={field.value} />
-                                              )
-                                            }
-                                            checked={field.value}
-                                          />
-                                        ) : (
-                                          <></>
-                                        )
-                                      }
-                                    />
+                                    <p style={{ margin: 0, padding: 0, fontSize: '1rem', fontWeight: 'bold' }}>
+                                      {header}
+                                    </p>
                                   </TableCell>
                                 ))}
                               </TableRow>
-                            ) : null
-                          })}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-
-                    <Box
-                      sx={{
-                        width: '35%',
-                        marginTop: 0
-                      }}
-                    >
-                      <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
-                        {!view && (
-                          <FormControl fullWidth>
-                            <Controller
-                              name='exteriorData.paint_textarea'
-                              control={control}
-                              render={({ field }) => (
-                                <TextField rows={4} multiline label='Paint' fullWidth {...field} />
-                              )}
-                            />
-                          </FormControl>
-                        )}
-                        {view && allData?.exteriorData?.paint_textarea && (
-                          <Box minHeight={150}>
-                            <Typography variant='h5' fontWeight={'bold'}>
-                              Paint :{' '}
-                            </Typography>
-                            <Typography variant='h6' fontWeight={'bold'}>
-                              {allData?.exteriorData?.paint_textarea}
-                            </Typography>
-                          </Box>
-                        )}
-                        <Box sx={{ width: 10, height: 10 }}></Box>
-                        {!view && (
-                          <FormControl fullWidth>
-                            <Controller
-                              name='exteriorData.stain_textarea'
-                              control={control}
-                              render={({ field }) => (
-                                <TextField rows={4} multiline label='Stain' fullWidth {...field} />
-                              )}
-                            />
-                          </FormControl>
-                        )}
-                        {view && allData?.exteriorData?.stain_textarea && (
-                          <Box minHeight={150}>
-                            <Typography variant='h5' fontWeight={'bold'}>
-                              Stain :{' '}
-                            </Typography>
-                            <Typography variant='h6' fontWeight={'bold'}>
-                              {allData?.exteriorData?.stain_textarea}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                      {showExteriorWindow() && (
-                        <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
-                          <Table>
-                            <TableHead>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              ></TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SIDING</p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> FACIAL </p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> TRIM </p>
-                              </TableCell>
-                              <TableCell
-                                colSpan={1}
-                                rowSpan={2}
-                                sx={{ border: '1px solid black', textAlign: 'center' }}
-                              >
-                                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SOFFITS </p>
-                              </TableCell>
                             </TableHead>
                             <TableBody>
-                              <TableRow key={'0'}>
-                                <TableCell key={'0'} sx={{ border: '1px solid black' }}>
-                                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> REPAIRS </p>
-                                </TableCell>
-                                <TableCell key={'1'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-0-col-2`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                              {data.map((row: any, rowIndex: any) => {
+                                let rowFilled = false
+                                row.columns.forEach((c: any, i: any) => {
+                                  if (getValues(`interiorRows.row-${rowIndex}-col-${i + 1}`)) {
+                                    rowFilled = true
+                                  }
+                                })
+                                if (!view) rowFilled = true
+
+                                return rowFilled ? (
+                                  <TableRow key={rowIndex}>
+                                    <TableCell sx={{ border: '1px solid black' }}>
+                                      {/* <p style={{ fontWeight: 'bold', fontSize: '0.8rem' }}>{row.name}</p> */}
+                                      <Typography fontWeight={'bold'} variant='h6'>
+                                        {row.name}
+                                      </Typography>
+                                    </TableCell>
+                                    {row.columns.map((column: any, colIndex: any) => (
+                                      <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
+                                        <Controller
+                                          name={`interiorRows.row-${rowIndex}-col-${colIndex + 1}`}
+                                          control={control}
+                                          defaultValue={column.value}
+                                          render={({ field }: any) =>
+                                            (view && field.value) || !view ? (
+                                              <Checkbox
+                                                {...field}
+                                                icon={
+                                                  field.value && !view ? (
+                                                    <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                  ) : (
+                                                    <Checkbox {...field} checked={field.value} />
+                                                  )
+                                                }
+                                                checkedIcon={
+                                                  view ? (
+                                                    <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                  ) : (
+                                                    <Checkbox {...field} checked={field.value} />
+                                                  )
+                                                }
+                                                checked={field.value}
+                                              />
                                             ) : (
-                                              <Checkbox {...field} checked={field.value} />
+                                              <></>
                                             )
                                           }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
                                         />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                                <TableCell key={'2'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-0-col-3`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                                <TableCell key={'3'} sx={{ border: '1px solid black' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-0-col-4`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                                <TableCell key={'4'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
-                                  <Controller
-                                    name={`exteriorData.window.row-0-col-5`}
-                                    control={control}
-                                    defaultValue={false}
-                                    render={({ field }: any) =>
-                                      (view && field.value) || !view ? (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )
-                                    }
-                                  />
-                                </TableCell>
-                              </TableRow>
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ) : null
+                              })}
                             </TableBody>
                           </Table>
                         </TableContainer>
-                      )}
-                      {showExteriorExtras() && (
-                        <Grid container sx={{ mt: 10 }}>
-                          {exteriorExtrasArray.map(e => {
-                            return (
-                              ((view && getValues(e.name)) || !view) && (
-                                <Grid item xs={12} sm={6} key={e.name}>
-                                  <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
-                                    <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
-                                      {e.label}
-                                    </Typography>
-                                    <Controller
-                                      name={e.name}
-                                      control={control}
-                                      defaultValue={false}
-                                      render={({ field }) => (
-                                        <Checkbox
-                                          {...field}
-                                          icon={
-                                            field.value && !view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checkedIcon={
-                                            view ? (
-                                              <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
-                                            ) : (
-                                              <Checkbox {...field} checked={field.value} />
-                                            )
-                                          }
-                                          checked={field.value}
+
+                        <Box
+                          sx={{
+                            width: '35%',
+                            marginTop: 0
+                          }}
+                        >
+                          <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
+                            {!view && (
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='interiorData.paint_textarea'
+                                  control={control}
+                                  render={({ field }) => (
+                                    <TextField rows={4} multiline label='Paint' fullWidth {...field} />
+                                  )}
+                                />
+                              </FormControl>
+                            )}
+                            {view && allData?.interiorData?.paint_textarea && (
+                              <Box minHeight={150}>
+                                <Typography variant='h5' fontWeight={'bold'}>
+                                  Paint :{' '}
+                                </Typography>
+                                <Typography variant='h6' fontWeight={'bold'}>
+                                  {allData?.interiorData?.paint_textarea}
+                                </Typography>
+                              </Box>
+                            )}
+                            <Box sx={{ width: 10, height: 10 }}></Box>
+                            {!view && (
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='interiorData.stain_textarea'
+                                  control={control}
+                                  render={({ field }) => (
+                                    <TextField rows={4} multiline label='Stain' fullWidth {...field} />
+                                  )}
+                                />
+                              </FormControl>
+                            )}
+                            {view && allData?.interiorData?.stain_textarea && (
+                              <Box minHeight={150}>
+                                <Typography variant='h5' fontWeight={'bold'}>
+                                  Stain :{' '}
+                                </Typography>
+                                <Typography variant='h6' fontWeight={'bold'}>
+                                  {allData?.interiorData?.stain_textarea}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                          {showInteriorWindow() && (
+                            <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
+                              <Table>
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell
+                                      colSpan={1}
+                                      rowSpan={2}
+                                      sx={{ border: '1px solid black', textAlign: 'center' }}
+                                    ></TableCell>
+                                    <TableCell
+                                      colSpan={1}
+                                      rowSpan={2}
+                                      sx={{ border: '1px solid black', textAlign: 'center' }}
+                                    >
+                                      <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>YES</p>
+                                    </TableCell>
+                                    <TableCell
+                                      colSpan={1}
+                                      rowSpan={2}
+                                      sx={{ border: '1px solid black', textAlign: 'center' }}
+                                    >
+                                      <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>NO</p>
+                                    </TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  <TableRow key={'0'}>
+                                    <TableCell key={'0'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                                      <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW TRIM </p>
+                                    </TableCell>
+                                    <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                      <Controller
+                                        name={`interiorData.window.row-0-col-2`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                              onChange={e => field.onChange(e.target.checked)}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell key={'2'} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                      <Controller
+                                        name={`interiorData.window.row-0-col-3`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                              onChange={e => field.onChange(e.target.checked)}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                  <TableRow key={'1'}>
+                                    <TableCell sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                                      {' '}
+                                      <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> WINDOW SEAL </p>
+                                    </TableCell>
+                                    <TableCell key={'1'} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                      <Controller
+                                        name={`interiorData.window.row-1-col-2`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                              onChange={e => field.onChange(e.target.checked)}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell key={'2'} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                      <Controller
+                                        name={`interiorData.window.row-1-col-3`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                              onChange={e => field.onChange(e.target.checked)}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                          )}
+                          {showExtras() && (
+                            <Grid container sx={{ mt: 10 }}>
+                              {extrasArray.map(e => {
+                                return (
+                                  ((view && getValues(e.name)) || !view) && (
+                                    <Grid item xs={12} sm={6} key={e.name}>
+                                      <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
+                                        <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
+                                          {e.label}
+                                        </Typography>
+                                        <Controller
+                                          name={e.name}
+                                          control={control}
+                                          defaultValue={false}
+                                          render={({ field }) => (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          )}
                                         />
-                                      )}
-                                    />
-                                  </Box>
-                                </Grid>
-                              )
-                            )
-                          })}
-                        </Grid>
+                                      </Box>
+                                    </Grid>
+                                  )
+                                )
+                              })}
+                            </Grid>
+                          )}
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                </div>
+                {/* exterior below */}
+                <div id='section2'>
+                  {(invoiceType === InvoiceTypes.EXTERIOR ||
+                    invoiceType === InvoiceTypes.ALL ||
+                    invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR ||
+                    invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
+                    <>
+                      {!(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
+                        <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                       )}
-                    </Box>
-                  </Box>
+                      <StyledTypography>EXTERIOR</StyledTypography>
+                      <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
+                        <TableContainer
+                          component={Paper}
+                          sx={{
+                            borderRadius: 0,
+                            width: '820px',
+                            height: '100%'
+                          }}
+                        >
+                          <Table>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell
+                                  colSpan={1}
+                                  rowSpan={2}
+                                  sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  style={{ fontSize: '23px', fontWeight: 'bold' }}
+                                >
+                                  Exterior Design
+                                </TableCell>
+                                <TableCell colSpan={2} sx={{ border: '1px solid black', textAlign: 'center' }}>
+                                  <b style={{ fontSize: '1.2rem' }}> INCLUDE </b>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                {eheaders.map((header, colIndex) => (
+                                  <TableCell key={colIndex} sx={{ border: '1px solid black' }}>
+                                    {/* <p style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}> {header}</p> */}
+                                    <Typography fontWeight={'bold'} variant='h6'>
+                                      {header}
+                                    </Typography>
+                                  </TableCell>
+                                ))}
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {exteriorData.map((row: any, rowIndex: any) => {
+                                let rowFilled = false
+                                row.columns.forEach((c: any, i: any) => {
+                                  if (getValues(`exteriorRows.row-${rowIndex}-col-${i + 1}`)) {
+                                    rowFilled = true
+                                  }
+                                })
+                                if (!view) rowFilled = true
+
+                                return rowFilled ? (
+                                  <TableRow key={rowIndex}>
+                                    <TableCell sx={{ border: '1px solid black' }}>
+                                      <Typography variant='h6' fontWeight={'bold'}>
+                                        {row.name}
+                                      </Typography>
+                                    </TableCell>
+                                    {row.columns.map((column: any, colIndex: any) => (
+                                      <TableCell key={colIndex} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                                        <Controller
+                                          name={`exteriorRows.row-${rowIndex}-col-${colIndex + 1}`}
+                                          control={control}
+                                          defaultValue={column.value}
+                                          render={({ field }: any) =>
+                                            (view && field.value) || !view ? (
+                                              <Checkbox
+                                                {...field}
+                                                icon={
+                                                  field.value && !view ? (
+                                                    <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                  ) : (
+                                                    <Checkbox {...field} checked={field.value} />
+                                                  )
+                                                }
+                                                checkedIcon={
+                                                  view ? (
+                                                    <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                  ) : (
+                                                    <Checkbox {...field} checked={field.value} />
+                                                  )
+                                                }
+                                                checked={field.value}
+                                              />
+                                            ) : (
+                                              <></>
+                                            )
+                                          }
+                                        />
+                                      </TableCell>
+                                    ))}
+                                  </TableRow>
+                                ) : null
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+
+                        <Box
+                          sx={{
+                            width: '35%',
+                            marginTop: 0
+                          }}
+                        >
+                          <Box flexDirection={'column'} display={'flex'} justifyContent={'space-between'}>
+                            {!view && (
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='exteriorData.paint_textarea'
+                                  control={control}
+                                  render={({ field }) => (
+                                    <TextField rows={4} multiline label='Paint' fullWidth {...field} />
+                                  )}
+                                />
+                              </FormControl>
+                            )}
+                            {view && allData?.exteriorData?.paint_textarea && (
+                              <Box minHeight={150}>
+                                <Typography variant='h5' fontWeight={'bold'}>
+                                  Paint :{' '}
+                                </Typography>
+                                <Typography variant='h6' fontWeight={'bold'}>
+                                  {allData?.exteriorData?.paint_textarea}
+                                </Typography>
+                              </Box>
+                            )}
+                            <Box sx={{ width: 10, height: 10 }}></Box>
+                            {!view && (
+                              <FormControl fullWidth>
+                                <Controller
+                                  name='exteriorData.stain_textarea'
+                                  control={control}
+                                  render={({ field }) => (
+                                    <TextField rows={4} multiline label='Stain' fullWidth {...field} />
+                                  )}
+                                />
+                              </FormControl>
+                            )}
+                            {view && allData?.exteriorData?.stain_textarea && (
+                              <Box minHeight={150}>
+                                <Typography variant='h5' fontWeight={'bold'}>
+                                  Stain :{' '}
+                                </Typography>
+                                <Typography variant='h6' fontWeight={'bold'}>
+                                  {allData?.exteriorData?.stain_textarea}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                          {showExteriorWindow() && (
+                            <TableContainer component={Paper} sx={{ borderRadius: 0, width: '100%', mt: 10 }}>
+                              <Table>
+                                <TableHead>
+                                  <TableCell
+                                    colSpan={1}
+                                    rowSpan={2}
+                                    sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  ></TableCell>
+                                  <TableCell
+                                    colSpan={1}
+                                    rowSpan={2}
+                                    sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  >
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SIDING</p>
+                                  </TableCell>
+                                  <TableCell
+                                    colSpan={1}
+                                    rowSpan={2}
+                                    sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  >
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> FACIAL </p>
+                                  </TableCell>
+                                  <TableCell
+                                    colSpan={1}
+                                    rowSpan={2}
+                                    sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  >
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> TRIM </p>
+                                  </TableCell>
+                                  <TableCell
+                                    colSpan={1}
+                                    rowSpan={2}
+                                    sx={{ border: '1px solid black', textAlign: 'center' }}
+                                  >
+                                    <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> SOFFITS </p>
+                                  </TableCell>
+                                </TableHead>
+                                <TableBody>
+                                  <TableRow key={'0'}>
+                                    <TableCell key={'0'} sx={{ border: '1px solid black' }}>
+                                      <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}> REPAIRS </p>
+                                    </TableCell>
+                                    <TableCell key={'1'} sx={{ border: '1px solid black' }}>
+                                      <Controller
+                                        name={`exteriorData.window.row-0-col-2`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell key={'2'} sx={{ border: '1px solid black' }}>
+                                      <Controller
+                                        name={`exteriorData.window.row-0-col-3`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell key={'3'} sx={{ border: '1px solid black' }}>
+                                      <Controller
+                                        name={`exteriorData.window.row-0-col-4`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                    <TableCell key={'4'} sx={{ border: '1px solid black', fontWeight: 'bold' }}>
+                                      <Controller
+                                        name={`exteriorData.window.row-0-col-5`}
+                                        control={control}
+                                        defaultValue={false}
+                                        render={({ field }: any) =>
+                                          (view && field.value) || !view ? (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          ) : (
+                                            <></>
+                                          )
+                                        }
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                          )}
+                          {showExteriorExtras() && (
+                            <Grid container sx={{ mt: 10 }}>
+                              {exteriorExtrasArray.map(e => {
+                                return (
+                                  ((view && getValues(e.name)) || !view) && (
+                                    <Grid item xs={12} sm={6} key={e.name}>
+                                      <Box display={'flex'} alignItems={'center'} justifyContent={'space-evenly'}>
+                                        <Typography width={'50%'} variant='h6' fontWeight={'bold'}>
+                                          {e.label}
+                                        </Typography>
+                                        <Controller
+                                          name={e.name}
+                                          control={control}
+                                          defaultValue={false}
+                                          render={({ field }) => (
+                                            <Checkbox
+                                              {...field}
+                                              icon={
+                                                field.value && !view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checkedIcon={
+                                                view ? (
+                                                  <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
+                                                ) : (
+                                                  <Checkbox {...field} checked={field.value} />
+                                                )
+                                              }
+                                              checked={field.value}
+                                            />
+                                          )}
+                                        />
+                                      </Box>
+                                    </Grid>
+                                  )
+                                )
+                              })}
+                            </Grid>
+                          )}
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div id='section6'>
+                {(invoiceType === InvoiceTypes.HANDYMAN ||
+                  invoiceType === InvoiceTypes.ALL ||
+                  invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN ||
+                  invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
+                  <>
+                    <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                    <StyledTypography>HANDYMAN SERVICES</StyledTypography>
+
+                    <Grid container spacing={5} mt={5} mb={10}>
+                      <Grid item xs={12} sm={12}>
+                        <NewForm view={view} newForm={newForm} />
+                      </Grid>
+                    </Grid>
+                  </>
+                )}
+              </div>
+            </div>
+            <div id='section3'>
+              {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
+              {showSherwinPaints() && (
+                <>
+                  <StyledTypography>Sherwin Williams Paints</StyledTypography>
+                  <Grid container mt={10}>
+                    {sherwinPaints.map(p => {
+                      if (view) {
+                        if (!selectedSherwin.includes(p.d_name)) return
+                      }
+
+                      return (
+                        <PaintGridComponent
+                          image={p.img}
+                          title={p.name}
+                          subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 && '..'}`}
+                          checked={selectedSherwin.includes(p.d_name)}
+                          onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
+                          key={p.d_name}
+                          view={view}
+                        />
+                      )
+                    })}
+                  </Grid>
                 </>
               )}
-            </div>
-          </div>
-          <div id='section3'>
-            {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
-            {showSherwinPaints() && (
-              <>
-                <StyledTypography>Sherwin Williams Paints</StyledTypography>
-                <Grid container mt={10}>
-                  {sherwinPaints.map(p => {
-                    if (view) {
-                      if (!selectedSherwin.includes(p.d_name)) return
-                    }
-
-                    return (
-                      <PaintGridComponent
-                        image={p.img}
-                        title={p.name}
-                        subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 && '..'}`}
-                        checked={selectedSherwin.includes(p.d_name)}
-                        onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
-                        key={p.d_name}
-                        view={view}
-                      />
-                    )
-                  })}
-                </Grid>
-              </>
-            )}
-            {showBenjaminPaints() && (
-              <>
-                <StyledTypography>Benjamin Moore Advance Paints</StyledTypography>
-                <Grid container mt={10}>
-                  {benjaminPaints.map(p => {
-                    if (view) {
-                      if (!selectedBenjamin.includes(p.d_name)) return
-                    }
-
-                    return (
-                      <PaintGridComponent
-                        image={p.img}
-                        title={p.name}
-                        subText={p.paint_code}
-                        checked={selectedBenjamin.includes(p.d_name)}
-                        onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
-                        key={p.d_name}
-                        view={view}
-                      />
-                    )
-                  })}
-                </Grid>
-              </>
-            )}
-            {showOtherPaint() && (
-              <>
-                <StyledTypography>Other Paints</StyledTypography>
-                {!view && (
-                  <FormControl fullWidth>
-                    <Controller
-                      name='other_paints'
-                      control={control}
-                      render={({ field }) => <TextField rows={2} multiline label='Other Paints' fullWidth {...field} />}
-                    />
-                  </FormControl>
-                )}
-
-                {view && allData?.other_paints && (
-                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
-                    <Box minHeight={50}>
-                      <Typography variant='h6'>{allData?.other_paints}</Typography>
-                    </Box>
-                  </Grid>
-                )}
-              </>
-            )}
-            <>
-              {showNotes() && (
+              {showBenjaminPaints() && (
                 <>
-                  <StyledTypography>Comments</StyledTypography>
+                  <StyledTypography>Benjamin Moore Advance Paints</StyledTypography>
+                  <Grid container mt={10}>
+                    {benjaminPaints.map(p => {
+                      if (view) {
+                        if (!selectedBenjamin.includes(p.d_name)) return
+                      }
+
+                      return (
+                        <PaintGridComponent
+                          image={p.img}
+                          title={p.name}
+                          subText={p.paint_code}
+                          checked={selectedBenjamin.includes(p.d_name)}
+                          onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                          key={p.d_name}
+                          view={view}
+                        />
+                      )
+                    })}
+                  </Grid>
+                </>
+              )}
+              {showOtherPaint() && (
+                <>
+                  <StyledTypography>Other Paints</StyledTypography>
                   {!view && (
                     <FormControl fullWidth>
                       <Controller
-                        name='notes'
+                        name='other_paints'
                         control={control}
                         render={({ field }) => (
-                          <TextField rows={2} multiline label='Type Notes Here...' fullWidth {...field} />
+                          <TextField rows={2} multiline label='Other Paints' fullWidth {...field} />
                         )}
                       />
                     </FormControl>
                   )}
+
+                  {view && allData?.other_paints && (
+                    <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                      <Box minHeight={50}>
+                        <Typography variant='h6'>{allData?.other_paints}</Typography>
+                      </Box>
+                    </Grid>
+                  )}
                 </>
               )}
-
-              {view && allData?.notes && (
-                <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
-                  <Box minHeight={50}>
-                    <Typography variant='h6'>{allData?.notes}</Typography>
-                  </Box>
-                </Grid>
-              )}
-            </>
-            <StyledTypography>PAINTING PAYMENT DETAILS</StyledTypography>
-            <Grid container spacing={5} mt={5} mb={10}>
-              <FormItem
-                name='total_cost'
-                label='Total Cost'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-              <FormItem
-                name='down_payment'
-                label='50% Down Payment'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-              <FormItem
-                name='balance_due'
-                label='Balance Due'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-            </Grid>
-            <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
-            <Grid container spacing={5} mt={5} mb={10}>
-              <FormItem
-                name='handyMan_total_cost'
-                label='Total Cost'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-              <FormItem
-                name='handyMan_down_payment'
-                label='50% Down Payment'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-              <FormItem
-                name='handyMan_balance_due'
-                label='Balance Due'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-              />
-            </Grid>
-            <StyledTypography>TOTAL COST</StyledTypography>
-          </div>
-          <div id='section4'>
-            <Grid container spacing={5} mt={5} mb={10} justifyContent={'space-between'}>
-              <FormItem
-                name='grand_total'
-                label='Grand Total'
-                control={control}
-                allData={allData}
-                view={view === 'true'}
-                disabled={true}
-              />
-              <Grid item xs={12} sm={4}>
-                {!view ? (
-                  <FormControl fullWidth>
-                    <Controller
-                      name={'pay_link'}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label={'Payment Link'}
-                          onChange={onChange}
-                          aria-describedby='validation-basic-last-name'
+              <>
+                {showNotes() && (
+                  <>
+                    <StyledTypography>Comments</StyledTypography>
+                    {!view && (
+                      <FormControl fullWidth>
+                        <Controller
+                          name='notes'
+                          control={control}
+                          render={({ field }) => (
+                            <TextField rows={2} multiline label='Type Notes Here...' fullWidth {...field} />
+                          )}
                         />
-                      )}
-                    />
-                  </FormControl>
-                ) : (
-                  <Box>
-                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'Pay Link'}
-                    </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                      {payLink}
-                    </Typography>
-                  </Box>
+                      </FormControl>
+                    )}
+                  </>
                 )}
+
+                {view && allData?.notes && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={50}>
+                      <Typography variant='h6'>{allData?.notes}</Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </>
+              <StyledTypography>PAINTING PAYMENT DETAILS</StyledTypography>
+              <Grid container spacing={5} mt={5} mb={10}>
+                <FormItem
+                  name='total_cost'
+                  label='Total Cost'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
+                <FormItem
+                  name='down_payment'
+                  label='50% Down Payment'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
+                <FormItem
+                  name='balance_due'
+                  label='Balance Due'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
               </Grid>
-            </Grid>
-            {/* <Grid container spacing={5} mt={5} mb={10}>
+              <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
+              <Grid container spacing={5} mt={5} mb={10}>
+                <FormItem
+                  name='handyMan_total_cost'
+                  label='Total Cost'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
+                <FormItem
+                  name='handyMan_down_payment'
+                  label='50% Down Payment'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
+                <FormItem
+                  name='handyMan_balance_due'
+                  label='Balance Due'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                />
+              </Grid>
+              <StyledTypography>TOTAL COST</StyledTypography>
+            </div>
+            <div id='section4'>
+              <Grid container spacing={5} mt={5} mb={10} justifyContent={'space-between'}>
+                <FormItem
+                  name='grand_total'
+                  label='Grand Total'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                  disabled={true}
+                />
+                <Grid item xs={12} sm={4}>
+                  {!view ? (
+                    <FormControl fullWidth>
+                      <Controller
+                        name={'pay_link'}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={value}
+                            label={'Payment Link'}
+                            onChange={onChange}
+                            aria-describedby='validation-basic-last-name'
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  ) : (
+                    <Box>
+                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                        {'Pay Link'}
+                      </Typography>
+                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                        {payLink}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+              </Grid>
+              {/* <Grid container spacing={5} mt={5} mb={10}>
               <Grid item xs={12} sm={3}>
                 {!view ? (
                   <FormControl fullWidth>
@@ -2137,61 +2341,60 @@ const CreateInvoice = () => {
                 )}
               </Grid>
 
-              <Grid item xs={12} sm={3}>
-                {!view ? (
-                  <FormControl fullWidth>
-                    <Controller
-                      name={'pay_link'}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label={'Payment Link'}
-                          onChange={onChange}
-                          aria-describedby='validation-basic-last-name'
-                        />
-                      )}
+                <Grid item xs={12} sm={3}>
+                  {!view ? (
+                    <FormControl fullWidth>
+                      <Controller
+                        name={'pay_link'}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <TextField
+                            value={value}
+                            label={'Payment Link'}
+                            onChange={onChange}
+                            aria-describedby='validation-basic-last-name'
+                          />
+                        )}
+                      />
+                    </FormControl>
+                  ) : (
+                    <Box>
+                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
+                        {'Pay Link'}
+                      </Typography>
+                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
+                        {payLink}
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+              </Grid> */}
+            </div>{' '}
+            {/* Warranty Content */}
+            <div id='section5'>
+              {warrantyType !== 'None' && view && (
+                <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+              )}
+              {warrantyType && warrantyType !== 'None' && <StyledTypography>Warranty</StyledTypography>}
+              <Grid container spacing={5} mt={5} mb={10}>
+                {warrantyType && (
+                  <Box mt={4}>
+                    <WarrantyContent
+                      interiorWarranty={interiorWarranty}
+                      setInteriorWarranty={setInteriorWarranty}
+                      exteriorWarranty={exteriorWarranty}
+                      setExteriorWarranty={setExteriorWarranty}
+                      type={warrantyType}
+                      view={view}
+                      customerName={allData?.customer_name}
+                      warrantyDate={warrantyDate}
+                      setWarrantyDate={newDate => setWarrantyDate(newDate)}
                     />
-                  </FormControl>
-                ) : (
-                  <Box>
-                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'Pay Link'}
-                    </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                      {payLink}
-                    </Typography>
                   </Box>
                 )}
               </Grid>
-            </Grid> */}
-          </div>
-
-          {/* Warranty Content */}
-          <div id='section5'>
-            {warrantyType !== 'None' && view && (
-              <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
-            )}
-            {warrantyType && warrantyType !== 'None' && <StyledTypography>Warranty</StyledTypography>}
-            <Grid container spacing={5} mt={5} mb={10}>
-              {warrantyType && (
-                <Box mt={4}>
-                  <WarrantyContent
-                    interiorWarranty={interiorWarranty}
-                    setInteriorWarranty={setInteriorWarranty}
-                    exteriorWarranty={exteriorWarranty}
-                    setExteriorWarranty={setExteriorWarranty}
-                    type={warrantyType}
-                    view={view}
-                    customerName={allData?.customer_name}
-                    warrantyDate={warrantyDate}
-                    setWarrantyDate={newDate => setWarrantyDate(newDate)}
-                  />
-                </Box>
-              )}
-            </Grid>
-          </div>
-          {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
+            </div>
+            {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
           <Typography textAlign={'center'} mt={2} mb={2}>
             APPROVED AND ACCEPTED
           </Typography>
@@ -2213,13 +2416,13 @@ const CreateInvoice = () => {
             </Box>
           </Box>
         </Box> */}
-
-          {!view && (
-            <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
-              {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
-            </Button>
-          )}
-        </form>
+            {!view && (
+              <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
+                {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}
+              </Button>
+            )}
+          </form>
+        </FormProvider>
       </div>
     </Box>
   )
