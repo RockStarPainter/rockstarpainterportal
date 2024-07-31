@@ -20,9 +20,7 @@ function CustomTextField({ name, label, view, ...others }) {
         <>
           {Boolean(getValues(name)) && (
             <>
-              <Typography textAlign={'center'} sx={{ display: 'inline-block', borderRight: '2px solid', pr: 1 }}>
-                {label}
-              </Typography>
+              <Typography textAlign={'center'}>{label}</Typography>
               <Box sx={{ textAlign: 'center', display: 'inline-block', pl: 1 }}>{getValues(name)}</Box>
             </>
           )}

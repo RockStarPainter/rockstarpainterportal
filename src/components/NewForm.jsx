@@ -4,6 +4,7 @@ import React from 'react'
 // import { useFormContext } from 'react-hook-form'
 import CustomTextField from './CustomTextField'
 import CustomSelectField from './CustomSelectField'
+import { fontWeight } from '@mui/system'
 
 function NewForm(props) {
   // const methods = useFormContext()
@@ -34,10 +35,31 @@ function NewForm(props) {
               alignItems: 'center'
             }}
           >
-            <Grid item xs={view ? 'auto' : 2}>
+            <Grid item xs={view ? 'auto' : 2} sx={{ position: 'relative', fontWeight: 'bold' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 15,
+                  bottom: 0,
+                  left: 150,
+                  borderRight: '1px solid black',
+                  height: '30px'
+                }}
+              />
               <CustomTextField label='Sheets Quantity' name='newForm.dryWall.sheets' view={view} />
             </Grid>
-            <Grid item xs={view ? 'auto' : 2}>
+
+            <Grid item xs={view ? 'auto' : 2} sx={{ position: 'relative', fontWeight: 'bold' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 20,
+                  bottom: 0,
+                  left: 90,
+                  borderRight: '1px solid black',
+                  height: '30px'
+                }}
+              />{' '}
               <CustomSelectField label={'Corners'} name='newForm.dryWall.corners' view={view} />
             </Grid>
             <Grid item xs={view ? 'auto' : 3}>
