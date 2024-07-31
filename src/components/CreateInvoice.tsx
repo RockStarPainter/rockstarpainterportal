@@ -623,7 +623,6 @@ const CreateInvoice = () => {
         handyMan_down_payment: parseInt(formData.handyMan_down_payment),
         handyMan_total_cost: parseInt(formData.handyMan_total_cost),
         grand_total: parseInt(formData.total_cost, 10) + parseInt(formData.handyMan_total_cost, 10),
-        grand_total: parseInt(formData.down_payment, 10) + parseInt(formData.handyMan_down_payment, 10),
         status: status,
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
