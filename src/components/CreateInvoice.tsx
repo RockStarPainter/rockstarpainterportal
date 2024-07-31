@@ -51,8 +51,8 @@ import WarrantyContent from './WarrantyContent'
 interface FormItemProps {
   name: string
   label: string
-  control: Control
-  allData?: { [key: string]: any }
+  control: any
+  allData: any
   view: boolean
   payLink?: string
   disabled?: boolean
@@ -93,8 +93,10 @@ const FormItem: React.FC<FormItemProps> = ({ name, label, control, allData, view
           <Typography variant='h6' sx={{ textAlign: 'center' }}>
             {name === 'pay_link'
               ? payLink
-              : disabled
-              ? allData?.['handyMan_total_cost'] + allData?.['total_cost']
+              : disabled && (name === 'grand_total' || name === 'total_down_payment')
+              ? name === 'grand_total'
+                ? (allData?.['handyMan_total_cost'] || 0) + (allData?.['total_cost'] || 0)
+                : (allData?.['handyMan_down_payment'] || 0) + (allData?.['down_payment'] || 0)
               : allData?.[name]}
           </Typography>
         </Box>
@@ -349,11 +351,18 @@ const CreateInvoice = () => {
         defaultValues.handyMan_total_cost = tableData.handyMan_total_cost
         defaultValues.handyMan_balance_due = tableData.handyMan_balance_due
         defaultValues.handyMan_down_payment = tableData.handyMan_down_payment
-        defaultValues.grand_total = tableData.grand_total
+        defaultValues.grand_total =
+          parseInt(response.data.payload.data.total_cost || 0, 10) +
+          parseInt(response.data.payload.data.handyMan_total_cost || 0, 10)
+        defaultValues.total_down_payment =
+          parseInt(response.data.payload.data.down_payment || 0, 10) +
+          parseInt(response.data.payload.data.handyMan_down_payment || 0, 10)
         defaultValues.pay_link = tableData.pay_link
         defaultValues.other_paints = tableData.other_paints
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
         defaultValues.newForm = tableData.moreDetails
+        console.log('Default Values:', defaultValues) // Add this line for debugging
+
         setAllData(tableData)
         reset(defaultValues)
         setSelectedOption(tableData.form_type)
@@ -613,7 +622,8 @@ const CreateInvoice = () => {
         handyMan_balance_due: parseInt(formData.handyMan_balance_due),
         handyMan_down_payment: parseInt(formData.handyMan_down_payment),
         handyMan_total_cost: parseInt(formData.handyMan_total_cost),
-        grand_total: parseInt(formData.grand_total),
+        grand_total: parseInt(formData.total_cost, 10) + parseInt(formData.handyMan_total_cost, 10),
+        grand_total: parseInt(formData.down_payment, 10) + parseInt(formData.handyMan_down_payment, 10),
         status: status,
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
@@ -625,6 +635,8 @@ const CreateInvoice = () => {
         interior_warranty: interiorWarranty,
         warranty_date: warrantyDate
       }
+
+      console.log('Payload:', payload) // Add this line for debugging
 
       if (invoiceId) {
         await axios.post(`/api/update`, { payload, invoiceId })
@@ -2226,6 +2238,14 @@ const CreateInvoice = () => {
                 <FormItem
                   name='grand_total'
                   label='Grand Total'
+                  control={control}
+                  allData={allData}
+                  view={view === 'true'}
+                  disabled={true}
+                />{' '}
+                <FormItem
+                  name='total_down_payment'
+                  label='Total Down Payment'
                   control={control}
                   allData={allData}
                   view={view === 'true'}
