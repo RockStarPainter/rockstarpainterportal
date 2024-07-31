@@ -15,7 +15,7 @@ interface WarrantyContentProps {
 
 const Something = ({ value, title }: any) => {
   return (
-    <Box width={'12%'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
+    <Box width={'20%'} flexWrap={'wrap'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
       <Typography
         style={{
           height: '30px',

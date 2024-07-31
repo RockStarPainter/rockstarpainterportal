@@ -2216,7 +2216,7 @@ const CreateInvoice = () => {
                   name='handyMan_total_cost'
                   label='Total Cost'
                   control={control}
-                  allData={allData}
+                  allData={`${allData}`}
                   view={view === 'true'}
                 />
                 <FormItem
@@ -2245,7 +2245,7 @@ const CreateInvoice = () => {
                   allData={allData}
                   view={view === 'true'}
                   disabled={true}
-                />{' '}
+                />
                 <FormItem
                   name='total_down_payment'
                   label='Total Down Payment'
