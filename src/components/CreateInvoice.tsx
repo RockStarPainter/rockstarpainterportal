@@ -292,6 +292,7 @@ const CreateInvoice = () => {
 
   const checkValues = (obj: any) => {
     if (obj == null) return false
+
     return !Object.values(obj).every(value => value === null || value === 0 || value === '' || value === 'No')
   }
 

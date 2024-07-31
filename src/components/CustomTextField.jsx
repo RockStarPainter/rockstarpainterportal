@@ -1,5 +1,4 @@
 import { Box, TextField, Typography } from '@mui/material'
-import { padding, width } from '@mui/system'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
@@ -24,7 +23,7 @@ function CustomTextField({ name, label, view, ...others }) {
               <Typography
                 style={{
                   border: '1px solid',
-                  width: '280px',
+                  width: '280px'
                 }}
                 textAlign={'center'}
               >

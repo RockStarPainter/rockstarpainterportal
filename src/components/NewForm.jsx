@@ -4,7 +4,6 @@ import React from 'react'
 // import { useFormContext } from 'react-hook-form'
 import CustomTextField from './CustomTextField'
 import CustomSelectField from './CustomSelectField'
-import { fontWeight } from '@mui/system'
 
 function NewForm(props) {
   // const methods = useFormContext()
@@ -285,7 +284,7 @@ function NewForm(props) {
           >
             <Grid item xs={view ? 'auto' : 2}>
               <CustomSelectField
-                label={'Garbage Disposal Removal Installation'}
+                label={'Garbage Disposal Install'}
                 name='newForm.plumbing.GarbageDisposalRemovalInstallation'
                 view={view}
               />
