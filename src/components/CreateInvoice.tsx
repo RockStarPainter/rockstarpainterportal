@@ -91,6 +91,15 @@ const FormItem: React.FC<FormItemProps> = ({ name, label, control, allData, view
             {label}
           </Typography>
           <Typography variant='h6' sx={{ textAlign: 'center' }}>
+            {(name === 'grand_total' ||
+              name === 'total_down_payment' ||
+              name === 'handyMan_total_cost' ||
+              name === 'total_cost' ||
+              name === 'handyMan_down_payment' ||
+              name === 'down_payment' ||
+              name === 'handyMan_balance_due' ||
+              name === 'balance_due') &&
+              '$'}
             {name === 'pay_link'
               ? payLink
               : disabled && (name === 'grand_total' || name === 'total_down_payment')
