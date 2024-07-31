@@ -22,44 +22,24 @@ function NewForm(props) {
   return (
     <>
       {show(newForm.dryWall) && (
-        <Box mb={10} mt={10} textAlign={'center'}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Dry Wall
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
+            alignSelf={'center'}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2} sx={{ position: 'relative', fontWeight: 'bold' }}>
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 15,
-                  bottom: 0,
-                  left: 150,
-                  borderRight: '1px solid black',
-                  height: '30px'
-                }}
-              />
               <CustomTextField label='Sheets Quantity' name='newForm.dryWall.sheets' view={view} />
             </Grid>
 
             <Grid item xs={view ? 'auto' : 2} sx={{ position: 'relative', fontWeight: 'bold' }}>
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 20,
-                  bottom: 0,
-                  left: 90,
-                  borderRight: '1px solid black',
-                  height: '30px'
-                }}
-              />{' '}
               <CustomSelectField label={'Corners'} name='newForm.dryWall.corners' view={view} />
             </Grid>
             <Grid item xs={view ? 'auto' : 3}>
@@ -76,17 +56,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.textureRepair) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Texture or Repair Backing & Drywall included
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -119,17 +98,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.vinylFlooring) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Vinyl Flooring
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -159,17 +137,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.tile) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Tile
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -202,17 +179,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.carpetInstallation) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Carpet Installation
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -242,17 +218,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.carpentry) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Carpentry
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -296,17 +271,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.plumbing) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Plumbing
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -358,17 +332,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.fixtures) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Fixtures
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>
@@ -394,17 +367,16 @@ function NewForm(props) {
       )}
 
       {show(newForm.cleaning) && (
-        <Box mb={10}>
-          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={5}>
+        <Box mb={view ? 0 : 10}>
+          <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
             Cleaning
           </Typography>
           <Grid
             container
-            spacing={5}
+            spacing={view ? 0 : 5}
             style={{
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
+              justifyContent: 'flex-start'
             }}
           >
             <Grid item xs={view ? 'auto' : 2}>

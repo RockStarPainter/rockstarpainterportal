@@ -1,4 +1,5 @@
 import { Box, TextField, Typography } from '@mui/material'
+import { padding, width } from '@mui/system'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
@@ -20,8 +21,25 @@ function CustomTextField({ name, label, view, ...others }) {
         <>
           {Boolean(getValues(name)) && (
             <>
-              <Typography textAlign={'center'}>{label}</Typography>
-              <Box sx={{ textAlign: 'center', display: 'inline-block', pl: 1 }}>{getValues(name)}</Box>
+              <Typography
+                style={{
+                  border: '1px solid',
+                  width: '280px',
+                }}
+                textAlign={'center'}
+              >
+                {label}
+              </Typography>
+              <Box
+                style={{
+                  border: '1px solid',
+                  width: '280px',
+                  padding: '7px'
+                }}
+                sx={{ textAlign: 'center', display: 'inline-block', pl: 1 }}
+              >
+                {getValues(name)}
+              </Box>
             </>
           )}
         </>

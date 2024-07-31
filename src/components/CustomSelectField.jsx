@@ -40,8 +40,22 @@ function CustomSelectField({ name, label, view, ...others }) {
         <>
           {Boolean(getValues(name)) && getValues(name) !== 'No' && (
             <>
-              <Typography textAlign={'center'}>{label}</Typography>
-              <Box sx={{ textAlign: 'center' }}>
+              <Typography
+                style={{
+                  border: '1px solid',
+                  width: '280px'
+                }}
+                textAlign={'center'}
+              >
+                {label}
+              </Typography>
+              <Box
+                style={{
+                  border: '1px solid',
+                  paddingTop: '5px'
+                }}
+                sx={{ textAlign: 'center' }}
+              >
                 <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
               </Box>
             </>

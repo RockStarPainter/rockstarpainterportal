@@ -291,21 +291,22 @@ const CreateInvoice = () => {
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
 
   const checkValues = (obj: any) => {
+    if (obj == null) return false
     return !Object.values(obj).every(value => value === null || value === 0 || value === '' || value === 'No')
   }
 
   const showNewFormOrNot = (newFormData: any) => {
     const obj = { ...newForm }
-    obj.dryWall = checkValues(newFormData.dryWall)
-    obj.textureRepair = checkValues(newFormData.textureRepair)
-    obj.vinylFlooring = checkValues(newFormData.vinylFlooring)
-    obj.tile = checkValues(newFormData.tile)
+    obj.dryWall = checkValues(newFormData?.dryWall)
+    obj.textureRepair = checkValues(newFormData?.textureRepair)
+    obj.vinylFlooring = checkValues(newFormData?.vinylFlooring)
+    obj.tile = checkValues(newFormData?.tile)
 
-    obj.carpetInstallation = checkValues(newFormData.carpetInstallation)
-    obj.carpentry = checkValues(newFormData.carpentry)
-    obj.plumbing = checkValues(newFormData.plumbing)
-    obj.fixtures = checkValues(newFormData.fixtures)
-    obj.cleaning = checkValues(newFormData.cleaning)
+    obj.carpetInstallation = checkValues(newFormData?.carpetInstallation)
+    obj.carpentry = checkValues(newFormData?.carpentry)
+    obj.plumbing = checkValues(newFormData?.plumbing)
+    obj.fixtures = checkValues(newFormData?.fixtures)
+    obj.cleaning = checkValues(newFormData?.cleaning)
 
     setNewForm(obj)
   }
@@ -2070,7 +2071,9 @@ const CreateInvoice = () => {
                   invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN ||
                   invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
                   <>
-                    <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                    {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
+                      <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                    )}
                     <StyledTypography>HANDYMAN SERVICES</StyledTypography>
 
                     <Grid container spacing={5} mt={5} mb={10}>
