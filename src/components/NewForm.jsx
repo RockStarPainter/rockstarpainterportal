@@ -4,6 +4,7 @@ import React from 'react'
 // import { useFormContext } from 'react-hook-form'
 import CustomTextField from './CustomTextField'
 import CustomSelectField from './CustomSelectField'
+import { styled } from '@mui/system'
 
 function NewForm(props) {
   // const methods = useFormContext()
@@ -17,13 +18,27 @@ function NewForm(props) {
 
     return true
   }
+  const StyledTypography = styled(Typography)(({ theme }) => ({
+    color: '#323232', // Text color from your theme
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: '0.1em',
+    textAlign: 'center',
+
+    // padding: theme.spacing(2),
+    background: `linear-gradient(45deg, #719E37, #F7F7F9)`,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[3],
+    margin: '0.3%'
+  }))
 
   return (
     <>
       {show(newForm.dryWall) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Dry Wall
+            <StyledTypography>Dry Wall</StyledTypography>
           </Typography>
           <Grid
             container
@@ -57,7 +72,7 @@ function NewForm(props) {
       {show(newForm.textureRepair) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Texture or Repair Backing & Drywall included
+            <StyledTypography>Texture or Repair Backing & Drywall included</StyledTypography>
           </Typography>
           <Grid
             container
@@ -99,7 +114,7 @@ function NewForm(props) {
       {show(newForm.vinylFlooring) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Vinyl Flooring
+            <StyledTypography>Vinyl Flooring</StyledTypography>
           </Typography>
           <Grid
             container
@@ -138,7 +153,7 @@ function NewForm(props) {
       {show(newForm.tile) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Tile
+            <StyledTypography>Tile</StyledTypography>
           </Typography>
           <Grid
             container
@@ -180,7 +195,7 @@ function NewForm(props) {
       {show(newForm.carpetInstallation) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Carpet Installation
+            <StyledTypography>Carpet Installation</StyledTypography>
           </Typography>
           <Grid
             container
@@ -219,7 +234,7 @@ function NewForm(props) {
       {show(newForm.carpentry) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Carpentry
+            <StyledTypography>Carpentry</StyledTypography>
           </Typography>
           <Grid
             container
@@ -272,7 +287,7 @@ function NewForm(props) {
       {show(newForm.plumbing) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Plumbing
+            <StyledTypography>Plumbing</StyledTypography>
           </Typography>
           <Grid
             container
@@ -333,7 +348,7 @@ function NewForm(props) {
       {show(newForm.fixtures) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Fixtures
+            <StyledTypography>Fixtures</StyledTypography>
           </Typography>
           <Grid
             container
@@ -368,7 +383,7 @@ function NewForm(props) {
       {show(newForm.cleaning) && (
         <Box mb={view ? 0 : 10}>
           <Typography sx={{ textAlign: 'center' }} variant='h5' mb={view ? 0 : 5}>
-            Cleaning
+            <StyledTypography>Cleaning</StyledTypography>
           </Typography>
           <Grid
             container
