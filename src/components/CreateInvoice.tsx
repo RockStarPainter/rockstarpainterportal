@@ -1183,7 +1183,9 @@ const CreateInvoice = () => {
           </Button>
           {/* Dialog Component */}
           <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-            <DialogTitle>Select Work Started Date and Time</DialogTitle>
+            <DialogTitle style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.5rem' }}>
+              Select Work Started Date and Time
+            </DialogTitle>
             <DialogContent
               style={{
                 width: 600,
