@@ -104,8 +104,8 @@ const FormItem: React.FC<FormItemProps> = ({ name, label, control, allData, view
               ? payLink
               : disabled && (name === 'grand_total' || name === 'total_down_payment')
               ? name === 'grand_total'
-                ? (allData?.['handyMan_total_cost'] || 0) + (allData?.['total_cost'] || 0)
-                : (allData?.['handyMan_down_payment'] || 0) + (allData?.['down_payment'] || 0)
+                ? (parseFloat(allData?.['handyMan_total_cost']) || 0) + (parseFloat(allData?.['total_cost']) || 0)
+                : (parseFloat(allData?.['handyMan_down_payment']) || 0) + (parseFloat(allData?.['down_payment']) || 0)
               : allData?.[name]}
           </Typography>
         </Box>
@@ -363,11 +363,11 @@ const CreateInvoice = () => {
         defaultValues.handyMan_balance_due = tableData.handyMan_balance_due
         defaultValues.handyMan_down_payment = tableData.handyMan_down_payment
         defaultValues.grand_total =
-          parseInt(response.data.payload.data.total_cost || 0, 10) +
-          parseInt(response.data.payload.data.handyMan_total_cost || 0, 10)
+          parseFloat(response.data.payload.data.total_cost || 0) +
+          parseFloat(response.data.payload.data.handyMan_total_cost || 0)
         defaultValues.total_down_payment =
-          parseInt(response.data.payload.data.down_payment || 0, 10) +
-          parseInt(response.data.payload.data.handyMan_down_payment || 0, 10)
+          parseFloat(response.data.payload.data.down_payment || 0) +
+          parseFloat(response.data.payload.data.handyMan_down_payment || 0)
         defaultValues.pay_link = tableData.pay_link
         defaultValues.other_paints = tableData.other_paints
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
@@ -627,13 +627,13 @@ const CreateInvoice = () => {
         interiorData: formData.interiorData,
         exteriorData: formData.exteriorData,
         notes: formData.notes,
-        balance_due: parseInt(formData.balance_due),
-        down_payment: parseInt(formData.down_payment),
-        total_cost: parseInt(formData.total_cost),
-        handyMan_balance_due: parseInt(formData.handyMan_balance_due),
-        handyMan_down_payment: parseInt(formData.handyMan_down_payment),
+        balance_due: parseFloat(formData.balance_due),
+        down_payment: parseFloat(formData.down_payment),
+        total_cost: parseFloat(formData.total_cost),
+        handyMan_balance_due: parseFloat(formData.handyMan_balance_due),
+        handyMan_down_payment: parseFloat(formData.handyMan_down_payment),
         handyMan_total_cost: parseInt(formData.handyMan_total_cost),
-        grand_total: parseInt(formData.total_cost, 10) + parseInt(formData.handyMan_total_cost, 10),
+        grand_total: parseFloat(formData.total_cost) + parseFloat(formData.handyMan_total_cost),
         status: status,
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
@@ -2225,7 +2225,7 @@ const CreateInvoice = () => {
                   name='handyMan_total_cost'
                   label='Total Cost'
                   control={control}
-                  allData={`${allData}`}
+                  allData={allData}
                   view={view === 'true'}
                 />
                 <FormItem
