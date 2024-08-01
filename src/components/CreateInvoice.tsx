@@ -10,11 +10,8 @@ import {
   TableRow,
   Paper,
   Checkbox,
-  Button,
   CircularProgress,
-  Grid,
   FormControl,
-  TextField,
   Typography,
   Box,
   InputLabel,
@@ -29,6 +26,9 @@ import emailjs from '@emailjs/browser'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Grid } from '@mui/material'
+import { LocalizationProvider, TimePicker } from '@mui/lab'
+import AdapterDateFns from '@mui/lab/AdapterDateFns'
 
 // import Create from 'src/pages/create'
 import { Status, statusValues } from 'src/enums'
@@ -278,8 +278,25 @@ const CreateInvoice = () => {
   const [emailLoading, setemailLoading] = useState(false)
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [workStartedDate, setWorkStartedDate] = useState(null)
+  const [workStartedTime, setWorkStartedTime] = useState(null)
+  const [statusLoading, setStatusLoading] = useState(false)
 
   // const [statusLoading, setStatusLoading] = useState(false)
+
+  const handleDialogOpen = () => {
+    setIsDialogOpen(true)
+  }
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false)
+  }
+
+  const handleDialogSubmit = () => {
+    setIsDialogOpen(false)
+    sendStatusEmail()
+  }
 
   const [newForm, setNewForm] = useState({
     dryWall: false,
@@ -538,15 +555,6 @@ const CreateInvoice = () => {
         pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
       }
 
-      // if (allData && allData['pay_link']) {
-      //   const linkPositionX = 150 // X position for the link
-      //   const linkPositionY = pdf.internal.pageSize.height - 10 // Y position for the link
-      //   pdf.textWithLink(allData['pay_link'], linkPositionX, linkPositionY, { url: allData['pay_link'] })
-      // }
-      // if (allData && allData['pay_link']) {
-      //   pdf.textWithLink(allData['pay_link'], 10, pdf.internal.pageSize.height - 10, { url: allData['pay_link'] })
-      // }
-
       if (str !== 'email') {
         pdf.save('download.pdf')
       }
@@ -643,7 +651,9 @@ const CreateInvoice = () => {
         warranty_type: warrantyType,
         exterior_warranty: exteriorWarranty,
         interior_warranty: interiorWarranty,
-        warranty_date: warrantyDate
+        warranty_date: warrantyDate,
+        work_started_date: workStartedDate,
+        work_started_time: workStartedTime ? workStartedTime.toLocaleTimeString() : null
       }
 
       console.log('Payload:', payload) // Add this line for debugging
@@ -814,16 +824,6 @@ const CreateInvoice = () => {
       } else return false
     } else return true
   }
-
-  // const showSingleExtra = (name: any) => {
-  //   if (view) {
-  //     if (getValues(name)) {
-  //       return true
-  //     } else return false
-  //   }
-
-  //   return true
-  // }
 
   const showInteriorWindow = () => {
     if (view) {
@@ -1108,29 +1108,6 @@ const CreateInvoice = () => {
     margin: '1%'
   }))
 
-  // const renderCheckbox = (name: any, label: any) => {
-  //   const isChecked = selectedOption === name
-  //   if (view && !isChecked) {
-  //     return null
-  //   }
-
-  //   return (
-  //     <FormControlLabel
-  //       key={name}
-  //       control={
-  //         <Box display='flex' alignItems='center'>
-  //           {view && isChecked ? (
-  //             <CheckCircleIcon sx={{ color: green[500] }} />
-  //           ) : (
-  //             <Checkbox checked={isChecked} onChange={handleCheckboxChange} name={name} />
-  //           )}
-  //         </Box>
-  //       }
-  //       label={label}
-  //     />
-  //   )
-  // }
-
   const payLink =
     allData && allData['pay_link'] ? (
       <Link href={allData['pay_link']} target='_blank'>
@@ -1138,40 +1115,40 @@ const CreateInvoice = () => {
       </Link>
     ) : null
 
-  // const sendStatusEmail = () => {
-  //   setStatusLoading(true)
+  const sendStatusEmail = async () => {
+    setStatusLoading(true)
 
-  //   const serviceID = 'service_pypvnz1'
-  //   const templateID = 'template_nz7lf5l'
-  //   const userID = '1rRx93iEXQmVegiJX'
+    const serviceID = 'service_pypvnz1'
+    const templateID = 'template_nz7lf5l'
+    const userID = '1rRx93iEXQmVegiJX'
 
-  //   const templateParams = {
-  //     customer_name: allData.customer_name,
-  //     to_email: allData.email
+    const templateParams = {
+      customer_name: allData.customer_name,
+      to_email: allData.email,
+      work_started_date: workStartedDate ? workStartedDate.toLocaleDateString() : 'N/A',
+      work_started_time: workStartedTime ? workStartedTime.toLocaleTimeString() : 'N/A'
+    }
 
-  //     // status: allData.status // Assuming you have a status field in your data
-  //   }
+    if (!allData.email) {
+      toast.error('No email address provided')
+      setStatusLoading(false)
 
-  //   if (!allData.email) {
-  //     toast.error('No email address provided')
-  //     setStatusLoading(false)
+      return
+    }
 
-  //     return
-  //   }
-
-  //   emailjs
-  //     .send(serviceID, templateID, templateParams, userID)
-  //     .then(() => {
-  //       toast.success('Status email sent')
-  //     })
-  //     .catch(error => {
-  //       console.error('Error sending status email:', error)
-  //       toast.error('Error sending status email')
-  //     })
-  //     .finally(() => {
-  //       setStatusLoading(false)
-  //     })
-  // }
+    emailjs
+      .send(serviceID, templateID, templateParams, userID)
+      .then(() => {
+        toast.success('Status email sent')
+      })
+      .catch(error => {
+        console.error('Error sending status email:', error)
+        toast.error('Error sending status email')
+      })
+      .finally(() => {
+        setStatusLoading(false)
+      })
+  }
 
   return (
     <Box>
@@ -1196,16 +1173,50 @@ const CreateInvoice = () => {
           >
             Send Email
           </Button>
-          {/* <Box sx={{ width: '20px' }}></Box>
+          <Box sx={{ width: '20px' }}></Box>
           <Button
             variant='contained'
             color='secondary'
-            onClick={sendStatusEmail}
-            disabled={statusLoading} // Use a separate loading state if needed
+            onClick={handleDialogOpen}
+            disabled={statusLoading}
             startIcon={statusLoading ? <CircularProgress size={15} /> : null}
           >
             Send Status
-          </Button> */}
+          </Button>
+          {/* Dialog Component */}
+          <Dialog open={isDialogOpen} onClose={handleDialogClose}>
+            <DialogTitle>Select Work Started Date and Time</DialogTitle>
+            <DialogContent>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <DatePicker
+                    label='Work Started Date'
+                    value={workStartedDate}
+                    onChange={newValue => setWorkStartedDate(newValue)}
+                    renderInput={params => <TextField {...params} fullWidth />}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TimePicker
+                    label='Work Started Time'
+                    value={workStartedTime}
+                    onChange={newValue => setWorkStartedTime(newValue)}
+                    renderInput={params => <TextField {...params} fullWidth />}
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogClose}>Cancel</Button>
+              <Button
+                onClick={() => handleDialogSubmit({ date: workStartedDate, time: workStartedTime })}
+                variant='contained'
+                color='primary'
+              >
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       )}
 
