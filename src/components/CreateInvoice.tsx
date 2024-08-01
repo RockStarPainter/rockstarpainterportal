@@ -27,8 +27,6 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Grid } from '@mui/material'
-import { LocalizationProvider, TimePicker } from '@mui/lab'
-import AdapterDateFns from '@mui/lab/AdapterDateFns'
 
 // import Create from 'src/pages/create'
 import { Status, statusValues } from 'src/enums'
@@ -1125,8 +1123,8 @@ const CreateInvoice = () => {
     const templateParams = {
       customer_name: allData.customer_name,
       to_email: allData.email,
-      work_started_date: workStartedDate ? workStartedDate.toLocaleDateString() : 'N/A',
-      work_started_time: workStartedTime ? workStartedTime.toLocaleTimeString() : 'N/A'
+      work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
+      work_started_time: workStartedTime ? workStartedTime : 'N/A'
     }
 
     if (!allData.email) {
@@ -1176,7 +1174,7 @@ const CreateInvoice = () => {
           <Box sx={{ width: '20px' }}></Box>
           <Button
             variant='contained'
-            color='secondary'
+            color='primary'
             onClick={handleDialogOpen}
             disabled={statusLoading}
             startIcon={statusLoading ? <CircularProgress size={15} /> : null}
@@ -1186,33 +1184,38 @@ const CreateInvoice = () => {
           {/* Dialog Component */}
           <Dialog open={isDialogOpen} onClose={handleDialogClose}>
             <DialogTitle>Select Work Started Date and Time</DialogTitle>
-            <DialogContent>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <DatePicker
-                    label='Work Started Date'
-                    value={workStartedDate}
-                    onChange={newValue => setWorkStartedDate(newValue)}
-                    renderInput={params => <TextField {...params} fullWidth />}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TimePicker
-                    label='Work Started Time'
-                    value={workStartedTime}
-                    onChange={newValue => setWorkStartedTime(newValue)}
-                    renderInput={params => <TextField {...params} fullWidth />}
-                  />
-                </Grid>
+            <DialogContent
+              style={{
+                width: 600,
+                height: 300,
+                display: 'flex',
+                justifyContent: 'space-evenly'
+              }}
+            >
+              <Grid item xs={12}>
+                <TextField
+                  value={workStartedDate}
+                  type='date'
+                  onChange={event => setWorkStartedDate(event.target.value)}
+                  style={{
+                    width: 250
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} ml={5}>
+                <TextField
+                  value={workStartedTime}
+                  type='time'
+                  onChange={event => setWorkStartedTime(event.target.value)}
+                  style={{
+                    width: 250
+                  }}
+                />
               </Grid>
             </DialogContent>
             <DialogActions>
               <Button onClick={handleDialogClose}>Cancel</Button>
-              <Button
-                onClick={() => handleDialogSubmit({ date: workStartedDate, time: workStartedTime })}
-                variant='contained'
-                color='primary'
-              >
+              <Button onClick={() => handleDialogSubmit()} variant='contained' color='primary'>
                 Submit
               </Button>
             </DialogActions>
