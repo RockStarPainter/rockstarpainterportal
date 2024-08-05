@@ -57,6 +57,8 @@ const invoiceSchema = new Schema(
     handyMan_down_payment: { type: Number, required: false },
     grand_total: { type: Number, required: false },
     total_down_payment: { type: Number, required: false },
+    work_started_date: { type: Date, required: false },
+    work_started_time: { type: String, required: false },
     moreDetails: {}
   },
   { timestamps: true }
