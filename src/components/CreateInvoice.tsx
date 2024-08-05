@@ -277,8 +277,8 @@ const CreateInvoice = () => {
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [workStartedDate, setWorkStartedDate] = useState(null)
-  const [workStartedTime, setWorkStartedTime] = useState(null)
+  const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
+  const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
 
   // const [statusLoading, setStatusLoading] = useState(false)
@@ -651,7 +651,7 @@ const CreateInvoice = () => {
         interior_warranty: interiorWarranty,
         warranty_date: warrantyDate,
         work_started_date: workStartedDate,
-        work_started_time: workStartedTime ? workStartedTime.toLocaleTimeString() : null
+        work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null
       }
 
       console.log('Payload:', payload) // Add this line for debugging
@@ -1126,6 +1126,7 @@ const CreateInvoice = () => {
       work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
       work_started_time: workStartedTime ? workStartedTime : 'N/A'
     }
+    console.log(workStartedDate, workStartedTime)
 
     if (!allData.email) {
       toast.error('No email address provided')
