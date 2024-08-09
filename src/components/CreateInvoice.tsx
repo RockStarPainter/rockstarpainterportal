@@ -162,6 +162,7 @@ const CreateInvoice = () => {
     defaultValues.zip_code = ''
     defaultValues.total_cost = ''
     defaultValues.notes = ''
+    defaultValues.handyman_notes = ''
     defaultValues.balance_due = ''
     defaultValues.down_payment = ''
     defaultValues.issue_date = new Date()
@@ -371,6 +372,7 @@ const CreateInvoice = () => {
         defaultValues.state = tableData.state
         defaultValues.zip_code = tableData.zip_code
         defaultValues.notes = tableData.notes
+        defaultValues.handyman_notes = tableData.handyman_notes
         defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
         defaultValues.down_payment = tableData.down_payment
@@ -633,6 +635,7 @@ const CreateInvoice = () => {
         interiorData: formData.interiorData,
         exteriorData: formData.exteriorData,
         notes: formData.notes,
+        handyman_notes: formData.handyman_notes,
         balance_due: parseFloat(formData.balance_due),
         down_payment: parseFloat(formData.down_payment),
         total_cost: parseFloat(formData.total_cost),
@@ -1069,6 +1072,14 @@ const CreateInvoice = () => {
     const other_notes = allData?.notes || ''
     if (view) {
       return other_notes.trim().length > 0
+    } else {
+      return true
+    }
+  }
+  const showHandyman_notes = () => {
+    const other_handyman_notes = allData?.handyman_notes || ''
+    if (view) {
+      return other_handyman_notes.trim().length > 0
     } else {
       return true
     }
@@ -2203,11 +2214,35 @@ const CreateInvoice = () => {
                     )}
                   </>
                 )}
-
                 {view && allData?.notes && (
                   <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
                     <Box minHeight={50}>
                       <Typography variant='h6'>{allData?.notes}</Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </>{' '}
+              <>
+                {showHandyman_notes() && (
+                  <>
+                    <StyledTypography>Handyman Comments</StyledTypography>
+                    {!view && (
+                      <FormControl fullWidth>
+                        <Controller
+                          name='handyman_notes'
+                          control={control}
+                          render={({ field }) => (
+                            <TextField rows={2} multiline label='Type Handyman Notes Here...' fullWidth {...field} />
+                          )}
+                        />
+                      </FormControl>
+                    )}
+                  </>
+                )}{' '}
+                {view && allData?.handyman_notes && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={50}>
+                      <Typography variant='h6'>{allData?.handyman_notes}</Typography>
                     </Box>
                   </Grid>
                 )}

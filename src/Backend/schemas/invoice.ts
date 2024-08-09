@@ -41,6 +41,7 @@ const invoiceSchema = new Schema(
     balance_due: { type: Number, required: false },
     down_payment: { type: Number, required: false },
     notes: { type: String, required: false },
+    handyman_notes: { type: String, required: false },
     pay_link: { type: String, required: false },
     issue_date: { type: Date, required: false },
     interiorData: {},
