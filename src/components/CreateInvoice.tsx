@@ -169,7 +169,7 @@ const CreateInvoice = () => {
     defaultValues.pay_link = ''
     defaultValues.other_paints = ''
     defaultValues.newForm = {
-      dryWall: { sheets: 0, corners: '', tapping: '', sheetRock: '', repairs: '' },
+      dryWall: { sheets: 0, corners: '', tapping: '', sheetRock: '', repairs: '', comment: '' },
       textureRepair: {
         orangePeel: '',
         knockDown: '',
@@ -177,7 +177,8 @@ const CreateInvoice = () => {
         slapBrush: '',
         pullTrowel: '',
         customTexture: '',
-        popCornRemoval: ''
+        popCornRemoval: '',
+        comment: ''
       },
       vinylFlooring: {
         removal: '',
@@ -185,7 +186,8 @@ const CreateInvoice = () => {
         stairs: '',
         prepping: '',
         baseboardInstallation: '',
-        repairs: ''
+        repairs: '',
+        comment: ''
       },
       tile: {
         removal: '',
@@ -194,7 +196,8 @@ const CreateInvoice = () => {
         prepping: '',
         groutInstallation: '',
         ditraInstallation: '',
-        showerPan: ''
+        showerPan: '',
+        comment: ''
       },
       carpetInstallation: {
         squareYard: '',
@@ -202,7 +205,8 @@ const CreateInvoice = () => {
         debrisRemoval: '',
         stairWay: '',
         carpetStretching: '',
-        repairs: ''
+        repairs: '',
+        comment: ''
       },
       carpentry: {
         framing: '',
@@ -212,7 +216,8 @@ const CreateInvoice = () => {
         doorCasingInstallation: '',
         quarterRoundMolding: '',
         crownMolding: '',
-        windowSill: ''
+        windowSill: '',
+        comment: ''
       },
       plumbing: {
         GarbageDesposalRemovalInstallation: '',
@@ -222,7 +227,8 @@ const CreateInvoice = () => {
         sinkRemovalInstallation: '',
         showerDoorInstallation: '',
         debrisRemoval: '',
-        kitRepair: ''
+        kitRepair: '',
+        comment: ''
       },
       fixtures: {
         mirrorInstallation: '',
@@ -230,7 +236,8 @@ const CreateInvoice = () => {
         lightReplacement: '',
         towelBar: '',
         hardware: '',
-        blindInstallation: ''
+        blindInstallation: '',
+        comment: ''
       },
       cleaning: {
         deepCleaning: '',
@@ -246,6 +253,7 @@ const CreateInvoice = () => {
         stoveHood: '',
         bathrooms: 0,
         mopping: '',
+        comment: '',
         bedrooms: 0,
         carpetVacuum: '',
         powerWash: '',
@@ -281,6 +289,7 @@ const CreateInvoice = () => {
   const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
   const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
+  const [formValues, setFormValues] = useState(generateDefaultValues())
 
   // const [statusLoading, setStatusLoading] = useState(false)
 
@@ -478,6 +487,9 @@ const CreateInvoice = () => {
       const section3 = document.getElementById('section3') // Third section
       const section4 = document.getElementById('section4') // Fourth section
       const section6 = document.getElementById('section6') // Sixth section
+      const section6Part1 = document.getElementById('section6-part1') // First part of NewForm
+      const section6Part2 = document.getElementById('section6-part2') // Second part of NewForm
+
       const section5 = document.getElementById('section5') // Fourth section
       const CustomerWithSingle = document.getElementById('CustomerWithSingle') // This is so if only exterior is selected then we could print customer details on top
       const CustomerWithExterior = document.getElementById('CustomerWithExterior')
@@ -534,25 +546,35 @@ const CreateInvoice = () => {
         invoiceType === InvoiceTypes.HANDYMAN ||
         invoiceType === InvoiceTypes.EXTERIOR
       ) {
+        await addSectionToPdf(section6Part1, pdf) // Add section6-part1
+        await addSectionToPdf(section6Part2, pdf) // Add section6-part2
         await addSectionToPdf(CustomerWithSingle, pdf)
         pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
       } else if (invoiceType === InvoiceTypes.ALL) {
-        await addSectionToPdf(section6, pdf)
+        // await addSectionToPdf(section6, pdf)
+        await addSectionToPdf(section6Part1, pdf)
+        await addSectionToPdf(section6Part2, pdf)
         await addSectionToPdf(section2, pdf)
         await addSectionToPdf(section1, pdf)
-        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
+
+        pdf.deletePage(warrantyType !== 'None' ? 7 : 6)
       } else {
         if (invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR) {
           await addSectionToPdf(section2, pdf)
           await addSectionToPdf(section1, pdf)
         } else if (invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN) {
-          await addSectionToPdf(section6, pdf)
+          // await addSectionToPdf(section6, pdf)
+          await addSectionToPdf(section6Part1, pdf)
+          await addSectionToPdf(section6Part2, pdf)
           await addSectionToPdf(section1, pdf)
         } else if (invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) {
-          await addSectionToPdf(section6, pdf)
+          // await addSectionToPdf(section6, pdf)
+          await addSectionToPdf(section6Part1, pdf)
+          await addSectionToPdf(section6Part2, pdf)
           await addSectionToPdf(CustomerWithExterior, pdf)
         }
-        pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
+
+        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
       }
 
       if (str !== 'email') {
@@ -656,8 +678,6 @@ const CreateInvoice = () => {
         work_started_date: workStartedDate,
         work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null
       }
-
-      console.log('Payload:', payload) // Add this line for debugging
 
       if (invoiceId) {
         await axios.post(`/api/update`, { payload, invoiceId })
@@ -1158,6 +1178,18 @@ const CreateInvoice = () => {
       .finally(() => {
         setStatusLoading(false)
       })
+  }
+  const handleCommentChange = (section, comment) => {
+    setFormValues(prevValues => ({
+      ...prevValues,
+      newForm: {
+        ...prevValues.newForm,
+        [section]: {
+          ...prevValues.newForm[section],
+          comment: comment
+        }
+      }
+    }))
   }
 
   return (
@@ -2114,11 +2146,41 @@ const CreateInvoice = () => {
                     )}
                     <StyledTypography>HANDYMAN SERVICES</StyledTypography>
 
-                    <Grid container spacing={5} mt={5} mb={10}>
-                      <Grid item xs={12} sm={12}>
-                        <NewForm view={view} newForm={newForm} />
+                    {/* <Grid container spacing={2} mt={5} mb={10}> */}
+                    <div id='section6-part1'>
+                      <Grid container spacing={5} mt={5} mb={10}>
+                        <Grid item xs={12} sm={12}>
+                          {/* First half of NewForm fields */}
+                          {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
+                            <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                          )}
+                          <NewForm
+                            view={view}
+                            newForm={formValues.newForm}
+                            fieldsToShow='part1'
+                            onCommentChange={handleCommentChange}
+                          />
+                        </Grid>
                       </Grid>
-                    </Grid>
+                    </div>
+
+                    <div id='section6-part2'>
+                      <Grid container spacing={5} mt={5} mb={10}>
+                        <Grid item xs={12} sm={12}>
+                          {/* Second half of NewForm fields */}
+                          {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
+                            <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                          )}
+                          <NewForm
+                            view={view}
+                            newForm={formValues.newForm}
+                            fieldsToShow='part2'
+                            onCommentChange={handleCommentChange}
+                          />
+                        </Grid>
+                      </Grid>
+                    </div>
+                    {/* </Grid> */}
                   </>
                 )}
               </div>
