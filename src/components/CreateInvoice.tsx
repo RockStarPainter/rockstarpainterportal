@@ -289,8 +289,9 @@ const CreateInvoice = () => {
   const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
   const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
-  const rows = 2
-  const cols = 3
+  const rows = 5 // Define the number of rows
+  const cols = 3 // Define the number of columns
+
   const [formValues, setFormValues] = useState(generateDefaultValues(rows, cols))
 
   // const [statusLoading, setStatusLoading] = useState(false)
@@ -1158,7 +1159,8 @@ const CreateInvoice = () => {
       work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
       work_started_time: workStartedTime ? workStartedTime : 'N/A'
     }
-    console.log(workStartedDate, workStartedTime)
+
+    // console.log(workStartedDate, workStartedTime)
 
     if (!allData.email) {
       toast.error('No email address provided')
@@ -1180,8 +1182,8 @@ const CreateInvoice = () => {
         setStatusLoading(false)
       })
   }
-  const handleCommentChange = ({ section, comment }: { section: string; comment: any }) => {
-    setFormValues((prevValues: any) => ({
+  const handleCommentChange = (section: string | number, comment: any) => {
+    setFormValues((prevValues: { newForm: { [x: string]: any } }) => ({
       ...prevValues,
       newForm: {
         ...prevValues.newForm,
