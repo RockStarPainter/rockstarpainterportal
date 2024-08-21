@@ -289,7 +289,9 @@ const CreateInvoice = () => {
   const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
   const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
-  const [formValues, setFormValues] = useState(generateDefaultValues())
+  const rows = 2
+  const cols = 3
+  const [formValues, setFormValues] = useState(generateDefaultValues(rows, cols))
 
   // const [statusLoading, setStatusLoading] = useState(false)
 
@@ -486,7 +488,7 @@ const CreateInvoice = () => {
       const section2 = document.getElementById('section2') // Second section
       const section3 = document.getElementById('section3') // Third section
       const section4 = document.getElementById('section4') // Fourth section
-      const section6 = document.getElementById('section6') // Sixth section
+      // const section6 = document.getElementById('section6') // Sixth section
       const section6Part1 = document.getElementById('section6-part1') // First part of NewForm
       const section6Part2 = document.getElementById('section6-part2') // Second part of NewForm
 
@@ -541,19 +543,18 @@ const CreateInvoice = () => {
         await addSectionToPdf(section5, pdf)
       }
       await addSectionToPdf(section3, pdf, section4, true)
-      if (
-        invoiceType === InvoiceTypes.INTERIOR ||
-        invoiceType === InvoiceTypes.HANDYMAN ||
-        invoiceType === InvoiceTypes.EXTERIOR
-      ) {
-        await addSectionToPdf(section6Part1, pdf) // Add section6-part1
-        await addSectionToPdf(section6Part2, pdf) // Add section6-part2
+      if (invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.EXTERIOR) {
         await addSectionToPdf(CustomerWithSingle, pdf)
         pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+      } else if (invoiceType === InvoiceTypes.HANDYMAN) {
+        // await addSectionToPdf(section6, pdf)
+        await addSectionToPdf(section6Part2, pdf) // Add section6-part2
+        await addSectionToPdf(CustomerWithSingle, pdf)
+        pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
       } else if (invoiceType === InvoiceTypes.ALL) {
         // await addSectionToPdf(section6, pdf)
-        await addSectionToPdf(section6Part1, pdf)
         await addSectionToPdf(section6Part2, pdf)
+        await addSectionToPdf(section6Part1, pdf)
         await addSectionToPdf(section2, pdf)
         await addSectionToPdf(section1, pdf)
 
@@ -564,13 +565,13 @@ const CreateInvoice = () => {
           await addSectionToPdf(section1, pdf)
         } else if (invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN) {
           // await addSectionToPdf(section6, pdf)
-          await addSectionToPdf(section6Part1, pdf)
           await addSectionToPdf(section6Part2, pdf)
+          await addSectionToPdf(section6Part1, pdf)
           await addSectionToPdf(section1, pdf)
         } else if (invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) {
           // await addSectionToPdf(section6, pdf)
-          await addSectionToPdf(section6Part1, pdf)
           await addSectionToPdf(section6Part2, pdf)
+          await addSectionToPdf(section6Part1, pdf)
           await addSectionToPdf(CustomerWithExterior, pdf)
         }
 
@@ -1179,8 +1180,8 @@ const CreateInvoice = () => {
         setStatusLoading(false)
       })
   }
-  const handleCommentChange = (section, comment) => {
-    setFormValues(prevValues => ({
+  const handleCommentChange = ({ section, comment }: { section: string; comment: any }) => {
+    setFormValues((prevValues: any) => ({
       ...prevValues,
       newForm: {
         ...prevValues.newForm,
@@ -2144,7 +2145,6 @@ const CreateInvoice = () => {
                     {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
                       <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                     )}
-                    <StyledTypography>HANDYMAN SERVICES</StyledTypography>
 
                     {/* <Grid container spacing={2} mt={5} mb={10}> */}
                     <div id='section6-part1'>
@@ -2154,6 +2154,7 @@ const CreateInvoice = () => {
                           {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
                             <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
                           )}
+                          <StyledTypography>HANDYMAN SERVICES</StyledTypography>
                           <NewForm
                             view={view}
                             newForm={formValues.newForm}
@@ -2164,26 +2165,34 @@ const CreateInvoice = () => {
                       </Grid>
                     </div>
 
-                    <div id='section6-part2'>
-                      <Grid container spacing={5} mt={5} mb={10}>
-                        <Grid item xs={12} sm={12}>
-                          {/* Second half of NewForm fields */}
-                          {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
-                            <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
-                          )}
-                          <NewForm
-                            view={view}
-                            newForm={formValues.newForm}
-                            fieldsToShow='part2'
-                            onCommentChange={handleCommentChange}
-                          />
-                        </Grid>
-                      </Grid>
-                    </div>
                     {/* </Grid> */}
                   </>
                 )}
               </div>
+            </div>
+            <div id='section6-part2'>
+              {(invoiceType === InvoiceTypes.HANDYMAN ||
+                invoiceType === InvoiceTypes.ALL ||
+                invoiceType === InvoiceTypes.INTERIOR_WITH_HANDYMAN ||
+                invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
+                <>
+                  <Grid container spacing={5} mt={5} mb={10}>
+                    <Grid item xs={12} sm={12}>
+                      {/* Second half of NewForm fields */}
+                      {view && (
+                        <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                      )}
+                      <StyledTypography>HANDYMAN SERVICES</StyledTypography>
+                      <NewForm
+                        view={view}
+                        newForm={formValues.newForm}
+                        fieldsToShow='part2'
+                        onCommentChange={handleCommentChange}
+                      />
+                    </Grid>
+                  </Grid>
+                </>
+              )}
             </div>
             <div id='section3'>
               {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
@@ -2283,7 +2292,7 @@ const CreateInvoice = () => {
                     </Box>
                   </Grid>
                 )}
-              </>{' '}
+              </>
               <>
                 {showHandyman_notes() && (
                   <>
