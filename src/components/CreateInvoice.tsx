@@ -429,7 +429,8 @@ const CreateInvoice = () => {
             ? tableData.exterior_warranty
             : ''
         )
-        setWarrantyDate(new Date(tableData?.warranty_date).toLocaleDateString())
+        const dateObj = new Date(tableData?.warranty_date)
+        setWarrantyDate(dateObj.toISOString().split('T')[0])
       })
     } else {
       reset(defaultValues)
@@ -665,7 +666,7 @@ const CreateInvoice = () => {
         total_cost: parseFloat(formData.total_cost),
         handyMan_balance_due: parseFloat(formData.handyMan_balance_due),
         handyMan_down_payment: parseFloat(formData.handyMan_down_payment),
-        handyMan_total_cost: parseInt(formData.handyMan_total_cost),
+        handyMan_total_cost: parseFloat(formData.handyMan_total_cost),
         grand_total: parseFloat(formData.total_cost) + parseFloat(formData.handyMan_total_cost),
         status: status,
         pay_link: formData.pay_link,
