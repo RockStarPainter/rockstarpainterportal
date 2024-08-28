@@ -2400,7 +2400,11 @@ const CreateInvoice = () => {
                   view={view === 'true'}
                 />
               </Grid>
-              {(allData?.handyMan_total_cost || allData?.handyMan_down_payment || allData?.handyMan_balance_due) && (
+              {(view !== 'true' ||
+                (view === 'true' &&
+                  (allData?.handyMan_total_cost ||
+                    allData?.handyMan_down_payment ||
+                    allData?.handyMan_balance_due))) && (
                 <>
                   <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
                   <Grid container spacing={5} mt={5} mb={10}>
