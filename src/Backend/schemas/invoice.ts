@@ -46,8 +46,13 @@ const invoiceSchema = new Schema(
     issue_date: { type: Date, required: false },
     interiorData: {},
     exteriorData: {},
-    sherwin_paints: [],
-    benjamin_paints: [],
+    sherwin_paints: [{ type: String }], // Just the paint names for Sherwin Williams
+    benjamin_paints: [
+      {
+        paint_name: { type: String, required: true }, // The name of the Benjamin Moore paint
+        finishing_types: [{ type: String, required: false }] // The selected finishing types
+      }
+    ],
     other_paints: { type: String, required: false },
     interior_warranty: { type: Number, required: false },
     exterior_warranty: { type: Number, required: false },

@@ -17,7 +17,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Divider
+  Divider,
+  FormControlLabel
 } from '@mui/material'
 import axios from 'axios'
 import { InvoiceTypes, InvoiceTypesValues } from 'src/enums/FormTypes'
@@ -289,12 +290,12 @@ const CreateInvoice = () => {
   const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
   const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
+  const [selectedBenjaminOptions, setSelectedBenjaminOptions] = useState<{ [key: string]: string[] }>({})
+
   const rows = 5 // Define the number of rows
   const cols = 3 // Define the number of columns
 
   const [formValues, setFormValues] = useState(generateDefaultValues(rows, cols))
-
-  // const [statusLoading, setStatusLoading] = useState(false)
 
   const handleDialogOpen = () => {
     setIsDialogOpen(true)
@@ -320,10 +321,6 @@ const CreateInvoice = () => {
     fixtures: false,
     cleaning: false
   })
-
-  // const handleCheckboxChange = (event: any) => {
-  //   setSelectedOption(event.target.name)
-  // }
 
   const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
 
@@ -358,6 +355,10 @@ const CreateInvoice = () => {
         defaultValues.interiorRows = []
         defaultValues.exteriorRows = []
         const tableData = response.data.payload.data
+        const benjaminOptions: { [key: string]: string[] } = {}
+        tableData.benjamin_paints.forEach((paint: any) => {
+          benjaminOptions[paint.paint_name] = paint.finishing_types
+        })
 
         tableData.interiorRows.forEach((row: any, rowIndex: any) => {
           row.columns.forEach((column: any, colIndex: any) => {
@@ -401,7 +402,6 @@ const CreateInvoice = () => {
         defaultValues.other_paints = tableData.other_paints
         defaultValues.issue_date = tableData.issue_date ? new Date(tableData.issue_date) : null
         defaultValues.newForm = tableData.moreDetails
-        console.log('Default Values:', defaultValues) // Add this line for debugging
 
         setAllData(tableData)
         reset(defaultValues)
@@ -411,7 +411,9 @@ const CreateInvoice = () => {
         setExteriorData(tableData.exteriorRows)
         setIsLoading(false)
         setStatus(tableData.status)
-        setSelectedBenjamin(tableData.benjamin_paints)
+        setSelectedBenjamin(tableData.benjamin_paints.map((p: any) => p.paint_name))
+        setSelectedBenjaminOptions(benjaminOptions)
+
         setSelectedSherwin(tableData.sherwin_paints)
         showNewFormOrNot(tableData.moreDetails)
         setWarrantyType(tableData.warranty_type)
@@ -429,7 +431,8 @@ const CreateInvoice = () => {
             ? tableData.exterior_warranty
             : ''
         )
-        setWarrantyDate(new Date(tableData?.warranty_date).toLocaleDateString())
+        const dateObj = new Date(tableData?.warranty_date)
+        setWarrantyDate(dateObj.toISOString().split('T')[0])
       })
     } else {
       reset(defaultValues)
@@ -630,6 +633,10 @@ const CreateInvoice = () => {
   const onSubmit = async (formData: any) => {
     try {
       setApiLoading(true)
+      const benjaminPaintsData = selectedBenjamin.map((paintName: any) => ({
+        paint_name: paintName,
+        finishing_types: selectedBenjaminOptions[paintName] || []
+      }))
       const rows = data.map((row: any, rowIndex: any) => ({
         name: row.name,
         columns: row.columns.map((_: any, colIndex: any) => ({
@@ -665,13 +672,13 @@ const CreateInvoice = () => {
         total_cost: parseFloat(formData.total_cost),
         handyMan_balance_due: parseFloat(formData.handyMan_balance_due),
         handyMan_down_payment: parseFloat(formData.handyMan_down_payment),
-        handyMan_total_cost: parseInt(formData.handyMan_total_cost),
+        handyMan_total_cost: parseFloat(formData.handyMan_total_cost),
         grand_total: parseFloat(formData.total_cost) + parseFloat(formData.handyMan_total_cost),
         status: status,
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
-        benjamin_paints: selectedBenjamin,
+        benjamin_paints: benjaminPaintsData,
         moreDetails: formData.newForm,
         warranty_type: warrantyType,
         exterior_warranty: exteriorWarranty,
@@ -1000,43 +1007,50 @@ const CreateInvoice = () => {
       // paint_code: 'N794',
       img: '/images/b-6.png',
       d_name: 'b-6.png',
-      name: 'Aura Exterior'
+      name: 'Aura Exterior',
+      options: ['Flat', 'Low Lustre', 'Satin', 'Soft-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-7.png',
       d_name: 'b-7.png',
-      name: 'Regal Select Exterior'
+      name: 'Regal Select Exterior',
+      options: ['Flat', 'Eggshell', 'Pearl/Satin', 'Semi-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-8.png',
       d_name: 'b-8.png',
-      name: 'Element Guard'
+      name: 'Element Guard',
+      options: ['Flat', 'Low Lustre', 'Soft-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-9.png',
       d_name: 'b-9.png',
-      name: 'Aura Interior'
+      name: 'Aura Interior',
+      options: ['Matte', 'Eggshell', 'Satin', 'Semi-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-10.png',
       d_name: 'b-10.png',
-      name: 'Regal Select Interior'
+      name: 'Regal Select Interior',
+      options: ['Flat', 'Matte', 'Eggshell', 'Pearl/Satin', 'Semi-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-11.png',
       d_name: 'b-11.png',
-      name: 'Ben Interior'
+      name: 'Ben Interior',
+      options: ['Matte', 'Eggshell', 'Pearl/Satin', 'Semi-Gloss']
     },
     {
       // paint_code: 'N794',
       img: '/images/b-12.png',
       d_name: 'b-12.png',
-      name: 'Ultra Spec 500 Interior'
+      name: 'Ultra Spec 500 Interior',
+      options: ['Flat', 'Low-Sheen Eggshell', 'Eggshell', 'Satin/Pearl', 'Semi-Gloss']
     }
   ]
 
@@ -1055,19 +1069,33 @@ const CreateInvoice = () => {
     }
   }
 
-  const handlePaintSelectBenjamin = (name: string, checked: any) => {
+  const handlePaintSelectBenjamin = (name: string, checked: boolean) => {
     if (checked) {
-      if (selectedBenjamin.includes(name)) {
-        return
-      } else {
+      if (!selectedBenjamin.includes(name)) {
         setSelectedBenjamin([...selectedBenjamin, name])
       }
     } else {
-      const index = selectedBenjamin.indexOf(name)
-      const temp = [...selectedBenjamin]
-      temp.splice(index, 1)
-      setSelectedBenjamin(temp)
+      setSelectedBenjamin(selectedBenjamin.filter((paint: any) => paint !== name))
+      setSelectedBenjaminOptions(prevOptions => {
+        const updatedOptions = { ...prevOptions }
+        delete updatedOptions[name] // Remove options if the paint is deselected
+
+        return updatedOptions
+      })
     }
+  }
+  const handleOptionChange = (paintName: string, option: string, checked: boolean) => {
+    setSelectedBenjaminOptions(prevOptions => {
+      const options = prevOptions[paintName] || []
+      if (checked) {
+        return { ...prevOptions, [paintName]: [...options, option] }
+      } else {
+        return {
+          ...prevOptions,
+          [paintName]: options.filter(opt => opt !== option)
+        }
+      }
+    })
   }
 
   const showBenjaminPaints = () => {
@@ -2201,51 +2229,79 @@ const CreateInvoice = () => {
               {showSherwinPaints() && (
                 <>
                   <StyledTypography>Sherwin Williams Paints</StyledTypography>
-                  <Grid container mt={10}>
+                  <Grid container spacing={5} ml={'20px'}>
                     {sherwinPaints.map(p => {
-                      if (view) {
-                        if (!selectedSherwin.includes(p.d_name)) return
-                      }
+                      if (view && !selectedSherwin.includes(p.d_name)) return null
 
                       return (
-                        <PaintGridComponent
-                          image={p.img}
-                          title={p.name}
-                          subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 && '..'}`}
-                          checked={selectedSherwin.includes(p.d_name)}
-                          onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
-                          key={p.d_name}
-                          view={view}
-                        />
+                        <Grid item xs={12} sm={6} md={4} key={p.d_name} alignContent={'center'} alignItems={'center'}>
+                          <PaintGridComponent
+                            image={p.img}
+                            title={p.name}
+                            subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 ? '..' : ''}`}
+                            checked={selectedSherwin.includes(p.d_name)}
+                            onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
+                            view={view}
+                          />
+                        </Grid>
                       )
                     })}
                   </Grid>
                 </>
               )}
+
               {showBenjaminPaints() && (
                 <>
                   <StyledTypography>Benjamin Moore Advance Paints</StyledTypography>
-                  <Grid container mt={10}>
+                  <Grid container spacing={5} ml={'20px'}>
                     {benjaminPaints.map(p => {
-                      if (view) {
-                        if (!selectedBenjamin.includes(p.d_name)) return
-                      }
+                      // In view mode, only render selected paints
+                      if (view && !selectedBenjamin.includes(p.d_name)) return null
 
                       return (
-                        <PaintGridComponent
-                          image={p.img}
-                          title={p.name}
-                          subText={p.paint_code}
-                          checked={selectedBenjamin.includes(p.d_name)}
-                          onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
-                          key={p.d_name}
-                          view={view}
-                        />
+                        <Grid item xs={12} sm={6} md={4} key={p.d_name}>
+                          <div>
+                            <PaintGridComponent
+                              image={p.img}
+                              title={p.name}
+                              subText={p.paint_code}
+                              checked={selectedBenjamin.includes(p.d_name)}
+                              onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                              view={view}
+                            />
+                            {!view && selectedBenjamin.includes(p.d_name) && p.options && (
+                              <div>
+                                {p.options.map(option => (
+                                  <FormControlLabel
+                                    key={option}
+                                    control={
+                                      <Checkbox
+                                        checked={selectedBenjaminOptions[p.d_name]?.includes(option) || false}
+                                        onChange={e => handleOptionChange(p.d_name, option, e.target.checked)}
+                                      />
+                                    }
+                                    label={option}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            {view &&
+                              selectedBenjamin.includes(p.d_name) &&
+                              selectedBenjaminOptions[p.d_name]?.length > 0 && (
+                                <div>
+                                  <Typography variant='h6'>
+                                    <b> Finishing Type: {selectedBenjaminOptions[p.d_name].join(', ')} </b>
+                                  </Typography>
+                                </div>
+                              )}
+                          </div>
+                        </Grid>
                       )
                     })}
                   </Grid>
                 </>
               )}
+
               {showOtherPaint() && (
                 <>
                   <StyledTypography>Other Paints</StyledTypography>
@@ -2344,30 +2400,35 @@ const CreateInvoice = () => {
                   view={view === 'true'}
                 />
               </Grid>
-              <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
-              <Grid container spacing={5} mt={5} mb={10}>
-                <FormItem
-                  name='handyMan_total_cost'
-                  label='Total Cost'
-                  control={control}
-                  allData={allData}
-                  view={view === 'true'}
-                />
-                <FormItem
-                  name='handyMan_down_payment'
-                  label='50% Down Payment'
-                  control={control}
-                  allData={allData}
-                  view={view === 'true'}
-                />
-                <FormItem
-                  name='handyMan_balance_due'
-                  label='Balance Due'
-                  control={control}
-                  allData={allData}
-                  view={view === 'true'}
-                />
-              </Grid>
+              {(allData?.handyMan_total_cost || allData?.handyMan_down_payment || allData?.handyMan_balance_due) && (
+                <>
+                  <StyledTypography>HANDYMAN PAYMENT DETAILS</StyledTypography>
+                  <Grid container spacing={5} mt={5} mb={10}>
+                    <FormItem
+                      name='handyMan_total_cost'
+                      label='Total Cost'
+                      control={control}
+                      allData={allData}
+                      view={view === 'true'}
+                    />
+                    <FormItem
+                      name='handyMan_down_payment'
+                      label='50% Down Payment'
+                      control={control}
+                      allData={allData}
+                      view={view === 'true'}
+                    />
+                    <FormItem
+                      name='handyMan_balance_due'
+                      label='Balance Due'
+                      control={control}
+                      allData={allData}
+                      view={view === 'true'}
+                    />
+                  </Grid>
+                </>
+              )}
+
               <StyledTypography>TOTAL COST</StyledTypography>
             </div>
             <div id='section4'>
@@ -2416,117 +2477,6 @@ const CreateInvoice = () => {
                   )}
                 </Grid>
               </Grid>
-              {/* <Grid container spacing={5} mt={5} mb={10}>
-              <Grid item xs={12} sm={3}>
-                {!view ? (
-                  <FormControl fullWidth>
-                    <Controller
-                      name={'total_cost'}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label={'Total Cost'}
-                          onChange={onChange}
-                          aria-describedby='validation-basic-last-name'
-                        />
-                      )}
-                    />
-                  </FormControl>
-                ) : (
-                  <Box>
-                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'Total Cost'}
-                    </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                      {allData && allData['total_cost']}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                {!view ? (
-                  <FormControl fullWidth>
-                    <Controller
-                      name={'down_payment'}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label={'50% Down Payment'}
-                          onChange={onChange}
-                          aria-describedby='validation-basic-last-name'
-                        />
-                      )}
-                    />
-                  </FormControl>
-                ) : (
-                  <Box>
-                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'50% Down Payment'}
-                    </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                      {allData && allData['down_payment']}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                {!view ? (
-                  <FormControl fullWidth>
-                    <Controller
-                      name={'balance_due'}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <TextField
-                          value={value}
-                          label={'Balance Due'}
-                          onChange={onChange}
-                          aria-describedby='validation-basic-last-name'
-                        />
-                      )}
-                    />
-                  </FormControl>
-                ) : (
-                  <Box>
-                    <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                      {'Balance Due'}
-                    </Typography>
-                    <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                      {allData && allData['balance_due']}
-                    </Typography>
-                  </Box>
-                )}
-              </Grid>
-
-                <Grid item xs={12} sm={3}>
-                  {!view ? (
-                    <FormControl fullWidth>
-                      <Controller
-                        name={'pay_link'}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <TextField
-                            value={value}
-                            label={'Payment Link'}
-                            onChange={onChange}
-                            aria-describedby='validation-basic-last-name'
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  ) : (
-                    <Box>
-                      <Typography variant='h5' fontWeight={'bold'} sx={{ textAlign: 'center' }}>
-                        {'Pay Link'}
-                      </Typography>
-                      <Typography variant='h6' sx={{ textAlign: 'center' }}>
-                        {payLink}
-                      </Typography>
-                    </Box>
-                  )}
-                </Grid>
-              </Grid> */}
             </div>{' '}
             {/* Warranty Content */}
             <div id='section5'>
@@ -2552,28 +2502,6 @@ const CreateInvoice = () => {
                 )}
               </Grid>
             </div>
-            {/* <Box mt={10} display={'flex'} flexDirection={'column'} sx={{ border: '1px solid black' }}>
-          <Typography textAlign={'center'} mt={2} mb={2}>
-            APPROVED AND ACCEPTED
-          </Typography>
-
-          <Box sx={{ border: '1px solid black' }} display={'flex'}>
-            <Box
-              display={'flex'}
-              width={'50%'}
-              justifyContent={'space-between'}
-              padding={1}
-              borderRight={'1px solid black'}
-            >
-              <Typography variant='h6'>Customer</Typography>
-              <Typography variant='h6'>Date</Typography>
-            </Box>
-            <Box display={'flex'} padding={1} width={'50%'} justifyContent={'space-between'}>
-              <Typography variant='h6'>Contractor</Typography>
-              <Typography variant='h6'>Date</Typography>
-            </Box>
-          </Box>
-        </Box> */}
             {!view && (
               <Button type='submit' variant='contained' fullWidth disabled={apiLoading}>
                 {apiLoading ? <CircularProgress /> : invoiceId ? 'Update Invoice' : 'Generate Invoice'}

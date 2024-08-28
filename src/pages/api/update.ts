@@ -5,22 +5,33 @@ const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
       const { payload, invoiceId } = req.body
-      const newInvoice = await InvoiceModel.findByIdAndUpdate(invoiceId, { $set: { ...payload } })
 
-      if (!newInvoice) {
-        return res.status(404).send('Not able to update invoice')
+      // Validate the balance_due before updating
+      if (typeof payload.balance_due !== 'number') {
+        return res.status(400).json({ message: 'Invalid balance due value' })
       }
 
-      return res.send({
-        message: 'invoice fetched successfully',
-        payload: {}
+      const updatedInvoice = await InvoiceModel.findByIdAndUpdate(
+        invoiceId,
+        { $set: payload },
+        { new: true } // Return the updated document
+      )
+
+      if (!updatedInvoice) {
+        return res.status(404).json({ message: 'Invoice not found or unable to update' })
+      }
+
+      return res.status(200).json({
+        message: 'Invoice updated successfully',
+        payload: updatedInvoice
       })
     } catch (error) {
-      console.log(error)
-      res.status(500).send('something went wrong')
+      console.error('Error updating invoice')
+
+      return res.status(500).json({ message: 'An error occurred while updating the invoice' })
     }
   } else {
-    res.status(500).send('this is a post request')
+    return res.status(405).json({ message: 'Method not allowed, only POST requests are accepted' })
   }
 }
 
