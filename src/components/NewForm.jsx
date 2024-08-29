@@ -69,13 +69,20 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
+                  {/* <TextField
                     value={newForm.dryWall.comment}
                     onChange={e => props.onCommentChange('dryWall', e.target.value)}
                     rows={2}
                     multiline
                     label='Dry Wall Comments'
                     fullWidth
+                  /> */}
+                  <CustomTextField
+                    label='Dry Wall Comments'
+                    name='newForm.dryWall.comments'
+                    view={view}
+                    rows={2}
+                    multiline
                   />
                 </FormControl>
               </Grid>
