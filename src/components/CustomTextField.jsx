@@ -2,7 +2,7 @@ import { Box, TextField, Typography } from '@mui/material'
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 
-function CustomTextField({ name, label, view, ...others }) {
+function CustomTextField({ name, label, view, customWidth, ...others }) {
   const methods = useFormContext()
   const { control, getValues } = methods
 
@@ -23,7 +23,7 @@ function CustomTextField({ name, label, view, ...others }) {
               <Typography
                 style={{
                   border: '1px solid',
-                  width: '280px'
+                  width: customWidth ? 'auto' : '280px' // Use customWidth prop to control the width
                 }}
                 textAlign={'center'}
               >
@@ -32,7 +32,7 @@ function CustomTextField({ name, label, view, ...others }) {
               <Box
                 style={{
                   border: '1px solid',
-                  width: '280px',
+                  width: customWidth ? 'auto' : '280px', // Use customWidth prop to control the width
                   padding: '7px'
                 }}
                 sx={{ textAlign: 'center', display: 'inline-block', pl: 1 }}

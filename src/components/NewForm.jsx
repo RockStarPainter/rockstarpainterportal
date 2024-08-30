@@ -1,4 +1,4 @@
-import { Box, Grid, Typography, FormControl, TextField } from '@mui/material'
+import { Box, Grid, Typography, FormControl } from '@mui/material'
 import React from 'react'
 
 // import { useFormContext } from 'react-hook-form'
@@ -69,20 +69,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  {/* <TextField
-                    value={newForm.dryWall.comment}
-                    onChange={e => props.onCommentChange('dryWall', e.target.value)}
-                    rows={2}
-                    multiline
-                    label='Dry Wall Comments'
-                    fullWidth
-                  /> */}
                   <CustomTextField
                     label='Dry Wall Comments'
                     name='newForm.dryWall.comments'
                     view={view}
                     rows={2}
                     multiline
+                    fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -135,13 +129,14 @@ function NewForm(props) {
 
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.textureRepair.comment}
-                    onChange={e => props.onCommentChange('textureRepair', e.target.value)}
+                  <CustomTextField
+                    name='newForm.textureRepair.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Texture Repair Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -186,13 +181,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.vinylFlooring.comment}
-                    onChange={e => props.onCommentChange('vinylFlooring', e.target.value)}
+                  <CustomTextField
+                    name='newForm.vinylFlooring.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Vinyl Flooring Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -238,15 +234,16 @@ function NewForm(props) {
                   <CustomSelectField label={'Shower Pan'} name='newForm.tile.showerPan' view={view} />
                 </Grid>
               </Grid>
-              <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
+              <Grid item xs={view ? 'auto' : 12} mt={'20px'} fullWidth>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.tile.comment}
-                    onChange={e => props.onCommentChange('tile', e.target.value)}
+                  <CustomTextField
+                    name='newForm.tile.comment'
+                    view={view}
                     rows={2}
                     multiline
                     label='Tile Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -295,13 +292,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.carpetInstallation.comment}
-                    onChange={e => props.onCommentChange('carpetInstallation', e.target.value)}
+                  <CustomTextField
+                    name='newForm.carpetInstallation.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Carpet Installation Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -367,13 +365,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.carpentry.comment}
-                    onChange={e => props.onCommentChange('carpentry', e.target.value)}
+                  <CustomTextField
+                    name='newForm.carpentry.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Carpentry Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -440,13 +439,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.plumbing.comment}
-                    onChange={e => props.onCommentChange('plumbing', e.target.value)}
+                  <CustomTextField
+                    name='newForm.plumbing.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Plumbing Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -499,13 +499,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.fixtures.comment}
-                    onChange={e => props.onCommentChange('fixtures', e.target.value)}
+                  <CustomTextField
+                    name='newForm.fixtures.comment'
                     rows={2}
                     multiline
+                    view={view}
                     label='Fixtures Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>
@@ -587,13 +588,14 @@ function NewForm(props) {
               </Grid>
               <Grid item xs={view ? 'auto' : 12} mt={'20px'}>
                 <FormControl fullWidth>
-                  <TextField
-                    value={newForm.cleaning.comment}
-                    onChange={e => props.onCommentChange('cleaning', e.target.value)}
+                  <CustomTextField
+                    name='newForm.cleaning.comment'
                     rows={2}
+                    view={view}
                     multiline
                     label='Cleaning Comments'
                     fullWidth
+                    customWidth
                   />
                 </FormControl>
               </Grid>

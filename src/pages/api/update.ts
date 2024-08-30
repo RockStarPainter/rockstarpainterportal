@@ -5,6 +5,7 @@ const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
       const { payload, invoiceId } = req.body
+
       // Validate the balance_due before updating
       if (payload.balance_due && typeof payload.balance_due !== 'number') {
         return res.status(400).json({ message: 'Invalid balance due value' })
