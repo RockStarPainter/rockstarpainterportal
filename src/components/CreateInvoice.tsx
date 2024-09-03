@@ -118,7 +118,7 @@ emailjs.init({
 })
 const CreateInvoice = () => {
   const numRows = 18 // Number of rows in your table
-  const numCols = 6 // Number of columns in each row
+  const numCols = 5 // Number of columns in each row
   const eNumRows = 17 // Number of rows in your table
   const eNumCols = 2 // Number of columns in each row
   const router = useRouter()
@@ -322,7 +322,7 @@ const CreateInvoice = () => {
     cleaning: false
   })
 
-  const headers = ['WALL', 'BASE', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
+  const headers = ['WALL', 'CEILING', 'CLOSET', 'DOOR', 'BASEBOARD']
 
   const checkValues = (obj: any) => {
     if (obj == null) return false
@@ -407,7 +407,7 @@ const CreateInvoice = () => {
         reset(defaultValues)
         setSelectedOption(tableData.form_type)
         setInvoiceType(tableData.invoice_type) // Set the invoice type state
-        setData(tableData.interiorRows)
+        setData(tableData.interiorRows.slice(0, tableData.interiorRows.length - 1))
         setExteriorData(tableData.exteriorRows)
         setIsLoading(false)
         setStatus(tableData.status)
