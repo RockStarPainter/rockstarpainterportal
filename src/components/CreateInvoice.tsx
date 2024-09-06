@@ -163,6 +163,9 @@ const CreateInvoice = () => {
     defaultValues.zip_code = ''
     defaultValues.total_cost = ''
     defaultValues.notes = ''
+    defaultValues.exterior_commercial_comment = ''
+    defaultValues.interior_commercial_comment = ''
+    defaultValues.interior_exterior_commercial_comment = ''
     defaultValues.handyman_notes = ''
     defaultValues.balance_due = ''
     defaultValues.down_payment = ''
@@ -385,6 +388,9 @@ const CreateInvoice = () => {
         defaultValues.state = tableData.state
         defaultValues.zip_code = tableData.zip_code
         defaultValues.notes = tableData.notes
+        defaultValues.exterior_commercial_comment = tableData.exterior_commercial_comment
+        defaultValues.interior_commercial_comment = tableData.interior_commercial_comment
+        defaultValues.interior_exterior_commercial_comment = tableData.interior_exterior_commercial_comment
         defaultValues.handyman_notes = tableData.handyman_notes
         defaultValues.total_cost = tableData.total_cost
         defaultValues.balance_due = tableData.balance_due
@@ -666,6 +672,9 @@ const CreateInvoice = () => {
         interiorData: formData.interiorData,
         exteriorData: formData.exteriorData,
         notes: formData.notes,
+        exterior_commercial_comment: formData.exterior_commercial_comment,
+        interior_commercial_comment: formData.interior_commercial_comment,
+        interior_exterior_commercial_comment: formData.interior_exterior_commercial_comment,
         handyman_notes: formData.handyman_notes,
         balance_due: parseFloat(formData.balance_due),
         down_payment: parseFloat(formData.down_payment),
@@ -1122,6 +1131,30 @@ const CreateInvoice = () => {
     const other_notes = allData?.notes || ''
     if (view) {
       return other_notes.trim().length > 0
+    } else {
+      return true
+    }
+  }
+  const show_exterior_commercial_comment = () => {
+    const exterior_commercial_comment = allData?.exterior_commercial_comment || ''
+    if (view) {
+      return exterior_commercial_comment.trim().length > 0
+    } else {
+      return true
+    }
+  }
+  const show_interior_commercial_comment = () => {
+    const interior_commercial_comment = allData?.interior_commercial_comment || ''
+    if (view) {
+      return interior_commercial_comment.trim().length > 0
+    } else {
+      return true
+    }
+  }
+  const show_interior_exterior_commercial_comment = () => {
+    const interior_exterior_commercial_comment = allData?.interior_exterior_commercial_comment || ''
+    if (view) {
+      return interior_exterior_commercial_comment.trim().length > 0
     } else {
       return true
     }
@@ -2249,7 +2282,6 @@ const CreateInvoice = () => {
                   </Grid>
                 </>
               )}
-
               {showBenjaminPaints() && (
                 <>
                   <StyledTypography>Benjamin Moore Advance Paints</StyledTypography>
@@ -2301,7 +2333,6 @@ const CreateInvoice = () => {
                   </Grid>
                 </>
               )}
-
               {showOtherPaint() && (
                 <>
                   <StyledTypography>Other Paints</StyledTypography>
@@ -2376,6 +2407,99 @@ const CreateInvoice = () => {
                   </Grid>
                 )}
               </>
+              <>
+                {show_exterior_commercial_comment() && (
+                  <>
+                    <StyledTypography>Exterior Commercial Painting</StyledTypography>
+                    {!view && (
+                      <FormControl fullWidth>
+                        <Controller
+                          name='exterior_commercial_comment'
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              rows={2}
+                              multiline
+                              label='Type Exterior Commercial Notes Here...'
+                              fullWidth
+                              {...field}
+                            />
+                          )}
+                        />
+                      </FormControl>
+                    )}
+                  </>
+                )}{' '}
+                {view && allData?.exterior_commercial_comment && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={50}>
+                      <Typography variant='h6'>{allData?.exterior_commercial_comment}</Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </>{' '}
+              <>
+                {show_interior_exterior_commercial_comment() && (
+                  <>
+                    <StyledTypography>Interior And Exterior Commercial Painting</StyledTypography>
+                    {!view && (
+                      <FormControl fullWidth>
+                        <Controller
+                          name='interior_exterior_commercial_comment'
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              rows={2}
+                              multiline
+                              label='Type Exterior Commercial Notes Here...'
+                              fullWidth
+                              {...field}
+                            />
+                          )}
+                        />
+                      </FormControl>
+                    )}
+                  </>
+                )}{' '}
+                {view && allData?.interior_exterior_commercial_comment && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={50}>
+                      <Typography variant='h6'>{allData?.interior_exterior_commercial_comment}</Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </>{' '}
+              <>
+                {show_interior_commercial_comment() && (
+                  <>
+                    <StyledTypography>Interior Commercial Painting</StyledTypography>
+                    {!view && (
+                      <FormControl fullWidth>
+                        <Controller
+                          name='interior_commercial_comment'
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              rows={2}
+                              multiline
+                              label='Type Interior Commercial Notes Here...'
+                              fullWidth
+                              {...field}
+                            />
+                          )}
+                        />
+                      </FormControl>
+                    )}
+                  </>
+                )}{' '}
+                {view && allData?.interior_commercial_comment && (
+                  <Grid item xs={12} sm={4} mb={10} ml={20} mt={10}>
+                    <Box minHeight={50}>
+                      <Typography variant='h6'>{allData?.interior_commercial_comment}</Typography>
+                    </Box>
+                  </Grid>
+                )}
+              </>
               <StyledTypography>PAINTING PAYMENT DETAILS</StyledTypography>
               <Grid container spacing={5} mt={5} mb={10}>
                 <FormItem
@@ -2432,7 +2556,6 @@ const CreateInvoice = () => {
                   </Grid>
                 </>
               )}
-
               <StyledTypography>TOTAL COST</StyledTypography>
             </div>
             <div id='section4'>
