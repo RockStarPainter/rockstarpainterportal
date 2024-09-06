@@ -17,12 +17,15 @@ const AuthGuard = (props: AuthGuardProps) => {
   const auth = useAuth()
   const router = useRouter()
 
-  useEffect(
-    () => {
-      if (!router.isReady) {
-        return
-      }
+  // Public routes that don't require authentication
+  const publicRoutes = ['/approveInvoice']
 
+  useEffect(() => {
+    if (!router.isReady) {
+      return
+    }
+    if (!publicRoutes.includes(router.pathname)) {
+      // Check if the user is logged in or if userData exists in localStorage
       if (auth.user === null && !window.localStorage.getItem('userData')) {
         if (router.asPath !== '/') {
           router.replace({
@@ -33,12 +36,11 @@ const AuthGuard = (props: AuthGuardProps) => {
           router.replace('/login')
         }
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.route]
-  )
+    }
+  }, [router.route, auth.user, router.isReady])
 
-  if (auth.loading || auth.user === null) {
+  // Show fallback while loading or if user is not authenticated
+  if (auth.loading || (auth.user === null && !publicRoutes.includes(router.pathname))) {
     return fallback
   }
 

@@ -121,15 +121,18 @@ const Home = () => {
 
   const handleSendEmail = async appointment => {
     try {
+      console.log('Sending initial email for appointment:', appointment._id)
+
       // Send initial email
       await axios.post('/api/appointments/send-email', { appointmentId: appointment._id })
+      console.log('Initial email sent successfully for appointment:', appointment._id)
 
       // Schedule reminder emails
       await axios.post('/api/appointments/schedule-reminders', { appointmentId: appointment._id })
 
       toast.success('Email sent and reminders scheduled successfully')
     } catch (error) {
-      console.error('Error sending email:', error)
+      console.error('Error sending email or scheduling reminders:', error)
       toast.error('Error sending email')
     }
   }
