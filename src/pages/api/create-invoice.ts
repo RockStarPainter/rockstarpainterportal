@@ -1,5 +1,11 @@
 import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
+import crypto from 'crypto'
+
+// Function to generate a random token
+const generateToken = () => {
+  return crypto.randomBytes(16).toString('hex')
+}
 
 const generateUniqueCustomId = async () => {
   const customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
@@ -10,7 +16,15 @@ const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
       const customId = await generateUniqueCustomId()
-      const newInvoice = new InvoiceModel({ ...req.body, custom_id: customId })
+      const approvalToken = await generateToken() // Generate a secure token
+      console.log('approvalToken', approvalToken)
+
+      const newInvoice = new InvoiceModel({
+        ...req.body,
+        custom_id: customId,
+        approval_token: approvalToken // Save the token to the invoice
+      })
+      console.log('Generated Invoice - custom_id:', customId, 'approval_token:', approvalToken)
 
       const saved = await newInvoice.save()
 

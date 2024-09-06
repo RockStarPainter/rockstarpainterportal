@@ -598,7 +598,7 @@ const CreateInvoice = () => {
 
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
-          const templateID = 'template_1hlt1qp'
+          const templateID = 'template_hiu1lu8'
           const userID = '1rRx93iEXQmVegiJX'
           if (!allData.email) {
             toast.error('No email address provided')
@@ -609,7 +609,9 @@ const CreateInvoice = () => {
           const templateParams = {
             content: base64data,
             customer_name: allData.customer_name,
-            to_email: allData.email
+            to_email: allData.email,
+            custom_id: allData.custom_id, // Include the custom_id
+            approval_token: allData.approval_token // Include the approval token
           }
 
           emailjs

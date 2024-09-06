@@ -65,6 +65,14 @@ const invoiceSchema = new Schema(
     total_down_payment: { type: Number, required: false },
     work_started_date: { type: Date, required: false },
     work_started_time: { type: String, required: false },
+    approval_status: {
+      type: String,
+      enum: ['Pending', 'Approved', 'Rejected', 'Modification Requested'],
+      default: 'Pending'
+    },
+    customer_remarks: { type: String, required: false },
+    approval_token: { type: String, required: false }, // Unique token to track approval requests
+
     moreDetails: {}
   },
   { timestamps: true }

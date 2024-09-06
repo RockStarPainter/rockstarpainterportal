@@ -1,6 +1,7 @@
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import { useRouter } from 'next/router'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -21,6 +22,14 @@ interface Props {
 const AppBarContent = (props: Props) => {
   // ** Props
   const { hidden, settings, toggleNavVisibility } = props
+  const router = useRouter()
+
+  const publicRoutes = ['/approve/[id]'] // public routes
+  // Check if the current route is public
+  const isPublicRoute = publicRoutes.some(route => router.pathname.startsWith(route))
+
+  // If the current route is public, don't show the AppBar
+  if (isPublicRoute) return null
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

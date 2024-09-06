@@ -10,7 +10,8 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  Tooltip
 } from '@mui/material'
 import axios from 'axios'
 import toast from 'react-hot-toast'
@@ -32,9 +33,27 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/get-all')
+      const fetchedData = res.data.payload.data
 
-      // console.log(res.data.payload.data)
-      setData(res.data.payload.data)
+      // Sort the data based on the approval_status and updatedAt fields
+      const sortedData = fetchedData.sort((a: any, b: any) => {
+        // Move Approved invoices to the top
+        if (a.approval_status === 'Approved' && b.approval_status !== 'Approved') {
+          return -1
+        }
+        if (a.approval_status !== 'Approved' && b.approval_status === 'Approved') {
+          return 1
+        }
+
+        // If both are Approved, sort by updatedAt in descending order
+        if (a.approval_status === 'Approved' && b.approval_status === 'Approved') {
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        }
+
+        return 0 // For other statuses, retain the original order
+      })
+
+      setData(sortedData)
     } catch (error) {
       console.log(error)
       toast.error('Error fetching data')
@@ -49,10 +68,12 @@ const Home = () => {
     try {
       await axios.post('/api/update-status', { invoiceId: _id, value })
       toast.success('Status Updated Successfully')
+      fetchData() // Fetch the data again to reflect the updated sorting
     } catch (error) {
       toast.error('Error To Update Status')
     }
   }
+
   const handleDeleteClick = (invoiceId: any) => {
     setSelectedInvoice(invoiceId)
     setOpenDialog(true)
@@ -63,9 +84,7 @@ const Home = () => {
       setDeleting(true)
       await axios.post('/api/delete', { invoiceId: selectedInvoice })
       setData((prev: any) => {
-        return prev.filter((p: any) => {
-          return p._id !== selectedInvoice
-        })
+        return prev.filter((p: any) => p._id !== selectedInvoice)
       })
       toast.success('Invoice deleted successfully')
     } catch (error) {
@@ -83,15 +102,28 @@ const Home = () => {
     setSelectedInvoice(null)
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Approved':
+        return 'green'
+      case 'Rejected':
+        return 'red'
+      case 'Modification Requested':
+        return 'blue'
+      default:
+        return 'gray'
+    }
+  }
+
   const columns = useMemo(
     () => [
       {
         header: 'Invoice #',
-        accessorKey: 'custom_id' //simple recommended way to define a column
+        accessorKey: 'custom_id'
       },
       {
         header: 'Issue Date',
-        accessorKey: 'issue_date', //simple recommended way to define a column
+        accessorKey: 'issue_date',
         Cell: ({ cell }: any) => {
           const value = cell.getValue()
 
@@ -100,50 +132,83 @@ const Home = () => {
       },
       {
         header: 'Customer Name',
-        accessorKey: 'customer_name' //simple recommended way to define a column
+        accessorKey: 'customer_name'
       },
-
       {
         header: 'Total Payment',
-        accessorKey: 'total_cost' //simple recommended way to define a column
+        accessorKey: 'total_cost'
       },
       {
         header: 'Status',
-        accessorKey: 'status', //simple recommended way to define a column,
-
+        accessorKey: 'status',
         Cell: ({ cell }: any) => {
           const { _id } = cell.row.original
           const defaultValue = cell.getValue() ? cell.getValue() : ''
           const [value, setValue] = useState(defaultValue)
 
           return (
-            <>
-              <FormControl>
-                <Select
-                  size='small'
-                  sx={{ fontSize: '14px' }}
-                  onChange={e => {
-                    setValue(e.target.value)
-                    updateStatus(_id, e.target.value)
-                  }}
-                  value={value}
-                  displayEmpty
-                  inputProps={{ 'aria-label': 'Without label' }}
-                >
-                  {statusValues.map((e: any) => {
-                    return (
-                      <MenuItem key={e} value={e}>
-                        {e}
-                      </MenuItem>
-                    )
-                  })}
-                </Select>
-              </FormControl>
-            </>
+            <FormControl>
+              <Select
+                size='small'
+                sx={{ fontSize: '14px' }}
+                onChange={e => {
+                  setValue(e.target.value)
+                  updateStatus(_id, e.target.value)
+                }}
+                value={value}
+                displayEmpty
+                inputProps={{ 'aria-label': 'Without label' }}
+              >
+                {statusValues.map((e: any) => (
+                  <MenuItem key={e} value={e}>
+                    {e}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )
         }
       },
+      {
+        header: 'Client Status',
+        accessorKey: 'approval_status',
+        Cell: ({ cell }: any) => {
+          const status = cell.getValue()
+          const remarks = cell.row.original.customer_remarks
 
+          return (
+            <Tooltip
+              title={remarks ? remarks : 'No remarks'}
+              placement='top'
+              arrow
+              sx={{
+                '& .MuiTooltip-arrow': {
+                  color: 'black'
+                },
+                '& .MuiTooltip-tooltip': {
+                  backgroundColor: 'black',
+                  color: 'white',
+                  fontSize: '14px',
+                  borderRadius: '5px'
+                }
+              }}
+            >
+              <Box display='flex' alignItems='center' sx={{ cursor: 'pointer' }}>
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    backgroundColor: getStatusColor(status),
+                    marginRight: 1
+                  }}
+                />
+                {status}
+              </Box>
+            </Tooltip>
+          )
+        }
+      },
       {
         header: 'Actions',
         accessorKey: 'actions',
