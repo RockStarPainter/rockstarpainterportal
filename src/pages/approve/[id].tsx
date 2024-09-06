@@ -89,7 +89,7 @@ const ApprovePage = () => {
 
       {/* Submit button */}
       <Button variant='contained' color='primary' onClick={handleApproval} fullWidth>
-        Submit Feedback
+        Submit
       </Button>
     </Box>
   )
