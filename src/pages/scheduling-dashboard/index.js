@@ -27,8 +27,7 @@ import formatTime from 'src/utilis/formatTime'
 import Appointments24Hours from 'src/views/pages/Appointments24Hours'
 import SendIcon from '@mui/icons-material/Send'
 import Tooltip from '@mui/material/Tooltip'
-
-// import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
+import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
 
 const Home = () => {
   const [data, setData] = useState([])
@@ -137,15 +136,15 @@ const Home = () => {
     }
   }
 
-  // const handleSendSMS = async appointment => {
-  //   try {
-  //     await axios.post('/api/appointments/send-sms', { appointmentId: appointment._id })
-  //     toast.success('SMS sent successfully')
-  //   } catch (error) {
-  //     console.error('Error sending SMS:', error)
-  //     toast.error('Error sending SMS')
-  //   }
-  // }
+  const handleSendSMS = async appointment => {
+    try {
+      await axios.post('/api/appointments/send-sms', { appointmentId: appointment._id })
+      toast.success('SMS sent successfully')
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      toast.error('Error sending SMS')
+    }
+  }
 
   const columns = useMemo(
     () => [
@@ -233,9 +232,9 @@ const Home = () => {
                 <SendIcon />
               </div>
               <div style={{ width: '15px' }}></div>
-              {/* <div onClick={() => handleSendSMS(appointment)} style={{ cursor: 'pointer' }}>
+              <div onClick={() => handleSendSMS(appointment)} style={{ cursor: 'pointer' }}>
                 <SmsIcon />
-              </div> */}
+              </div>
             </Box>
           )
         }
