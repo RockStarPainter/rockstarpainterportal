@@ -4,11 +4,6 @@ import AppointmentModel from 'src/Backend/schemas/appointment'
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
 import { AppointmentType } from 'src/Backend/constants'
 import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-
-dayjs.extend(utc)
-dayjs.extend(timezone)
 
 const mailerSend = new MailerSend({
   apiKey: 'mlsn.9c77df47fbe9081e10c6ed4186e62c9405412f383294e0db5452e870c41379cf'
@@ -25,28 +20,28 @@ const handler = async (req, res) => {
       }
 
       if (appointment.status === AppointmentType.UP_COMING) {
-        // Convert the appointment date to Denver (America/Denver) timezone
-        const appointmentDateInDenver = dayjs(appointment.appointment_date).tz('America/Denver')
+        const currentDate = new Date()
+        const appointmentDate = new Date(appointment.appointment_date)
         const time = appointment.appointment_time
         const [hours, minutes] = time.split(':').map(Number)
 
-        appointmentDateInDenver.set('hour', hours)
-        appointmentDateInDenver.set('minute', minutes)
+        appointmentDate.setHours(hours)
+        appointmentDate.setMinutes(minutes)
 
-        // Calculate two hours and twelve hours before the appointment
-        const twoHoursBeforeTimestamp = appointmentDateInDenver.subtract(2, 'hours').unix()
-        const twelveHoursBeforeTimestamp = appointmentDateInDenver.subtract(12, 'hours').unix()
+        const twoHoursBeforeDate = new Date(appointmentDate)
+        twoHoursBeforeDate.setHours(twoHoursBeforeDate.getHours() - 2)
 
-        // Get the current timestamp in Denver timezone
-        const currentTimestamp = dayjs().tz('America/Denver').unix()
+        const twelveHoursBeforeDate = new Date(appointmentDate)
+        twelveHoursBeforeDate.setHours(twelveHoursBeforeDate.getHours() - 12)
 
-        // Sender and recipients
+        const currentTimestamp = Math.floor(currentDate.getTime() / 1000)
+        const twoHoursBeforeTimestamp = Math.floor(twoHoursBeforeDate.getTime() / 1000)
+        const twelveHoursBeforeTimestamp = Math.floor(twelveHoursBeforeDate.getTime() / 1000)
+
+        // Update the sender email to match the verified domain
         const sentFrom = new Sender('info@rockstarpaintingdenver.com', 'Rockstar Painting')
-        const clientRecipient = [new Recipient(appointment.client_email, appointment.client_name)]
-        const ownerRecipient = [new Recipient('rockstarpainting33@gmail.com', 'Rockstar Painting')]
-
-        // Email HTML templates
-        const htmlForClient = `<!DOCTYPE html>
+        const recipients = [new Recipient(appointment.client_email, appointment.client_name)]
+        const html = `<!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
@@ -144,171 +139,166 @@ const handler = async (req, res) => {
                 </div>
             </div>
         </body>
-        </html>`
-
-        const htmlForOwner = `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Appointment Reminder</title>
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    background-color: #f4f4f4;
-                    margin: 0;
-                    padding: 0;
-                    color: #333;
-                }
-                .container {
-                    width: 100%;
-                    max-width: 600px;
-                    margin: 20px auto;
-                    background-color: #ffffff;
-                    padding: 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                }
-                .header {
-                    text-align: center;
-                    padding: 20px 0;
-                    background-color: #0073e6;
-                    color: #ffffff;
-                    border-radius: 8px 8px 0 0;
-                }
-                .header h1 {
-                    margin: 0;
-                    font-size: 24px;
-                }
-                .content {
-                    padding: 20px;
-                }
-                .content p {
-                    margin: 10px 0;
-                    line-height: 1.6;
-                }
-                .content strong {
-                    color: #0073e6;
-                }
-                .appointment-details {
-                    background-color: #f9f9f9;
-                    border: 1px solid #e0e0e0;
-                    border-radius: 8px;
-                    padding: 15px;
-                    margin: 15px 0;
-                }
-                .appointment-details p {
-                    margin: 8px 0;
-                }
-                .footer {
-                    text-align: center;
-                    padding: 10px 0;
-                    background-color: #0073e6;
-                    color: black;
-                    font-size: 12px;
-                    border-radius: 0 0 8px 8px;
-                }
-                .footer p {
-                    margin: 0;
-                }
-                a {
-                    color: #0073e6;
-                    text-decoration: none;
-                }
-                a:hover {
-                    text-decoration: underline;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Appointment Reminder</h1>
-                </div>
-                <div class="content">
-                    <p>Dear <strong>Rockstar Painting</strong>,</p>
-                    <p>This is a reminder email for the upcoming appointment with the client:</p>
-                    <div class="appointment-details">
-                        <p><strong>Client Name:</strong> ${appointment.client_name}</p>
-                        <p><strong>Date:</strong> ${dayjs(appointment.appointment_date).format('D-MMMM-YYYY')}</p>
-                        <p><strong>Time:</strong> ${appointment.appointment_time}</p>
-                    </div>
-                    <p>Please ensure everything is prepared and ready for the appointment. If you need to make any changes or have questions, please reach out to the client at <a href="mailto:${
-                      appointment.client_email
-                    }">${appointment.client_email}</a> or call them at <a href="tel:${appointment.client_phone}">${
+        </html>
+        `
+        const htmtForOwner = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Reminder</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #0073e6;
+            color: #ffffff;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .content strong {
+            color: #0073e6;
+        }
+        .appointment-details {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .appointment-details p {
+            margin: 8px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #0073e6;
+            color: black;
+            font-size: 12px;
+            border-radius: 0 0 8px 8px;
+        }
+        .footer p {
+            margin: 0;
+        }
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Appointment Reminder</h1>
+        </div>
+        <div class="content">
+            <p>Dear <strong>Rockstar Painting</strong>,</p>
+            <p>This is a reminder email for the upcoming appointment with the client:</p>
+            <div class="appointment-details">
+                <p><strong>Client Name:</strong> ${appointment.client_name}</p>
+                <p><strong>Date:</strong> ${dayjs(appointment.appointment_date).format('D-MMMM-YYYY')}</p>
+                <p><strong>Time:</strong> ${appointment.appointment_time}</p>
+            </div>
+            <p>Please ensure everything is prepared and ready for the appointment. If you need to make any changes or have questions, please reach out to the client at <a href="mailto:${
+              appointment.client_email
+            }">${appointment.client_email}</a> or call them at <a href="tel:${appointment.client_phone}">${
           appointment.client_phone
         }</a>.</p>
-                    <p>Best regards,</p>
-                    <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
-                </div>
-                <div class="footer">
-            <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
+            <p>Best regards,</p>
+            <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
+        </div>
+        <div class="footer">
+            <a href="https://rockstarpaintingdenver.com/">
             <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
             </a>
-                    <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
-            </a>
-                </div>
-            </div>
-        </body>
-        </html>`
-
+        </div>
+    </div>
+</body>
+</html>
+`
         let emailScheduled = false
+        const recipientsOwner = [new Recipient('rockstarpainting33@gmail.com', 'Rockstar Painting')]
 
-        // 12-hour reminder
         if (twelveHoursBeforeTimestamp > currentTimestamp) {
-          console.log(`Scheduling 12-hour reminder for appointment ${appointment._id}`)
-          console.log(`Client: ${appointment.client_email}, Owner: rockstarpainting33@gmail.com`)
-          console.log(`Scheduled to send at: ${new Date(twelveHoursBeforeTimestamp * 1000).toLocaleString()}`)
-
+          // 12 hours before - send to customer
           const emailParams12HoursClient = new EmailParams()
             .setFrom(sentFrom)
-            .setTo(clientRecipient) // client
+            .setTo(recipients) // Client email
             .setReplyTo(sentFrom)
             .setSubject('Appointment Reminder')
-            .setHtml(htmlForClient)
-            .setText('This is a scheduled text content')
-            .setSendAt(twelveHoursBeforeTimestamp)
-
-          const emailParams12HoursOwner = new EmailParams()
-            .setFrom(sentFrom)
-            .setTo(ownerRecipient) // business owner
-            .setReplyTo(sentFrom)
-            .setSubject('Appointment Reminder for Client')
-            .setHtml(htmlForOwner)
+            .setHtml(html)
             .setText('This is a scheduled text content')
             .setSendAt(twelveHoursBeforeTimestamp)
 
           await mailerSend.email.send(emailParams12HoursClient)
+
+          // 12 hours before - send to owner
+          const emailParams12HoursOwner = new EmailParams()
+            .setFrom(sentFrom)
+            .setTo(recipientsOwner) // Owner email
+            .setReplyTo(sentFrom)
+            .setSubject('Appointment Reminder')
+            .setHtml(htmtForOwner)
+            .setText('This is a scheduled text content')
+            .setSendAt(twelveHoursBeforeTimestamp)
+
           await mailerSend.email.send(emailParams12HoursOwner)
 
           emailScheduled = true
         }
 
-        // 2-hour reminder
         if (twoHoursBeforeTimestamp > currentTimestamp) {
-          console.log(`Scheduling 2-hour reminder for appointment ${appointment._id}`)
-          console.log(`Client: ${appointment.client_email}, Owner: rockstarpainting33@gmail.com`)
-          console.log(`Scheduled to send at: ${new Date(twoHoursBeforeTimestamp * 1000).toLocaleString()}`)
-
+          // 2 hours before - send to customer
           const emailParams2HoursClient = new EmailParams()
             .setFrom(sentFrom)
-            .setTo(clientRecipient) // client
+            .setTo(recipients) // Client email
             .setReplyTo(sentFrom)
             .setSubject('Appointment Reminder')
-            .setHtml(htmlForClient)
-            .setText('This is a scheduled text content')
-            .setSendAt(twoHoursBeforeTimestamp)
-
-          const emailParams2HoursOwner = new EmailParams()
-            .setFrom(sentFrom)
-            .setTo(ownerRecipient) // business owner
-            .setReplyTo(sentFrom)
-            .setSubject('Appointment Reminder for Client')
-            .setHtml(htmlForOwner)
+            .setHtml(html)
             .setText('This is a scheduled text content')
             .setSendAt(twoHoursBeforeTimestamp)
 
           await mailerSend.email.send(emailParams2HoursClient)
+
+          // 2 hours before - send to owner
+          const emailParams2HoursOwner = new EmailParams()
+            .setFrom(sentFrom)
+            .setTo(recipientsOwner) // Owner email
+            .setReplyTo(sentFrom)
+            .setSubject('Appointment Reminder')
+            .setHtml(htmtForOwner)
+            .setText('This is a scheduled text content')
+            .setSendAt(twoHoursBeforeTimestamp)
+
           await mailerSend.email.send(emailParams2HoursOwner)
 
           emailScheduled = true
