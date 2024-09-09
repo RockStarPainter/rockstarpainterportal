@@ -18,7 +18,7 @@ const handler = async (req, res) => {
       }
 
       const smsParams = new SMSParams()
-        .setFrom('+18332552485') // Replace with your MailerSend virtual number
+        .setFrom('+18448975791') // Replace with your MailerSend virtual number
         .setTo([saved.client_phone]) // Ensure client_phone is a field in your appointment schema
         .setText(
           `Hello ${saved.client_name},\n

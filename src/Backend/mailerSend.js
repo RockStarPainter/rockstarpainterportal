@@ -41,7 +41,7 @@ const scheduleEmail = async (to, subject, text, sendAt) => {
 
 const sendSMS = async (to, text) => {
   const smsParams = new SmsParams()
-    .setFrom('+18332552485') // Replace with your MailerSend virtual number
+    .setFrom('+18448975791') // Replace with your MailerSend virtual number
     .setRecipients([to])
     .setText(text)
 

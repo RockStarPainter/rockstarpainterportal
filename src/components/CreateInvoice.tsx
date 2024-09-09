@@ -543,6 +543,8 @@ const CreateInvoice = () => {
       const section1 = document.getElementById('section1') // First section
       const section2 = document.getElementById('section2') // Second section
       const section3 = document.getElementById('section3') // Third section
+      const section3by2 = document.getElementById('section3by2')
+      const section3by4 = document.getElementById('section3by4')
       const section4 = document.getElementById('section4') // Fourth section
       // const section6 = document.getElementById('section6') // Sixth section
       const section6Part1 = document.getElementById('section6-part1') // First part of NewForm
@@ -598,15 +600,17 @@ const CreateInvoice = () => {
       if (warrantyType !== 'None') {
         await addSectionToPdf(section5, pdf)
       }
-      await addSectionToPdf(section3, pdf, section4, true)
+      await addSectionToPdf(section3by4, pdf, section4, true)
+      await addSectionToPdf(section3by2, pdf)
+      await addSectionToPdf(section3, pdf)
       if (invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.EXTERIOR) {
         await addSectionToPdf(CustomerWithSingle, pdf)
-        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
       } else if (invoiceType === InvoiceTypes.HANDYMAN) {
         // await addSectionToPdf(section6, pdf)
         await addSectionToPdf(section6Part2, pdf) // Add section6-part2
         await addSectionToPdf(CustomerWithSingle, pdf)
-        pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
+        pdf.deletePage(warrantyType !== 'None' ? 7 : 6)
       } else if (invoiceType === InvoiceTypes.ALL) {
         // await addSectionToPdf(section6, pdf)
         await addSectionToPdf(section6Part2, pdf)
@@ -614,7 +618,7 @@ const CreateInvoice = () => {
         await addSectionToPdf(section2, pdf)
         await addSectionToPdf(section1, pdf)
 
-        pdf.deletePage(warrantyType !== 'None' ? 7 : 6)
+        pdf.deletePage(warrantyType !== 'None' ? 9 : 8)
       } else {
         if (invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR) {
           await addSectionToPdf(section2, pdf)
@@ -631,7 +635,7 @@ const CreateInvoice = () => {
           await addSectionToPdf(CustomerWithExterior, pdf)
         }
 
-        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
+        pdf.deletePage(warrantyType !== 'None' ? 8 : 7)
       }
 
       if (str !== 'email') {
@@ -2516,6 +2520,65 @@ const CreateInvoice = () => {
                   )}
                 </>
               )}
+              {showBenjaminPaints() && (
+                <>
+                  <StyledTypography onClick={toggleBenjaminPaintsList} sx={{ cursor: 'pointer' }}>
+                    Benjamin Moore Paints
+                  </StyledTypography>
+                  {showBenjaminPaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {benjaminPaints.map(p => {
+                          // In view mode, only render selected paints
+                          if (view && !selectedBenjamin.includes(p.d_name)) return null
+
+                          return (
+                            <Grid item xs={12} sm={6} md={4} key={p.d_name}>
+                              <div>
+                                <PaintGridComponent
+                                  image={p.img}
+                                  title={p.name}
+                                  subText={p.paint_code}
+                                  checked={selectedBenjamin.includes(p.d_name)}
+                                  onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                                  view={view}
+                                />
+                                {!view && selectedBenjamin.includes(p.d_name) && p.options && (
+                                  <div>
+                                    {p.options.map(option => (
+                                      <FormControlLabel
+                                        key={option}
+                                        control={
+                                          <Checkbox
+                                            checked={selectedBenjaminOptions[p.d_name]?.includes(option) || false}
+                                            onChange={e => handleOptionChange(p.d_name, option, e.target.checked)}
+                                          />
+                                        }
+                                        label={option}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                {view &&
+                                  selectedBenjamin.includes(p.d_name) &&
+                                  selectedBenjaminOptions[p.d_name]?.length > 0 && (
+                                    <div>
+                                      <Typography variant='h6'>
+                                        <b> Finishing Type: {selectedBenjaminOptions[p.d_name].join(', ')} </b>
+                                      </Typography>
+                                    </div>
+                                  )}
+                              </div>
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+            <div id='section3by2'>
               {showPrimerPaints() && (
                 <>
                   <StyledTypography onClick={togglePrimerPaintsList} sx={{ cursor: 'pointer' }}>
@@ -2589,7 +2652,7 @@ const CreateInvoice = () => {
                     </>
                   )}
                 </>
-              )}{' '}
+              )}
               {showCaulkSealantPaints() && (
                 <>
                   <StyledTypography onClick={toggleCaulkSealantPaintsList} sx={{ cursor: 'pointer' }}>
@@ -2627,63 +2690,6 @@ const CreateInvoice = () => {
                   )}
                 </>
               )}
-              {showBenjaminPaints() && (
-                <>
-                  <StyledTypography onClick={toggleBenjaminPaintsList} sx={{ cursor: 'pointer' }}>
-                    Benjamin Moore Paints
-                  </StyledTypography>
-                  {showBenjaminPaintsList && (
-                    <>
-                      <Grid container spacing={5} ml={'20px'}>
-                        {benjaminPaints.map(p => {
-                          // In view mode, only render selected paints
-                          if (view && !selectedBenjamin.includes(p.d_name)) return null
-
-                          return (
-                            <Grid item xs={12} sm={6} md={4} key={p.d_name}>
-                              <div>
-                                <PaintGridComponent
-                                  image={p.img}
-                                  title={p.name}
-                                  subText={p.paint_code}
-                                  checked={selectedBenjamin.includes(p.d_name)}
-                                  onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
-                                  view={view}
-                                />
-                                {!view && selectedBenjamin.includes(p.d_name) && p.options && (
-                                  <div>
-                                    {p.options.map(option => (
-                                      <FormControlLabel
-                                        key={option}
-                                        control={
-                                          <Checkbox
-                                            checked={selectedBenjaminOptions[p.d_name]?.includes(option) || false}
-                                            onChange={e => handleOptionChange(p.d_name, option, e.target.checked)}
-                                          />
-                                        }
-                                        label={option}
-                                      />
-                                    ))}
-                                  </div>
-                                )}
-                                {view &&
-                                  selectedBenjamin.includes(p.d_name) &&
-                                  selectedBenjaminOptions[p.d_name]?.length > 0 && (
-                                    <div>
-                                      <Typography variant='h6'>
-                                        <b> Finishing Type: {selectedBenjaminOptions[p.d_name].join(', ')} </b>
-                                      </Typography>
-                                    </div>
-                                  )}
-                              </div>
-                            </Grid>
-                          )
-                        })}
-                      </Grid>
-                    </>
-                  )}
-                </>
-              )}
               {showOtherPaint() && (
                 <>
                   <StyledTypography>Other Paints</StyledTypography>
@@ -2708,6 +2714,8 @@ const CreateInvoice = () => {
                   )}
                 </>
               )}
+            </div>
+            <div id='section3by4'>
               <>
                 {showNotes() && (
                   <>
@@ -2955,7 +2963,7 @@ const CreateInvoice = () => {
                   )}
                 </Grid>
               </Grid>
-            </div>{' '}
+            </div>
             {/* Warranty Content */}
             <div id='section5'>
               {warrantyType !== 'None' && view && (
