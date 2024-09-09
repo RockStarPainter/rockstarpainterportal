@@ -120,9 +120,9 @@ const handler = async (req, res) => {
             <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
         </div>
         <div class="footer">
-            <a href="https://rockstarpaintingdenver.com/"
-            <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
-            </a>
+        <a href="https://rockstarpaintingdenver.com/">
+        <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
+      </a>
         </div>
     </div>
 </body>
