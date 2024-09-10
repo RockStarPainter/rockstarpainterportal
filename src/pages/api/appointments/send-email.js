@@ -1,6 +1,5 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
-
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend'
 import dayjs from 'dayjs'
 
@@ -19,7 +18,6 @@ const handler = async (req, res) => {
       }
 
       const sentFrom = new Sender('info@rockstarpaintingdenver.com', 'Rockstar Painting')
-
       const recipients = [new Recipient(saved.client_email, saved.client_name)]
 
       const emailParams = new EmailParams()
@@ -120,23 +118,38 @@ const handler = async (req, res) => {
             <p><strong><a href="https://rockstarpaintingdenver.com/" target="_blank">Rockstar Painting</a></strong></p>
         </div>
         <div class="footer">
-        <a href="https://rockstarpaintingdenver.com/">
-        <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
-      </a>
+            <a href="https://rockstarpaintingdenver.com/">
+            <p>&copy; 2024 Rockstar Painting. All rights reserved.</p>
+            </a>
         </div>
     </div>
 </body>
 </html>
 `
         )
-        .setText('This is the text content')
+        .setText('Your appointment is confirmed')
 
-      const h = await mailerSend.email.send(emailParams)
-      console.log(h)
+      const response = await mailerSend.email.send(emailParams)
+      console.log('Email send response:', response)
 
-      return res.send({
-        message: 'Email sent successfully'
-      })
+      // Get x-message-id from the headers for tracking purposes
+      const emailId = response.headers['x-message-id']
+      if (emailId) {
+        console.log(`Email sent successfully with ID: ${emailId}`)
+
+        // Save email_id in your database for future tracking
+        const updatedAppointment = await AppointmentModel.findByIdAndUpdate(
+          appointmentId,
+          { email_id: emailId },
+          { new: true } // To return the updated document
+        )
+
+        console.log('Updated appointment with email_id:', updatedAppointment)
+      } else {
+        console.warn('Email ID not found in headers:', response.headers)
+      }
+
+      res.status(200).send({ message: 'Email sent successfully' })
     } catch (error) {
       console.error('Error sending email:', error)
       res.status(500).send('Something went wrong')

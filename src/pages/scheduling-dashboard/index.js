@@ -42,6 +42,7 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/appointments/get-all')
+      console.log(res.data.payload.appointments) // Add this line to log the returned appointments data
       setData(res.data.payload.appointments)
     } catch (error) {
       console.log(error)
@@ -166,6 +167,36 @@ const Home = () => {
           return (
             <Tooltip title={'DD-MM-YYYY'}>
               <span>{formattedDate}</span>
+            </Tooltip>
+          )
+        }
+      },
+      {
+        header: 'Email Opened',
+        accessorKey: 'emailOpened',
+        Cell: ({ cell }) => {
+          return cell.getValue() ? (
+            <Tooltip title='Email opened'>
+              <span style={{ color: 'green' }}>✔</span>
+            </Tooltip>
+          ) : (
+            <Tooltip title='Email not opened'>
+              <span style={{ color: 'red' }}>✖</span>
+            </Tooltip>
+          )
+        }
+      },
+      {
+        header: 'Email Clicked',
+        accessorKey: 'emailClicked',
+        Cell: ({ cell }) => {
+          return cell.getValue() ? (
+            <Tooltip title='Link clicked'>
+              <span style={{ color: 'green' }}>✔</span>
+            </Tooltip>
+          ) : (
+            <Tooltip title='Link not clicked'>
+              <span style={{ color: 'red' }}>✖</span>
             </Tooltip>
           )
         }
