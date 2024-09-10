@@ -27,7 +27,8 @@ This is a reminder for your upcoming appointment with Rockstar Painting. We look
 ⏰ Time: ${saved.appointment_time}\n
 🌐 www.rockstarpainting.com\n
 📞 Contact: 720 771 5791\n
-Thank you for choosing Rockstar Painting. See you soon!`
+Thank you for choosing Rockstar Painting. See you soon!\n\n
+Please do not reply to this message.`
         )
 
       await mailerSend.sms.send(smsParams)

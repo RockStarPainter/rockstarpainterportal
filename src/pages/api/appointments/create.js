@@ -1,9 +1,29 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
 
+const formatPhoneNumber = phone => {
+  if (!phone) return null
+
+  // Remove all non-digit characters
+  let formattedPhone = phone.replace(/\D/g, '')
+
+  // Add +1 if it's not already there
+  if (!formattedPhone.startsWith('1')) {
+    formattedPhone = '1' + formattedPhone
+  }
+
+  // Return phone with +1 added
+  return `+${formattedPhone}`
+}
+
 const handler = async (req, res) => {
   if (req.method === 'POST') {
     try {
+      // Format the phone number
+      if (req.body.client_phone) {
+        req.body.client_phone = formatPhoneNumber(req.body.client_phone)
+      }
+
       const newAppointment = new AppointmentModel({ ...req.body })
 
       const saved = await newAppointment.save()
