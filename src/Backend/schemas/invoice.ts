@@ -75,6 +75,9 @@ const invoiceSchema = new Schema(
     },
     customer_remarks: { type: String, required: false },
     approval_token: { type: String, required: false }, // Unique token to track approval requests
+    emailOpened: { type: Boolean, default: false }, // Track if email was opened
+    linkClicked: { type: Boolean, default: false }, // Track if link was clicked
+    email_id: { type: String, required: true, unique: true },
 
     moreDetails: {}
   },

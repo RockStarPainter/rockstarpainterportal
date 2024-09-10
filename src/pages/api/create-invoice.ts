@@ -7,6 +7,11 @@ const generateToken = () => {
   return crypto.randomBytes(16).toString('hex')
 }
 
+const generateUniqueEmailId = () => {
+  return crypto.randomBytes(16).toString('hex')
+}
+console.log(generateUniqueEmailId)
+
 const generateUniqueCustomId = async () => {
   const customId = Math.floor(10000 + Math.random() * 90000) // Generates a random 5-digit number
 
@@ -17,14 +22,15 @@ const handler = async (req: any, res: any) => {
     try {
       const customId = await generateUniqueCustomId()
       const approvalToken = await generateToken() // Generate a secure token
-      console.log('approvalToken', approvalToken)
+      const emailId = generateUniqueEmailId() // Generate email_id
 
       const newInvoice = new InvoiceModel({
         ...req.body,
         custom_id: customId,
-        approval_token: approvalToken // Save the token to the invoice
+        approval_token: approvalToken, // Save the token to the invoice
+        email_id: emailId // Save email_id to invoice
       })
-      console.log('Generated Invoice - custom_id:', customId, 'approval_token:', approvalToken)
+      console.log('Generated Invoice - custom_id:', customId, 'approval_token:', approvalToken, 'email id:', emailId)
 
       const saved = await newInvoice.save()
 
