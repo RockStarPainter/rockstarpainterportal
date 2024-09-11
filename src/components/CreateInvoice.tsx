@@ -2507,7 +2507,7 @@ const CreateInvoice = () => {
                               <PaintGridComponent
                                 image={p.img}
                                 title={p.name}
-                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 20 ? '..' : ''}`}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
                                 checked={selectedSherwin.includes(p.d_name)}
                                 onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
                                 view={view}
@@ -2603,7 +2603,7 @@ const CreateInvoice = () => {
                               <PaintGridComponent
                                 image={p.img}
                                 title={p.name}
-                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 20 ? '..' : ''}`}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
                                 checked={selectedPrimer.includes(p.d_name)}
                                 onClick={(e: any) => handlePrimerPaintSelect(p.d_name, e.target.checked)}
                                 view={view}
@@ -2640,7 +2640,7 @@ const CreateInvoice = () => {
                               <PaintGridComponent
                                 image={p.img}
                                 title={p.name}
-                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 20 ? '..' : ''}`}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
                                 checked={selectedPrimerConcrete.includes(p.d_name)}
                                 onClick={(e: any) => handlePrimerConcretePaintSelect(p.d_name, e.target.checked)}
                                 view={view}
@@ -2656,7 +2656,7 @@ const CreateInvoice = () => {
               {showCaulkSealantPaints() && (
                 <>
                   <StyledTypography onClick={toggleCaulkSealantPaintsList} sx={{ cursor: 'pointer' }}>
-                    Caulk & Sealant
+                    Caulking And Sealant
                   </StyledTypography>
                   {showCaulkSealantPaintsList && (
                     <>
@@ -2673,11 +2673,12 @@ const CreateInvoice = () => {
                               key={p.d_name}
                               alignContent={'center'}
                               alignItems={'center'}
+                              sx={{ height: '5%' }} // Adjust width and height here
                             >
                               <PaintGridComponent
                                 image={p.img}
                                 title={p.name}
-                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 20 ? '..' : ''}`}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
                                 checked={selectedCaulkSealant.includes(p.d_name)}
                                 onClick={(e: any) => handleCaulkSealantPaintSelect(p.d_name, e.target.checked)}
                                 view={view}
