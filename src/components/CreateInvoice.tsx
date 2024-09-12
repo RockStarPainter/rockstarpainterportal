@@ -510,6 +510,7 @@ const CreateInvoice = () => {
       const formData = new FormData()
       formData.append('file', pdfBlob, fileName) // Append the file with a formatted file name
       formData.append('upload_preset', uploadPreset) // Include the upload preset in the request
+      formData.append('resource_type', 'raw');
 
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
@@ -644,8 +645,6 @@ const CreateInvoice = () => {
       const pdfBlob = pdf.output('blob')
 
       const pdfUrl = await uploadPdfToCloudinary(pdfBlob)
-
-      // setInvoicePdf(pdfBlob)
 
       if (str === 'email') {
         const reader = new FileReader()
