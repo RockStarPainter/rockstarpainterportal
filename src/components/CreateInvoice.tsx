@@ -492,7 +492,12 @@ const CreateInvoice = () => {
         throw new Error('Cloudinary cloud name is not defined')
       }
 
-      // await generatePdf('email')
+      // Add your Cloudinary unsigned upload preset here
+      const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET_NAME
+      if (!uploadPreset) {
+        throw new Error('Cloudinary upload preset is not defined')
+      }
+
 
       if (!(pdfBlob instanceof Blob)) {
         throw new Error('pdfBlob is not a valid Blob')
@@ -504,6 +509,7 @@ const CreateInvoice = () => {
 
       const formData = new FormData()
       formData.append('file', pdfBlob, fileName) // Append the file with a formatted file name
+      formData.append('upload_preset', uploadPreset) // Include the upload preset in the request
 
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
@@ -637,7 +643,7 @@ const CreateInvoice = () => {
 
       const pdfBlob = pdf.output('blob')
 
-      await uploadPdfToCloudinary(pdfBlob)
+      const pdfUrl = await uploadPdfToCloudinary(pdfBlob)
 
       // setInvoicePdf(pdfBlob)
 
@@ -658,11 +664,12 @@ const CreateInvoice = () => {
             return
           }
           const templateParams = {
-            content: base64data,
+            // content: base64data,
             customer_name: allData.customer_name,
             to_email: allData.email,
             custom_id: allData.custom_id, // Include the custom_id
-            approval_token: allData.approval_token // Include the approval token
+            approval_token: allData.approval_token, // Include the approval token
+            pdf_url: pdfUrl,
           }
 
           emailjs
