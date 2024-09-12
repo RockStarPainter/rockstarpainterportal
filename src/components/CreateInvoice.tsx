@@ -127,6 +127,7 @@ const CreateInvoice = () => {
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
   const [warrantyDate, setWarrantyDate] = useState('')
+  const [invoicePdf, setInvoicePdf] = useState<any>(null)
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -485,6 +486,46 @@ const CreateInvoice = () => {
     }
   }, [invoiceId])
 
+  const uploadPdfToCloudinary = async (pdfBlob: Blob) => {
+    try {
+      if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+        throw new Error('Cloudinary cloud name is not defined')
+      }
+
+      // await generatePdf('email')
+
+      if (!(pdfBlob instanceof Blob)) {
+        throw new Error('pdfBlob is not a valid Blob')
+      }
+
+      // Format date for file name
+      const formattedDate = new Date().toISOString().replace(/[:.]/g, '-') // Use ISO format and replace ':' and '.' to make it filename-safe
+      const fileName = `invoice-${formattedDate}.pdf`
+
+      const formData = new FormData()
+      formData.append('file', pdfBlob, fileName) // Append the file with a formatted file name
+
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+
+      const pdfUrl = response.data.secure_url
+      toast.success('pdf file uploaded successfully')
+      console.log('PDF uploaded to:', pdfUrl)
+
+      return pdfUrl
+    } catch (error) {
+      console.error('Error uploading PDF to Cloudinary:', error)
+      toast.error('Failed to upload PDF')
+    }
+  }
+
   const generatePdf = async (str?: string) => {
     try {
       if (typeof window === 'undefined') return
@@ -595,6 +636,10 @@ const CreateInvoice = () => {
       setPdfLoading(false)
 
       const pdfBlob = pdf.output('blob')
+
+      await uploadPdfToCloudinary(pdfBlob)
+
+      // setInvoicePdf(pdfBlob)
 
       if (str === 'email') {
         const reader = new FileReader()

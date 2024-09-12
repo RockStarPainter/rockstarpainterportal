@@ -2,6 +2,7 @@ import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
 import crypto from 'crypto'
 
+
 // Function to generate a random token
 const generateToken = () => {
   return crypto.randomBytes(16).toString('hex')
@@ -15,6 +16,7 @@ const generateUniqueCustomId = async () => {
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
+
       const customId = await generateUniqueCustomId()
       const approvalToken = await generateToken() // Generate a secure token
       console.log('approvalToken', approvalToken)
@@ -47,5 +49,7 @@ const handler = async (req: any, res: any) => {
     return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }
+
+
 
 export default connectDb(handler)

@@ -588,6 +588,46 @@
   dependencies:
     glob "7.1.7"
 
+"@next/swc-android-arm-eabi@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-android-arm-eabi/-/swc-android-arm-eabi-13.2.4.tgz"
+  integrity sha512-DWlalTSkLjDU11MY11jg17O1gGQzpRccM9Oes2yTqj2DpHndajrXHGxj9HGtJ+idq2k7ImUdJVWS2h2l/EDJOw==
+
+"@next/swc-android-arm64@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-android-arm64/-/swc-android-arm64-13.2.4.tgz"
+  integrity sha512-sRavmUImUCf332Gy+PjIfLkMhiRX1Ez4SI+3vFDRs1N5eXp+uNzjFUK/oLMMOzk6KFSkbiK/3Wt8+dHQR/flNg==
+
+"@next/swc-darwin-arm64@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-13.2.4.tgz"
+  integrity sha512-S6vBl+OrInP47TM3LlYx65betocKUUlTZDDKzTiRDbsRESeyIkBtZ6Qi5uT2zQs4imqllJznVjFd1bXLx3Aa6A==
+
+"@next/swc-darwin-x64@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-13.2.4.tgz"
+  integrity sha512-a6LBuoYGcFOPGd4o8TPo7wmv5FnMr+Prz+vYHopEDuhDoMSHOnC+v+Ab4D7F0NMZkvQjEJQdJS3rqgFhlZmKlw==
+
+"@next/swc-freebsd-x64@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-freebsd-x64/-/swc-freebsd-x64-13.2.4.tgz"
+  integrity sha512-kkbzKVZGPaXRBPisoAQkh3xh22r+TD+5HwoC5bOkALraJ0dsOQgSMAvzMXKsN3tMzJUPS0tjtRf1cTzrQ0I5vQ==
+
+"@next/swc-linux-arm-gnueabihf@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-linux-arm-gnueabihf/-/swc-linux-arm-gnueabihf-13.2.4.tgz"
+  integrity sha512-7qA1++UY0fjprqtjBZaOA6cas/7GekpjVsZn/0uHvquuITFCdKGFCsKNBx3S0Rpxmx6WYo0GcmhNRM9ru08BGg==
+
+"@next/swc-linux-arm64-gnu@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-13.2.4.tgz"
+  integrity sha512-xzYZdAeq883MwXgcwc72hqo/F/dwUxCukpDOkx/j1HTq/J0wJthMGjinN9wH5bPR98Mfeh1MZJ91WWPnZOedOg==
+
+"@next/swc-linux-arm64-musl@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-13.2.4.tgz"
+  integrity sha512-8rXr3WfmqSiYkb71qzuDP6I6R2T2tpkmf83elDN8z783N9nvTJf2E7eLx86wu2OJCi4T05nuxCsh4IOU3LQ5xw==
+
 "@next/swc-linux-x64-gnu@13.2.4":
   version "13.2.4"
   resolved "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-13.2.4.tgz"
@@ -597,6 +637,21 @@
   version "13.2.4"
   resolved "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-13.2.4.tgz"
   integrity sha512-gOvwIYoSxd+j14LOcvJr+ekd9fwYT1RyMAHOp7znA10+l40wkFiMONPLWiZuHxfRk+Dy7YdNdDh3ImumvL6VwA==
+
+"@next/swc-win32-arm64-msvc@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-13.2.4.tgz"
+  integrity sha512-q3NJzcfClgBm4HvdcnoEncmztxrA5GXqKeiZ/hADvC56pwNALt3ngDC6t6qr1YW9V/EPDxCYeaX4zYxHciW4Dw==
+
+"@next/swc-win32-ia32-msvc@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-win32-ia32-msvc/-/swc-win32-ia32-msvc-13.2.4.tgz"
+  integrity sha512-/eZ5ncmHUYtD2fc6EUmAIZlAJnVT2YmxDsKs1Ourx0ttTtvtma/WKlMV5NoUsyOez0f9ExLyOpeCoz5aj+MPXw==
+
+"@next/swc-win32-x64-msvc@13.2.4":
+  version "13.2.4"
+  resolved "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-13.2.4.tgz"
+  integrity sha512-0MffFmyv7tBLlji01qc0IaPP/LVExzvj7/R5x1Jph1bTAIj4Vu81yFQWHHQAP6r4ff9Ukj1mBK6MDNVXm7Tcvw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -3099,6 +3154,69 @@ material-react-table@2.13.0:
     "@tanstack/react-table" "8.16.0"
     "@tanstack/react-virtual" "3.3.0"
     highlight-words "1.2.2"
+
+"materialize-nextjs-admin-template@file:":
+  version "2.1.0"
+  resolved "file:"
+  dependencies:
+    "@casl/ability" "6.3.3"
+    "@casl/react" "3.1.0"
+    "@emailjs/browser" "4.3.3"
+    "@emotion/cache" "11.10.5"
+    "@emotion/react" "11.10.6"
+    "@emotion/server" "11.10.0"
+    "@emotion/styled" "11.10.6"
+    "@hookform/resolvers" "2.9.11"
+    "@iconify/react" "4.1.0"
+    "@mui/icons-material" "^5.15.19"
+    "@mui/lab" "5.0.0-alpha.123"
+    "@mui/material" "5.11.13"
+    "@mui/system" "5.11.13"
+    "@mui/x-data-grid" "6.0.1"
+    "@mui/x-date-pickers" "7.5.0"
+    "@popperjs/core" "2.11.6"
+    "@reduxjs/toolkit" "1.9.3"
+    axios "1.3.4"
+    axios-mock-adapter "1.21.2"
+    bootstrap-icons "1.10.3"
+    cleave.js "1.6.0"
+    clipboard-copy "4.0.1"
+    clsx "1.2.1"
+    date-fns "2.29.3"
+    dayjs "^1.11.11"
+    draft-js "0.11.7"
+    emailjs-com "3.2.0"
+    html2canvas "1.4.1"
+    html2pdf.js "0.10.1"
+    i18next "22.4.11"
+    i18next-browser-languagedetector "7.0.1"
+    i18next-http-backend "2.2.0"
+    jsonwebtoken "8.5.1"
+    jspdf "2.5.1"
+    keen-slider "6.8.5"
+    mailersend "^2.2.0"
+    material-react-table "2.13.0"
+    materialize-nextjs-admin-template "file:"
+    moment "^2.30.1"
+    mongoose "8.4.0"
+    next "13.2.4"
+    nprogress "0.2.0"
+    payment "2.4.6"
+    prismjs "1.29.0"
+    react "18.2.0"
+    react-datepicker "4.10.0"
+    react-dom "18.2.0"
+    react-draft-wysiwyg "1.15.0"
+    react-dropzone "14.2.3"
+    react-hook-form "7.43.5"
+    react-hot-toast "2.4.0"
+    react-i18next "12.2.0"
+    react-perfect-scrollbar "1.5.8"
+    react-popper "2.3.0"
+    react-redux "8.0.5"
+    stylis "4.1.3"
+    stylis-plugin-rtl "2.1.1"
+    yup "1.0.2"
 
 mdn-data@2.0.28:
   version "2.0.28"
