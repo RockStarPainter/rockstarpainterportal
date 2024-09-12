@@ -34,7 +34,6 @@ const invoiceSchema = new Schema(
     phone_number: { type: String, required: false },
     email: { type: String, required: true },
     email_opened: { type: Boolean, default: false },
-    invoice_file_url: { type: String },
     address: { type: String, required: false },
     city: { type: String, required: false },
     state: { type: String, required: false },
