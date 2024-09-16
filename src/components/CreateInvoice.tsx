@@ -289,17 +289,60 @@ const CreateInvoice = () => {
   const [status, setStatus] = useState(Status.UNPAID)
   const [emailLoading, setemailLoading] = useState(false)
   const [selectedSherwin, setSelectedSherwin] = useState<any>([])
+  const [selectedPrimer, setSelectedPrimer] = useState<any>([])
+  const [selectedPrimerConcrete, setSelectedPrimerConcrete] = useState<any>([])
+  const [selectedCaulkSealant, setSelectedCaulkSealant] = useState<any>([])
   const [selectedBenjamin, setSelectedBenjamin] = useState<any>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [workStartedDate, setWorkStartedDate] = useState<string | Date | null>(null)
   const [workStartedTime, setWorkStartedTime] = useState<string | Date | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
   const [selectedBenjaminOptions, setSelectedBenjaminOptions] = useState<{ [key: string]: string[] }>({})
+  const [showSherwinPaintsList, setShowSherwinPaintsList] = useState(false)
+  const [showBenjaminPaintsList, setShowBenjaminPaintsList] = useState(false)
+  const [showPrimerPaintsList, setShowPrimerPaintsList] = useState(false)
+  const [showPrimerConcretePaintsList, setShowPrimerConcretePaintsList] = useState(false)
+  const [showCaulkSealantPaintsList, setShowCaulkSealantPaintsList] = useState(false)
 
   const rows = 5 // Define the number of rows
   const cols = 3 // Define the number of columns
 
   const [formValues, setFormValues] = useState(generateDefaultValues(rows, cols))
+
+  const toggleSherwinPaintsList = () => {
+    setShowSherwinPaintsList(!showSherwinPaintsList)
+  }
+  const togglePrimerPaintsList = () => {
+    setShowPrimerPaintsList(!showPrimerPaintsList)
+  }
+  const toggleBenjaminPaintsList = () => {
+    setShowBenjaminPaintsList(!showBenjaminPaintsList)
+  }
+  const togglePrimerConcretePaintsList = () => {
+    setShowPrimerConcretePaintsList(!showPrimerConcretePaintsList)
+  }
+  const toggleCaulkSealantPaintsList = () => {
+    setShowCaulkSealantPaintsList(!showCaulkSealantPaintsList)
+  }
+
+  // Ensure that the paints list is unfolded in view mode when items are selected
+  useEffect(() => {
+    if (view && selectedSherwin.length > 0) {
+      setShowSherwinPaintsList(true) // Auto-expand Sherwin Williams paints in view mode
+    }
+    if (view && selectedBenjamin.length > 0) {
+      setShowBenjaminPaintsList(true) // Auto-expand Benjamin Moore paints in view mode
+    }
+    if (view && selectedPrimer.length > 0) {
+      setShowPrimerPaintsList(true) // Auto-expand Primer paints in view mode
+    }
+    if (view && selectedPrimerConcrete.length > 0) {
+      setShowPrimerConcretePaintsList(true) // Auto-expand Primer Conctrete paints in view mode
+    }
+    if (view && selectedCaulkSealant.length > 0) {
+      setShowCaulkSealantPaintsList(true) // Auto-expand Caulk Sealant paints in view mode
+    }
+  }, [view, selectedSherwin, selectedBenjamin, selectedPrimerConcrete, selectedPrimer, selectedCaulkSealant])
 
   const handleDialogOpen = () => {
     setIsDialogOpen(true)
@@ -422,6 +465,9 @@ const CreateInvoice = () => {
         setSelectedBenjaminOptions(benjaminOptions)
 
         setSelectedSherwin(tableData.sherwin_paints)
+        setSelectedPrimer(tableData.primer_for_wood)
+        setSelectedCaulkSealant(tableData.caulk_sealant)
+        setSelectedPrimerConcrete(tableData.primer_for_concrete)
         showNewFormOrNot(tableData.moreDetails)
         setWarrantyType(tableData.warranty_type)
         setInteriorWarranty(
@@ -545,6 +591,8 @@ const CreateInvoice = () => {
       const section1 = document.getElementById('section1') // First section
       const section2 = document.getElementById('section2') // Second section
       const section3 = document.getElementById('section3') // Third section
+      const section3by2 = document.getElementById('section3by2')
+      const section3by4 = document.getElementById('section3by4')
       const section4 = document.getElementById('section4') // Fourth section
       // const section6 = document.getElementById('section6') // Sixth section
       const section6Part1 = document.getElementById('section6-part1') // First part of NewForm
@@ -600,15 +648,17 @@ const CreateInvoice = () => {
       if (warrantyType !== 'None') {
         await addSectionToPdf(section5, pdf)
       }
-      await addSectionToPdf(section3, pdf, section4, true)
+      await addSectionToPdf(section3by4, pdf, section4, true)
+      await addSectionToPdf(section3by2, pdf)
+      await addSectionToPdf(section3, pdf)
       if (invoiceType === InvoiceTypes.INTERIOR || invoiceType === InvoiceTypes.EXTERIOR) {
         await addSectionToPdf(CustomerWithSingle, pdf)
-        pdf.deletePage(warrantyType !== 'None' ? 4 : 3)
+        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
       } else if (invoiceType === InvoiceTypes.HANDYMAN) {
         // await addSectionToPdf(section6, pdf)
         await addSectionToPdf(section6Part2, pdf) // Add section6-part2
         await addSectionToPdf(CustomerWithSingle, pdf)
-        pdf.deletePage(warrantyType !== 'None' ? 5 : 4)
+        pdf.deletePage(warrantyType !== 'None' ? 7 : 6)
       } else if (invoiceType === InvoiceTypes.ALL) {
         // await addSectionToPdf(section6, pdf)
         await addSectionToPdf(section6Part2, pdf)
@@ -616,7 +666,7 @@ const CreateInvoice = () => {
         await addSectionToPdf(section2, pdf)
         await addSectionToPdf(section1, pdf)
 
-        pdf.deletePage(warrantyType !== 'None' ? 7 : 6)
+        pdf.deletePage(warrantyType !== 'None' ? 9 : 8)
       } else {
         if (invoiceType === InvoiceTypes.INTERIOR_WITH_EXTERIOR) {
           await addSectionToPdf(section2, pdf)
@@ -633,7 +683,7 @@ const CreateInvoice = () => {
           await addSectionToPdf(CustomerWithExterior, pdf)
         }
 
-        pdf.deletePage(warrantyType !== 'None' ? 6 : 5)
+        pdf.deletePage(warrantyType !== 'None' ? 8 : 7)
       }
 
       if (str !== 'email') {
@@ -740,6 +790,9 @@ const CreateInvoice = () => {
         pay_link: formData.pay_link,
         other_paints: formData.other_paints,
         sherwin_paints: selectedSherwin,
+        primer_for_wood: selectedPrimer,
+        primer_for_concrete: selectedPrimerConcrete,
+        caulk_sealant: selectedCaulkSealant,
         benjamin_paints: benjaminPaintsData,
         moreDetails: formData.newForm,
         warranty_type: warrantyType,
@@ -1031,6 +1084,17 @@ const CreateInvoice = () => {
       sub_name: 'Exterior Acrylic Latex',
       img: '/images/s-15.png',
       d_name: 's-15.png'
+    },
+    { name: 'Shrink-Free Spackling®', sub_name: 'C-77', img: '/images/s-16.png', d_name: 's-16.png' },
+    { name: 'Wood Filler®', sub_name: 'C-86', img: '/images/s-17.png', d_name: 's-17.png' },
+    { name: 'Spackling Paste®', sub_name: 'C-50', img: '/images/s-18.png', d_name: 's-18.png' },
+    { name: 'Glazing Compound®', sub_name: 'C-66', img: '/images/s-19.png', d_name: 's-19.png' },
+    { name: 'Spackling and Patching Compound®', sub_name: 'C-70', img: '/images/s-20.png', d_name: 's-20.png' },
+    {
+      name: 'SuperDeck®',
+      sub_name: '9600 Series Acrylic-Alkyd Solid Color Stain',
+      img: '/images/s-21.png',
+      d_name: 's-21.png'
     }
   ]
 
@@ -1115,7 +1179,90 @@ const CreateInvoice = () => {
       options: ['Flat', 'Low-Sheen Eggshell', 'Eggshell', 'Satin/Pearl', 'Semi-Gloss']
     }
   ]
-
+  const primerForWood = [
+    {
+      name: 'Loxon XP™',
+      sub_name: 'Concrete & Masonry Systems',
+      img: '/images/p-1.png',
+      d_name: 'p-1.png'
+    },
+    {
+      name: 'PROMAR 200™',
+      sub_name: 'ZERO VOC',
+      img: '/images/p-2.png',
+      d_name: 'p-2.png'
+    },
+    {
+      name: 'PROMAR 400™',
+      sub_name: 'ZERO VOC',
+      img: '/images/p-3.png',
+      d_name: 'p-3.png'
+    }
+  ]
+  const primerForConcrete = [
+    {
+      name: 'Loxon®',
+      sub_name: 'Self-Cleaning Acrylic Coating',
+      img: '/images/pc-1.png',
+      d_name: 'pc-1.png'
+    },
+    {
+      name: 'Loxon®™',
+      sub_name: 'Concrete & Masonry Primer/Sealer',
+      img: '/images/pc-2.png',
+      d_name: 'pc-2.png'
+    },
+    {
+      name: 'Loxon®™',
+      sub_name: 'Semi-Transparent Concrete Stain',
+      img: '/images/pc-3.png',
+      d_name: 'pc-3.png'
+    }
+  ]
+  const caulkSealant = [
+    {
+      name: 'SHER-MAX™',
+      sub_name: 'Urethanized Elastomeric Sealant',
+      img: '/images/cs-1.png',
+      d_name: 'cs-1.png'
+    },
+    {
+      name: 'POWER HOUSE Siliconized',
+      sub_name: 'Acrylic Latex Sealant',
+      img: '/images/cs-2.png',
+      d_name: 'cs-2.png'
+    },
+    {
+      name: 'MAGNUM XL Siliconized',
+      sub_name: 'Acrylic Latex Adhesive Sealant',
+      img: '/images/cs-3.png',
+      d_name: 'cs-3.png'
+    },
+    {
+      name: '1050 QD Quick Dry',
+      sub_name: '',
+      img: '/images/cs-4.png',
+      d_name: 'cs-4.png'
+    },
+    {
+      name: '950A Siliconized Acrylic',
+      sub_name: 'Latex Caulk',
+      img: '/images/cs-5.png',
+      d_name: 'cs-5.png'
+    },
+    {
+      name: '850A Acrylic Latex Caulk',
+      sub_name: '',
+      img: '/images/cs-6.png',
+      d_name: 'cs-6.png'
+    },
+    {
+      name: 'STORM BLASTER®',
+      sub_name: 'All Season Sealant',
+      img: '/images/cs-7.png',
+      d_name: 'cs-7.png'
+    }
+  ]
   const handlePaintSelect = (name: string, checked: any) => {
     if (checked) {
       if (selectedSherwin.includes(name)) {
@@ -1128,6 +1275,48 @@ const CreateInvoice = () => {
       const temp = [...selectedSherwin]
       temp.splice(index, 1)
       setSelectedSherwin(temp)
+    }
+  }
+  const handlePrimerPaintSelect = (name: string, checked: any) => {
+    if (checked) {
+      if (selectedPrimer.includes(name)) {
+        return
+      } else {
+        setSelectedPrimer([...selectedPrimer, name])
+      }
+    } else {
+      const index = selectedPrimer.indexOf(name)
+      const temp = [...selectedPrimer]
+      temp.splice(index, 1)
+      setSelectedPrimer(temp)
+    }
+  }
+  const handlePrimerConcretePaintSelect = (name: string, checked: any) => {
+    if (checked) {
+      if (selectedPrimerConcrete.includes(name)) {
+        return
+      } else {
+        setSelectedPrimerConcrete([...selectedPrimerConcrete, name])
+      }
+    } else {
+      const index = selectedPrimerConcrete.indexOf(name)
+      const temp = [...selectedPrimerConcrete]
+      temp.splice(index, 1)
+      setSelectedPrimerConcrete(temp)
+    }
+  }
+  const handleCaulkSealantPaintSelect = (name: string, checked: any) => {
+    if (checked) {
+      if (selectedCaulkSealant.includes(name)) {
+        return
+      } else {
+        setSelectedCaulkSealant([...selectedCaulkSealant, name])
+      }
+    } else {
+      const index = selectedCaulkSealant.indexOf(name)
+      const temp = [...selectedCaulkSealant]
+      temp.splice(index, 1)
+      setSelectedCaulkSealant(temp)
     }
   }
 
@@ -1224,6 +1413,39 @@ const CreateInvoice = () => {
   const showSherwinPaints = () => {
     if (view) {
       if (selectedSherwin.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
+    }
+  }
+  const showPrimerPaints = () => {
+    if (view) {
+      if (selectedPrimer?.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
+    }
+  }
+  const showPrimerConcretePaints = () => {
+    if (view) {
+      if (selectedPrimerConcrete?.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return true
+    }
+  }
+  const showCaulkSealantPaints = () => {
+    if (view) {
+      if (selectedCaulkSealant?.length > 0) {
         return true
       } else {
         return false
@@ -2314,76 +2536,210 @@ const CreateInvoice = () => {
               {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
               {showSherwinPaints() && (
                 <>
-                  <StyledTypography>Sherwin Williams Paints</StyledTypography>
-                  <Grid container spacing={5} ml={'20px'}>
-                    {sherwinPaints.map(p => {
-                      if (view && !selectedSherwin.includes(p.d_name)) return null
+                  <StyledTypography onClick={toggleSherwinPaintsList} sx={{ cursor: 'pointer' }}>
+                    Sherwin Williams Paints
+                  </StyledTypography>
+                  {showSherwinPaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {sherwinPaints.map(p => {
+                          if (view && !selectedSherwin.includes(p.d_name)) return null
 
-                      return (
-                        <Grid item xs={12} sm={6} md={4} key={p.d_name} alignContent={'center'} alignItems={'center'}>
-                          <PaintGridComponent
-                            image={p.img}
-                            title={p.name}
-                            subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 15 ? '..' : ''}`}
-                            checked={selectedSherwin.includes(p.d_name)}
-                            onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
-                            view={view}
-                          />
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
+                          return (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={4}
+                              key={p.d_name}
+                              alignContent={'center'}
+                              alignItems={'center'}
+                            >
+                              <PaintGridComponent
+                                image={p.img}
+                                title={p.name}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
+                                checked={selectedSherwin.includes(p.d_name)}
+                                onClick={(e: any) => handlePaintSelect(p.d_name, e.target.checked)}
+                                view={view}
+                              />
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
                 </>
               )}
               {showBenjaminPaints() && (
                 <>
-                  <StyledTypography>Benjamin Moore Advance Paints</StyledTypography>
-                  <Grid container spacing={5} ml={'20px'}>
-                    {benjaminPaints.map(p => {
-                      // In view mode, only render selected paints
-                      if (view && !selectedBenjamin.includes(p.d_name)) return null
+                  <StyledTypography onClick={toggleBenjaminPaintsList} sx={{ cursor: 'pointer' }}>
+                    Benjamin Moore Paints
+                  </StyledTypography>
+                  {showBenjaminPaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {benjaminPaints.map(p => {
+                          // In view mode, only render selected paints
+                          if (view && !selectedBenjamin.includes(p.d_name)) return null
 
-                      return (
-                        <Grid item xs={12} sm={6} md={4} key={p.d_name}>
-                          <div>
-                            <PaintGridComponent
-                              image={p.img}
-                              title={p.name}
-                              subText={p.paint_code}
-                              checked={selectedBenjamin.includes(p.d_name)}
-                              onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
-                              view={view}
-                            />
-                            {!view && selectedBenjamin.includes(p.d_name) && p.options && (
+                          return (
+                            <Grid item xs={12} sm={6} md={4} key={p.d_name}>
                               <div>
-                                {p.options.map(option => (
-                                  <FormControlLabel
-                                    key={option}
-                                    control={
-                                      <Checkbox
-                                        checked={selectedBenjaminOptions[p.d_name]?.includes(option) || false}
-                                        onChange={e => handleOptionChange(p.d_name, option, e.target.checked)}
+                                <PaintGridComponent
+                                  image={p.img}
+                                  title={p.name}
+                                  subText={p.paint_code}
+                                  checked={selectedBenjamin.includes(p.d_name)}
+                                  onClick={(e: any) => handlePaintSelectBenjamin(p.d_name, e.target.checked)}
+                                  view={view}
+                                />
+                                {!view && selectedBenjamin.includes(p.d_name) && p.options && (
+                                  <div>
+                                    {p.options.map(option => (
+                                      <FormControlLabel
+                                        key={option}
+                                        control={
+                                          <Checkbox
+                                            checked={selectedBenjaminOptions[p.d_name]?.includes(option) || false}
+                                            onChange={e => handleOptionChange(p.d_name, option, e.target.checked)}
+                                          />
+                                        }
+                                        label={option}
                                       />
-                                    }
-                                    label={option}
-                                  />
-                                ))}
+                                    ))}
+                                  </div>
+                                )}
+                                {view &&
+                                  selectedBenjamin.includes(p.d_name) &&
+                                  selectedBenjaminOptions[p.d_name]?.length > 0 && (
+                                    <div>
+                                      <Typography variant='h6'>
+                                        <b> Finishing Type: {selectedBenjaminOptions[p.d_name].join(', ')} </b>
+                                      </Typography>
+                                    </div>
+                                  )}
                               </div>
-                            )}
-                            {view &&
-                              selectedBenjamin.includes(p.d_name) &&
-                              selectedBenjaminOptions[p.d_name]?.length > 0 && (
-                                <div>
-                                  <Typography variant='h6'>
-                                    <b> Finishing Type: {selectedBenjaminOptions[p.d_name].join(', ')} </b>
-                                  </Typography>
-                                </div>
-                              )}
-                          </div>
-                        </Grid>
-                      )
-                    })}
-                  </Grid>
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+            <div id='section3by2'>
+              {showPrimerPaints() && (
+                <>
+                  <StyledTypography onClick={togglePrimerPaintsList} sx={{ cursor: 'pointer' }}>
+                    Primer For Wood
+                  </StyledTypography>
+                  {showPrimerPaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {primerForWood.map(p => {
+                          if (view && !selectedPrimer.includes(p.d_name)) return null
+
+                          return (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={4}
+                              key={p.d_name}
+                              alignContent={'center'}
+                              alignItems={'center'}
+                            >
+                              <PaintGridComponent
+                                image={p.img}
+                                title={p.name}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
+                                checked={selectedPrimer.includes(p.d_name)}
+                                onClick={(e: any) => handlePrimerPaintSelect(p.d_name, e.target.checked)}
+                                view={view}
+                              />
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
+                </>
+              )}
+              {showPrimerConcretePaints() && (
+                <>
+                  <StyledTypography onClick={togglePrimerConcretePaintsList} sx={{ cursor: 'pointer' }}>
+                    Primer For Concrete
+                  </StyledTypography>
+                  {showPrimerConcretePaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {primerForConcrete.map(p => {
+                          if (view && !selectedPrimerConcrete.includes(p.d_name)) return null
+
+                          return (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={4}
+                              key={p.d_name}
+                              alignContent={'center'}
+                              alignItems={'center'}
+                            >
+                              <PaintGridComponent
+                                image={p.img}
+                                title={p.name}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
+                                checked={selectedPrimerConcrete.includes(p.d_name)}
+                                onClick={(e: any) => handlePrimerConcretePaintSelect(p.d_name, e.target.checked)}
+                                view={view}
+                              />
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
+                </>
+              )}
+              {showCaulkSealantPaints() && (
+                <>
+                  <StyledTypography onClick={toggleCaulkSealantPaintsList} sx={{ cursor: 'pointer' }}>
+                    Caulking And Sealant
+                  </StyledTypography>
+                  {showCaulkSealantPaintsList && (
+                    <>
+                      <Grid container spacing={5} ml={'20px'}>
+                        {caulkSealant.map(p => {
+                          if (view && !selectedCaulkSealant.includes(p.d_name)) return null
+
+                          return (
+                            <Grid
+                              item
+                              xs={12}
+                              sm={6}
+                              md={4}
+                              key={p.d_name}
+                              alignContent={'center'}
+                              alignItems={'center'}
+                              sx={{ height: '5%' }} // Adjust width and height here
+                            >
+                              <PaintGridComponent
+                                image={p.img}
+                                title={p.name}
+                                subText={`${p.sub_name.substring(0, 15)}${p.sub_name.length > 40 ? '..' : ''}`}
+                                checked={selectedCaulkSealant.includes(p.d_name)}
+                                onClick={(e: any) => handleCaulkSealantPaintSelect(p.d_name, e.target.checked)}
+                                view={view}
+                              />
+                            </Grid>
+                          )
+                        })}
+                      </Grid>
+                    </>
+                  )}
                 </>
               )}
               {showOtherPaint() && (
@@ -2410,6 +2766,8 @@ const CreateInvoice = () => {
                   )}
                 </>
               )}
+            </div>
+            <div id='section3by4'>
               <>
                 {showNotes() && (
                   <>
@@ -2657,7 +3015,7 @@ const CreateInvoice = () => {
                   )}
                 </Grid>
               </Grid>
-            </div>{' '}
+            </div>
             {/* Warranty Content */}
             <div id='section5'>
               {warrantyType !== 'None' && view && (
