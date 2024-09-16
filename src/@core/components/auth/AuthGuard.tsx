@@ -18,7 +18,7 @@ const AuthGuard = (props: AuthGuardProps) => {
   const router = useRouter()
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/approveInvoice']
+  const publicRoutes = ['/approveInvoice', '/api/update-email-status/[custom_id]']
 
   useEffect(() => {
     if (!router.isReady) {
