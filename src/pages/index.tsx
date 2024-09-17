@@ -22,6 +22,8 @@ import { useRouter } from 'next/router'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const Home = () => {
   const [data, setData] = useState<any>([])
@@ -167,6 +169,24 @@ const Home = () => {
               </Select>
             </FormControl>
           )
+        }
+      },
+      {
+        header: 'Email Status',
+        accessorKey: 'email_opened',
+        Cell: ({ cell }: any) => {
+          const emailOpened = cell.getValue();
+
+          return (
+            <Box display='flex' alignItems='center'>
+              {emailOpened ? (
+                <TaskAltIcon sx={{ color: '#65a30d' }} />
+              ) : (
+                <ClearIcon sx={{ color: '#ef4444' }} />
+              )}
+              <Box ml={1}>{emailOpened ? 'Opened' : 'Not Opened'}</Box>
+            </Box>
+          );
         }
       },
       {
