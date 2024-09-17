@@ -29,6 +29,7 @@ import SendIcon from '@mui/icons-material/Send'
 import Tooltip from '@mui/material/Tooltip'
 
 import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
+import Icon from 'src/@core/components/icon'
 
 const Home = () => {
   const [data, setData] = useState([])
@@ -43,6 +44,7 @@ const Home = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get('/api/appointments/get-all')
+      console.log(res.data.payload.appointments) // Add this line to log the returned appointments data
       setData(res.data.payload.appointments)
     } catch (error) {
       console.log(error)
@@ -171,6 +173,53 @@ const Home = () => {
           )
         }
       },
+      {
+        header: 'Email Opened',
+        accessorKey: 'emailOpened',
+        Cell: ({ cell }) => {
+          const isEmailOpened = cell.getValue()
+
+          return (
+            <Tooltip title={isEmailOpened ? 'Email is opened' : 'Email not opened'}>
+              <span style={{ color: isEmailOpened ? 'green' : 'black', display: 'flex', alignItems: 'center' }}>
+                {isEmailOpened ? (
+                  <>
+                    <Icon icon='mdi:email-check' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                ) : (
+                  <>
+                    <Icon icon='mdi:email-off' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                )}
+              </span>
+            </Tooltip>
+          )
+        }
+      },
+      {
+        header: 'Email Clicked',
+        accessorKey: 'emailClicked',
+        Cell: ({ cell }) => {
+          const isEmailClicked = cell.getValue()
+
+          return (
+            <Tooltip title={isEmailClicked ? 'Link inside email is clicked' : 'Link not clicked'}>
+              <span style={{ color: isEmailClicked ? 'green' : 'black', display: 'flex', alignItems: 'center' }}>
+                {isEmailClicked ? (
+                  <>
+                    <Icon icon='mdi:email-check' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                ) : (
+                  <>
+                    <Icon icon='mdi:email-off' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                )}
+              </span>
+            </Tooltip>
+          )
+        }
+      },
+
       {
         header: 'Appointment Time',
         accessorKey: 'appointment_time',

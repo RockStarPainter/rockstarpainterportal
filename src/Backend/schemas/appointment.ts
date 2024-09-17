@@ -9,7 +9,10 @@ const appointmentSchema = new mongoose.Schema(
     appointment_date: { type: Date, required: true },
     appointment_time: { type: String, required: true },
     details: { type: String, required: false },
-    status: { type: String, default: AppointmentType.UP_COMING }
+    status: { type: String, default: AppointmentType.UP_COMING },
+    email_id: { type: String, required: false }, // New field to store the email ID
+    emailOpened: { type: Boolean, default: false }, // To track if the email was opened
+    emailClicked: { type: Boolean, default: false } // To track if the link in the email was clicked
   },
   { timestamps: true }
 )
