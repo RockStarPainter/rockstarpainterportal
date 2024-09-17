@@ -28,6 +28,7 @@ import Appointments24Hours from 'src/views/pages/Appointments24Hours'
 import SendIcon from '@mui/icons-material/Send'
 import Tooltip from '@mui/material/Tooltip'
 import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
+import Icon from 'src/@core/components/icon'
 
 const Home = () => {
   const [data, setData] = useState([])
@@ -175,13 +176,21 @@ const Home = () => {
         header: 'Email Opened',
         accessorKey: 'emailOpened',
         Cell: ({ cell }) => {
-          return cell.getValue() ? (
-            <Tooltip title='Email opened'>
-              <span style={{ color: 'green' }}>✔</span>
-            </Tooltip>
-          ) : (
-            <Tooltip title='Email not opened'>
-              <span style={{ color: 'red' }}>✖</span>
+          const isEmailOpened = cell.getValue()
+
+          return (
+            <Tooltip title={isEmailOpened ? 'Email is opened' : 'Email not opened'}>
+              <span style={{ color: isEmailOpened ? 'green' : 'black', display: 'flex', alignItems: 'center' }}>
+                {isEmailOpened ? (
+                  <>
+                    <Icon icon='mdi:email-check' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                ) : (
+                  <>
+                    <Icon icon='mdi:email-off' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                )}
+              </span>
             </Tooltip>
           )
         }
@@ -190,17 +199,26 @@ const Home = () => {
         header: 'Email Clicked',
         accessorKey: 'emailClicked',
         Cell: ({ cell }) => {
-          return cell.getValue() ? (
-            <Tooltip title='Link clicked'>
-              <span style={{ color: 'green' }}>✔</span>
-            </Tooltip>
-          ) : (
-            <Tooltip title='Link not clicked'>
-              <span style={{ color: 'red' }}>✖</span>
+          const isEmailClicked = cell.getValue()
+
+          return (
+            <Tooltip title={isEmailClicked ? 'Link inside email is clicked' : 'Link not clicked'}>
+              <span style={{ color: isEmailClicked ? 'green' : 'black', display: 'flex', alignItems: 'center' }}>
+                {isEmailClicked ? (
+                  <>
+                    <Icon icon='mdi:email-check' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                ) : (
+                  <>
+                    <Icon icon='mdi:email-off' fontSize={30} style={{ marginRight: '5px' }} />
+                  </>
+                )}
+              </span>
             </Tooltip>
           )
         }
       },
+
       {
         header: 'Appointment Time',
         accessorKey: 'appointment_time',
