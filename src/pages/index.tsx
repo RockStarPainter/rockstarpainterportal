@@ -22,8 +22,7 @@ import { useRouter } from 'next/router'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import ClearIcon from '@mui/icons-material/Clear';
+import Icon from 'src/@core/components/icon'
 
 const Home = () => {
   const [data, setData] = useState<any>([])
@@ -175,20 +174,32 @@ const Home = () => {
         header: 'Email Status',
         accessorKey: 'email_opened',
         Cell: ({ cell }: any) => {
-          const emailOpened = cell.getValue();
+          const emailOpened = cell.getValue()
 
           return (
             <Box display='flex' alignItems='center'>
               {emailOpened ? (
-                <TaskAltIcon sx={{ color: '#65a30d' }} />
+                <>
+                  <Icon
+                    icon='mdi:email-check'
+                    fontSize={30}
+                    style={{ marginRight: '5px', color: '#4caf50' }} // Success color (green)
+                  />
+                </>
               ) : (
-                <ClearIcon sx={{ color: '#ef4444' }} />
+                <>
+                  <Icon
+                    icon='mdi:email-off'
+                    fontSize={30}
+                    style={{ marginRight: '5px' }} // Error color (red) if needed
+                  />
+                </>
               )}
-              <Box ml={1}>{emailOpened ? 'Opened' : 'Not Opened'}</Box>
             </Box>
-          );
+          )
         }
       },
+
       {
         header: 'Client Status',
         accessorKey: 'approval_status',
