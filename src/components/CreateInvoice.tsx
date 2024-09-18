@@ -531,6 +531,29 @@ const CreateInvoice = () => {
     }
   }, [invoiceId])
 
+  async function uploadPdfToCloudinary(pdfBlob: Blob) {
+    try {
+      const formData = new FormData()
+      formData.append('file', pdfBlob) // Append the Blob directly
+
+      const res = await axios.post('/api/upload-file-to-cloudinary', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          authorization: localStorage.getItem('token')
+        }
+      })
+
+      if (res?.data?.url) {
+        return res?.data?.url
+      } else {
+        toast.error('Failed to upload file')
+      }
+    } catch (err) {
+      console.error('Error uploading file:', err)
+      toast.error('Failed to upload file')
+    }
+  }
+
   const generatePdf = async (str?: string) => {
     try {
       if (typeof window === 'undefined') return
@@ -649,8 +672,14 @@ const CreateInvoice = () => {
       if (str === 'email') {
         const reader = new FileReader()
         reader.readAsDataURL(pdfBlob)
-        reader.onloadend = () => {
-          const base64data = reader.result as string
+        reader.onloadend = async () => {
+          const pdfUrl = await uploadPdfToCloudinary(pdfBlob)
+          if (!pdfUrl) {
+            toast.error('Failed to upload PDF')
+            setemailLoading(false)
+
+            return
+          }
 
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
@@ -663,11 +692,12 @@ const CreateInvoice = () => {
             return
           }
           const templateParams = {
-            content: base64data,
+            // content: base64data,
             customer_name: allData.customer_name,
             to_email: allData.email,
             custom_id: allData.custom_id, // Include the custom_id
-            approval_token: allData.approval_token // Include the approval token
+            approval_token: allData.approval_token, // Include the approval token
+            pdf_url: pdfUrl
           }
 
           emailjs

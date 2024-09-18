@@ -22,6 +22,7 @@ import { useRouter } from 'next/router'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
+import Icon from 'src/@core/components/icon'
 
 const Home = () => {
   const [data, setData] = useState<any>([])
@@ -169,6 +170,36 @@ const Home = () => {
           )
         }
       },
+      {
+        header: 'Email Status',
+        accessorKey: 'email_opened',
+        Cell: ({ cell }: any) => {
+          const emailOpened = cell.getValue()
+
+          return (
+            <Box display='flex' alignItems='center'>
+              {emailOpened ? (
+                <>
+                  <Icon
+                    icon='mdi:email-check'
+                    fontSize={30}
+                    style={{ marginRight: '5px', color: '#4caf50' }} // Success color (green)
+                  />
+                </>
+              ) : (
+                <>
+                  <Icon
+                    icon='mdi:email-off'
+                    fontSize={30}
+                    style={{ marginRight: '5px' }} // Error color (red) if needed
+                  />
+                </>
+              )}
+            </Box>
+          )
+        }
+      },
+
       {
         header: 'Client Status',
         accessorKey: 'approval_status',
