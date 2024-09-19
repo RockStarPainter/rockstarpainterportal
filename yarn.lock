@@ -3374,6 +3374,22 @@ jsonwebtoken@8.5.1:
     ms "^2.1.1"
     semver "^5.6.0"
 
+jsonwebtoken@^9.0.2:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-9.0.2.tgz#65ff91f4abef1784697d40952bb1998c504caaf3"
+  integrity sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==
+  dependencies:
+    jws "^3.2.2"
+    lodash.includes "^4.3.0"
+    lodash.isboolean "^3.0.3"
+    lodash.isinteger "^4.0.4"
+    lodash.isnumber "^3.0.3"
+    lodash.isplainobject "^4.0.6"
+    lodash.isstring "^4.0.1"
+    lodash.once "^4.0.0"
+    ms "^2.1.1"
+    semver "^7.5.4"
+
 jspdf@2.5.1, jspdf@^2.3.1:
   version "2.5.1"
   resolved "https://registry.npmjs.org/jspdf/-/jspdf-2.5.1.tgz"
@@ -3592,7 +3608,7 @@ material-react-table@2.13.0:
     keen-slider "6.8.5"
     mailersend "^2.2.0"
     material-react-table "2.13.0"
-    materialize-nextjs-admin-template "file:../.cache/yarn/v6/npm-materialize-nextjs-admin-template-2.1.0-2ea52f7e-5d5e-4a22-9bb1-628c3d449318-1726586571725/node_modules/materialize-nextjs-admin-template"
+    materialize-nextjs-admin-template "file:../.cache/yarn/v6/npm-materialize-nextjs-admin-template-2.1.0-a095d9ab-8877-45b5-814c-4957c2b5f9b4-1726778288072/node_modules/materialize-nextjs-admin-template"
     moment "^2.30.1"
     mongoose "8.4.0"
     multer "^1.4.5-lts.1"
@@ -4512,6 +4528,11 @@ semver@^7.3.7:
   integrity sha512-NB1ctGL5rlHrPJtFDVIVzTyQylMLu9N9VICA6HSFJo8MCGVTMW6gfpicwKmmK/dAjTOrqu5l63JJOpDSrAis3A==
   dependencies:
     lru-cache "^6.0.0"
+
+semver@^7.5.4:
+  version "7.6.3"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.3.tgz#980f7b5550bc175fb4dc09403085627f9eb33143"
+  integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 set-function-length@^1.2.1:
   version "1.2.2"

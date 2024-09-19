@@ -10,6 +10,7 @@ export type UserDataType = {
   id: number
   username: string
   password: string
+  role: 'admin' | 'employee' // Add the role field here
 }
 
 export type AuthValuesType = {

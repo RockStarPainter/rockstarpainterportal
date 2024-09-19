@@ -29,8 +29,10 @@ import SendIcon from '@mui/icons-material/Send'
 import Tooltip from '@mui/material/Tooltip'
 import SmsIcon from '@mui/icons-material/Sms' // Import the Sms icon
 import Icon from 'src/@core/components/icon'
+import { useAuth } from 'src/hooks/useAuth'
 
 const Home = () => {
+  const { user } = useAuth() // Get the user from AuthContext
   const [data, setData] = useState([])
   const [openDialog, setOpenDialog] = useState(false)
   const [viewDialog, setViewDialog] = useState(false)
@@ -42,8 +44,15 @@ const Home = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('/api/appointments/get-all')
-      console.log(res.data.payload.appointments) // Add this line to log the returned appointments data
+      const token = localStorage.getItem('token') // Get the token from localStorage
+
+      const res = await axios.get('/api/appointments/get-all', {
+        headers: {
+          Authorization: `Bearer ${token}` // Send the token in the request
+        }
+      })
+
+      console.log(res.data.payload.appointments) // Log the returned appointments data
       setData(res.data.payload.appointments)
     } catch (error) {
       console.log(error)
