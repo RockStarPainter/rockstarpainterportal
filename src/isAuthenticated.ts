@@ -9,7 +9,11 @@ const tokenSecret = process.env.JWT_SECRET as Secret
 
 export const isAuthenticated = (req: any) => {
   try {
+    // const token = req.headers.authorization
     const token = req.headers.authorization
+
+    console.log('tokenSecret: ' + tokenSecret)
+    console.log('token: ' + token)
 
     // Verify and type cast the decoded payload
     const decoded = jwt.verify(token, tokenSecret, { ignoreExpiration: false }) as DecodedToken
@@ -17,7 +21,8 @@ export const isAuthenticated = (req: any) => {
 
     return true
   } catch (error) {
-    // console.log(error)
+    console.log(error)
+
     return false
   }
 }

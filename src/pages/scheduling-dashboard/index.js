@@ -47,9 +47,7 @@ const Home = () => {
       const token = localStorage.getItem('token') // Get the token from localStorage
 
       const res = await axios.get('/api/appointments/get-all', {
-        headers: {
-          Authorization: `Bearer ${token}` // Send the token in the request
-        }
+        headers: { Authorization: token }
       })
 
       console.log(res.data.payload.appointments) // Log the returned appointments data

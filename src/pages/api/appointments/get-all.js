@@ -1,7 +1,9 @@
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
 import UserModel from 'src/Backend/schemas/user'
-import { isAuthenticated } from 'src/Backend/utils/isAuthenticated'
+import { isAuthenticated } from 'src/isAuthenticated'
+
+// import { isAuthenticated } from 'src/Backend/utils/isAuthenticated'
 
 const handler = async (req, res) => {
   if (req.method === 'GET') {

@@ -1,5 +1,8 @@
 import connectDb from 'src/Backend/databaseConnection'
 import UserModel from 'src/Backend/schemas/user'
+import jwt, { Secret } from 'jsonwebtoken'
+
+const tokenSecret = process.env.JWT_SECRET as Secret
 
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
@@ -11,9 +14,11 @@ const handler = async (req: any, res: any) => {
 
       if (password !== userData.password) return res.status(401).send('Invalid username or password')
 
+      const token = jwt.sign({ user: userData }, tokenSecret)
+
       return res.send({
         message: 'login successful',
-        payload: { userData }
+        payload: { userData, token }
       })
     } catch (error) {
       console.log(error)

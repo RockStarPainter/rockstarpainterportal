@@ -131,7 +131,7 @@ const LoginPage = () => {
       const response = await axios.post('/api/auth/login', { user_name: userName, password })
       setMessage(response.data.message)
       auth.setUser({ ...response.data.payload.userData })
-      localStorage.setItem('userData', JSON.stringify(response.data.payload.userData))
+      localStorage.setItem('token', JSON.stringify(response.data.payload.token))
       if (response.data.message === 'login successful') {
         router.push('/')
       }
