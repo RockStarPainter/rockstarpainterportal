@@ -201,9 +201,23 @@ const UserAppointmentFormComponent = () => {
   }, [appointmentId, methods])
 
   const onSubmit = methods.handleSubmit(async data => {
+    const userData = JSON.parse(localStorage.getItem('userData')) // Fetch user data from localStorage
+
+    if (!userData || !userData._id) {
+      toast.error('User data is missing, please login again')
+
+      return
+    }
+
+    const requestData = {
+      ...data,
+      userId: userData._id, // Add userId from localStorage to request
+      role: userData.role // Add role from localStorage to request
+    }
+
     if (appointmentId) {
       try {
-        await axios.put(`/api/appointments/${appointmentId}`, data, {
+        await axios.put(`/api/appointments/${appointmentId}`, requestData, {
           headers: { authorization: localStorage.getItem('token') }
         })
         toast.success('Appointment updated successfully')
@@ -212,7 +226,7 @@ const UserAppointmentFormComponent = () => {
       }
     } else {
       try {
-        await axios.post('/api/appointments/create', data, {
+        await axios.post('/api/appointments/create', requestData, {
           headers: { authorization: localStorage.getItem('token') }
         })
         toast.success('Appointment created successfully')

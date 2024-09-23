@@ -12,7 +12,8 @@ const appointmentSchema = new mongoose.Schema(
     status: { type: String, default: AppointmentType.UP_COMING },
     email_id: { type: String, required: false }, // New field to store the email ID
     emailOpened: { type: Boolean, default: false }, // To track if the email was opened
-    emailClicked: { type: Boolean, default: false } // To track if the link in the email was clicked
+    emailClicked: { type: Boolean, default: false }, // To track if the link in the email was clicked
+    employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // New field
   },
   { timestamps: true }
 )

@@ -19,12 +19,18 @@ const formatPhoneNumber = phone => {
 const handler = async (req, res) => {
   if (req.method === 'POST') {
     try {
+      const { userId, ...appointmentData } = req.body // Extract userId from the request body
+
       // Format the phone number
-      if (req.body.client_phone) {
-        req.body.client_phone = formatPhoneNumber(req.body.client_phone)
+      if (appointmentData.client_phone) {
+        appointmentData.client_phone = formatPhoneNumber(appointmentData.client_phone)
       }
 
-      const newAppointment = new AppointmentModel({ ...req.body })
+      // Create the appointment and set the employee field to the userId
+      const newAppointment = new AppointmentModel({
+        ...appointmentData,
+        employee: userId // Associate the appointment with the logged-in user (employee)
+      })
 
       const saved = await newAppointment.save()
 

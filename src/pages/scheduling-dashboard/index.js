@@ -41,13 +41,31 @@ const Home = () => {
   const router = useRouter()
 
   const fetchData = async () => {
+    const userData = JSON.parse(localStorage.getItem('userData')) // Get userData from localStorage
+    if (!userData) {
+      toast.error('User data missing, please log in again')
+
+      return
+    }
+
+    const { role, _id } = userData // Extract role and user ID from localStorage
+
     try {
-      const res = await axios.get('/api/appointments/get-all')
-      console.log(res.data.payload.appointments) // Add this line to log the returned appointments data
-      setData(res.data.payload.appointments)
+      // Send the user role and ID to the backend
+      const res = await axios.get('/api/appointments/get-all', {
+        headers: {
+          authorization: localStorage.getItem('token')
+        },
+        params: {
+          role, // Pass the role to the backend
+          userId: _id // Pass the user ID (for Employees)
+        }
+      })
+
+      setData(res.data.payload.appointments) // Set the appointments data in the state
     } catch (error) {
-      console.log(error)
-      toast.error('Error fetching data')
+      console.error('Error fetching appointments:', error)
+      toast.error('Error fetching appointments, please try again later')
     }
   }
 
