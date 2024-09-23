@@ -23,6 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
 import Icon from 'src/@core/components/icon'
+import useUserData from 'src/hooks/useUserData'
 
 const Home = () => {
   const [data, setData] = useState<any>([])
@@ -30,11 +31,26 @@ const Home = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const router = useRouter()
+  const userData: any = useUserData()
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const fetchData = async () => {
+    const { role, _id } = userData // Extract role and user ID from localStorage
+
     try {
-      const res = await axios.get('/api/get-all')
-      const fetchedData = res.data.payload.data
+      const res = await axios.get('/api/get-all', {
+        headers: {
+          authorization: localStorage.getItem('token')
+        },
+        params: {
+          role, // Pass the role to the backend
+          userId: _id // Pass the user ID (for Employees)
+        }
+      })
+      const fetchedData = res.data.payload.invoices
 
       // Sort the data based on the approval_status and updatedAt fields
       const sortedData = fetchedData.sort((a: any, b: any) => {
@@ -60,10 +76,6 @@ const Home = () => {
       toast.error('Error fetching data')
     }
   }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   const updateStatus = async (_id: any, value: any) => {
     try {

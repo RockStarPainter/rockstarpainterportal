@@ -80,7 +80,7 @@ const UpdateUser = (props: any) => {
       reset({
         user_name: userDetails.user_name,
         password: userDetails.password,
-        role: userDetails.role
+        role: userDetails.role || '' // Ensure role is reset properly
       })
     }
   }, [userDetails, reset])
@@ -183,8 +183,13 @@ const UpdateUser = (props: any) => {
                 <Controller
                   name='role'
                   control={control}
-                  render={({ field }) => (
-                    <Select {...field} label='Role' error={Boolean(errors.role)}>
+                  render={({ field: { value, onChange } }) => (
+                    <Select
+                      label='Role'
+                      value={value || ''} // Ensure it gets a value
+                      onChange={onChange} // Ensure onChange is handled
+                      error={Boolean(errors.role)}
+                    >
                       <MenuItem value='Admin'>Admin</MenuItem>
                       <MenuItem value='Employee'>Employee</MenuItem>
                     </Select>

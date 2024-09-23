@@ -17,6 +17,9 @@ const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
 
+      const { userId } = req.query // Get role and userId from query params
+
+
       const customId = await generateUniqueCustomId()
       const approvalToken = await generateToken() // Generate a secure token
       console.log('approvalToken', approvalToken)
@@ -24,7 +27,8 @@ const handler = async (req: any, res: any) => {
       const newInvoice = new InvoiceModel({
         ...req.body,
         custom_id: customId,
-        approval_token: approvalToken // Save the token to the invoice
+        approval_token: approvalToken, // Save the token to the invoice,
+        employee: userId
       })
       console.log('Generated Invoice - custom_id:', customId, 'approval_token:', approvalToken)
 

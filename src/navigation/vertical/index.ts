@@ -1,33 +1,26 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
+import adminNavigation from '../adminRoutes'
+import employeeNavigation from '../employeeRoutes'
+import { UserRole } from 'src/shared/enums/UserRole.enum'
 
 const navigation = (): VerticalNavItemsType => {
-  return [
-    {
-      title: 'Invoicing CRM',
-      path: '/',
-      icon: 'mdi:home-outline'
-    },
-    {
-      title: 'Appointments CRM',
-      path: '/scheduling-dashboard',
-      icon: 'mdi:home-outline'
-    },
-    {
-      title: 'Users', // Users section
-      icon: 'mdi:shield-outline',
-      children: [
-        {
-          title: 'Create New User',
-          path: '/users/create-user'
-        },
-        {
-          title: 'View Users',
-          path: '/users/view-users'
-        }
-      ]
-    }
-  ]
+  const userData: any = localStorage.getItem('userData')
+  let role = ''
+  if (userData) {
+    role = JSON.parse(userData).role
+  }
+
+  switch (role) {
+    case UserRole.ADMIN:
+      return adminNavigation()
+
+    case UserRole.EMPLOYEE:
+      return employeeNavigation()
+
+    default:
+      return []
+  }
 }
 
 export default navigation

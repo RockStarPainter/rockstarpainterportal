@@ -6,6 +6,7 @@ const Schema = mongoose.Schema
 
 const invoiceSchema = new Schema(
   {
+    employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // New field
     status: { type: String, enum: Status, required: false },
     custom_id: { type: Number, required: true, unique: true },
     interiorRows: [

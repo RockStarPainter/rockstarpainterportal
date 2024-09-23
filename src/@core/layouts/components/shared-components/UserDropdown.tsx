@@ -22,6 +22,7 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
+import useUserData from 'src/hooks/useUserData'
 
 interface Props {
   settings: Settings
@@ -49,6 +50,10 @@ const UserDropdown = (props: Props) => {
 
   // ** Vars
   const { direction } = settings
+
+  const userData:any = useUserData()
+
+  const { user_name, role } = userData // Extract role and user ID from localStorage
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget)
@@ -107,7 +112,9 @@ const UserDropdown = (props: Props) => {
               <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>Admin</Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {user_name} - ({role})
+              </Typography>
             </Box>
           </Box>
         </Box>

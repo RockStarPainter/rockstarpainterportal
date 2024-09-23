@@ -46,6 +46,7 @@ import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import NewForm from './NewForm'
 import WarrantyContent from './WarrantyContent'
+import useUserData from 'src/hooks/useUserData';
 
 interface FormItemProps {
   name: string
@@ -127,6 +128,7 @@ const CreateInvoice = () => {
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
   const [warrantyDate, setWarrantyDate] = useState('')
+  const userData: any = useUserData();
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -717,10 +719,12 @@ const CreateInvoice = () => {
       console.log(error)
     }
   }
-
   const onSubmit = async (formData: any) => {
     try {
       setApiLoading(true)
+
+      const { _id: userId } = userData // Extract role and user ID from localStorage
+
       const benjaminPaintsData = selectedBenjamin.map((paintName: any) => ({
         paint_name: paintName,
         finishing_types: selectedBenjaminOptions[paintName] || []
@@ -786,7 +790,14 @@ const CreateInvoice = () => {
         await axios.post(`/api/update`, { payload, invoiceId })
         toast.success('Updated Successfully')
       } else {
-        const res = await axios.post('/api/create-invoice', payload)
+        const res = await axios.post('/api/create-invoice', payload, {
+          headers: {
+            authorization: localStorage.getItem('token')
+          },
+          params: {
+            userId: userId // Pass the user ID (for Employees)
+          }
+        })
         reset(defaultValues)
         setSelectedOption('')
         const { _id } = res.data.payload.invoice
