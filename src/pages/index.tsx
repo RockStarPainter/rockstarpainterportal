@@ -23,7 +23,6 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { statusValues } from 'src/enums'
 import Icon from 'src/@core/components/icon'
-import useUserData from 'src/hooks/useUserData'
 
 const Home = () => {
   const [data, setData] = useState<any>([])
@@ -31,13 +30,17 @@ const Home = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [deleting, setDeleting] = useState(false)
   const router = useRouter()
-  const userData: any = useUserData()
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   const fetchData = async () => {
+    const storedData = localStorage.getItem('userData') // Get userData from localStorage
+    const userData = storedData ? JSON.parse(storedData) : null // Check if storedData is not null before parsing
+
+    if (!userData) {
+      toast.error('User data missing, please log in again')
+
+      return
+    }
+
     const { role, _id } = userData // Extract role and user ID from localStorage
 
     try {
@@ -76,6 +79,10 @@ const Home = () => {
       toast.error('Error fetching data')
     }
   }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const updateStatus = async (_id: any, value: any) => {
     try {

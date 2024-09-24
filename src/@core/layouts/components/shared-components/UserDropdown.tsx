@@ -51,9 +51,10 @@ const UserDropdown = (props: Props) => {
   // ** Vars
   const { direction } = settings
 
-  const userData:any = useUserData()
+  const userData: any = useUserData()
 
-  const { user_name, role } = userData // Extract role and user ID from localStorage
+  const user_name = userData?.user_name
+  const role = userData?.role
 
   const handleDropdownOpen = (event: SyntheticEvent) => {
     setAnchorEl(event.currentTarget)

@@ -5,10 +5,15 @@ import employeeNavigation from '../employeeRoutes'
 import { UserRole } from 'src/shared/enums/UserRole.enum'
 
 const navigation = (): VerticalNavItemsType => {
-  const userData: any = localStorage.getItem('userData')
+  let userData: any = ''
   let role = ''
-  if (userData) {
-    role = JSON.parse(userData).role
+
+  if (typeof window !== 'undefined') {
+    userData = localStorage.getItem('userData')
+
+    if (userData) {
+      role = JSON.parse(userData).role
+    }
   }
 
   switch (role) {
