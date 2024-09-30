@@ -32,8 +32,8 @@ const Home = () => {
   const router = useRouter()
 
   const fetchData = async () => {
-    const storedData = localStorage.getItem('userData') // Get userData from localStorage
-    const userData = storedData ? JSON.parse(storedData) : null // Check if storedData is not null before parsing
+    const storedData = localStorage.getItem('userData')
+    const userData = storedData ? JSON.parse(storedData) : null
 
     if (!userData) {
       toast.error('User data missing, please log in again')
@@ -41,7 +41,7 @@ const Home = () => {
       return
     }
 
-    const { role, _id } = userData // Extract role and user ID from localStorage
+    const { role, _id } = userData
 
     try {
       const res = await axios.get('/api/get-all', {
@@ -49,15 +49,13 @@ const Home = () => {
           authorization: localStorage.getItem('token')
         },
         params: {
-          role, // Pass the role to the backend
-          userId: _id // Pass the user ID (for Employees)
+          role,
+          userId: _id
         }
       })
       const fetchedData = res.data.payload.invoices
 
-      // Sort the data based on the approval_status and updatedAt fields
       const sortedData = fetchedData.sort((a: any, b: any) => {
-        // Move Approved invoices to the top
         if (a.approval_status === 'Approved' && b.approval_status !== 'Approved') {
           return -1
         }
@@ -65,12 +63,7 @@ const Home = () => {
           return 1
         }
 
-        // If both are Approved, sort by updatedAt in descending order
-        if (a.approval_status === 'Approved' && b.approval_status === 'Approved') {
-          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        }
-
-        return 0 // For other statuses, retain the original order
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       })
 
       setData(sortedData)
@@ -88,7 +81,7 @@ const Home = () => {
     try {
       await axios.post('/api/update-status', { invoiceId: _id, value })
       toast.success('Status Updated Successfully')
-      fetchData() // Fetch the data again to reflect the updated sorting
+      fetchData()
     } catch (error) {
       toast.error('Error To Update Status')
     }
@@ -135,6 +128,11 @@ const Home = () => {
     }
   }
 
+  // Now use the populated employee field directly to get the user_name
+  const getEmployeeName = (invoice: any) => {
+    return invoice.employee?.user_name || 'Admin'
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -157,6 +155,15 @@ const Home = () => {
       {
         header: 'Total Payment',
         accessorKey: 'total_cost'
+      },
+      {
+        header: 'Created By',
+        accessorKey: 'createdBy',
+        Cell: ({ row }: any) => {
+          const invoice = row.original
+
+          return getEmployeeName(invoice)
+        }
       },
       {
         header: 'Status',
@@ -198,27 +205,14 @@ const Home = () => {
           return (
             <Box display='flex' alignItems='center'>
               {emailOpened ? (
-                <>
-                  <Icon
-                    icon='mdi:email-check'
-                    fontSize={30}
-                    style={{ marginRight: '5px', color: '#4caf50' }} // Success color (green)
-                  />
-                </>
+                <Icon icon='mdi:email-check' fontSize={30} style={{ marginRight: '5px', color: '#4caf50' }} />
               ) : (
-                <>
-                  <Icon
-                    icon='mdi:email-off'
-                    fontSize={30}
-                    style={{ marginRight: '5px' }} // Error color (red) if needed
-                  />
-                </>
+                <Icon icon='mdi:email-off' fontSize={30} style={{ marginRight: '5px' }} />
               )}
             </Box>
           )
         }
       },
-
       {
         header: 'Client Status',
         accessorKey: 'approval_status',
