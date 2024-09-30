@@ -1,21 +1,22 @@
-// /pages/api/appointments/get-all.js
-
 import connectDb from 'src/Backend/databaseConnection'
 import AppointmentModel from 'src/Backend/schemas/appointment'
 
 const handler = async (req, res) => {
   if (req.method === 'GET') {
     try {
-      const { role, userId } = req.query // Get role and userId from query params
+      const { role, userId } = req.query
 
       let appointments
 
       if (role === 'Admin') {
         // Admins get all appointments
-        appointments = await AppointmentModel.find({})
+        appointments = await AppointmentModel.find({}).populate({ path: 'employee', select: 'user_name' }) // Populate user_name from employee reference
       } else if (role === 'Employee') {
         // Employees get only their appointments
-        appointments = await AppointmentModel.find({ employee: userId })
+        appointments = await AppointmentModel.find({ employee: userId }).populate({
+          path: 'employee',
+          select: 'user_name'
+        }) // Populate user_name from employee reference
       } else {
         return res.status(403).json({ message: 'Forbidden' })
       }

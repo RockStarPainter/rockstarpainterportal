@@ -149,6 +149,16 @@ const AppointmentForm = ({ update, defaultValues, onSubmit }) => {
             {errors.status && <FormHelperText>{errors.status.message}</FormHelperText>}
           </FormControl>
         </Grid>
+        {/* <Grid item xs={12} sm={6}>
+          <FormControl fullWidth>
+            <TextField
+              label='Created By'
+              value={defaultValues?.employee?.user_name || 'Admin'}
+              InputProps={{ readOnly: true }}
+              fullWidth
+            />
+          </FormControl>
+        </Grid> */}
       </Grid>
       <Button fullWidth size='large' type='submit' variant='contained' sx={{ mt: 3, mb: 7 }}>
         {update ? 'Update' : 'Create'} Appointment

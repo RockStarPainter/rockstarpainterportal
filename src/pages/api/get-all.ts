@@ -1,6 +1,5 @@
 import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
-import UserModel from 'src/Backend/schemas/user' // Assuming you have a UserModel
 
 const handler = async (req: any, res: any) => {
   if (req.method === 'GET') {

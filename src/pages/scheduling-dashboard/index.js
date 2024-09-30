@@ -41,31 +41,51 @@ const Home = () => {
   const router = useRouter()
 
   const fetchData = async () => {
-    const userData = JSON.parse(localStorage.getItem('userData')) // Get userData from localStorage
+    const storedData = localStorage.getItem('userData')
+    const userData = storedData ? JSON.parse(storedData) : null
+
     if (!userData) {
       toast.error('User data missing, please log in again')
 
       return
     }
 
-    const { role, _id } = userData // Extract role and user ID from localStorage
+    const { role, _id } = userData
 
     try {
-      // Send the user role and ID to the backend
       const res = await axios.get('/api/appointments/get-all', {
         headers: {
           authorization: localStorage.getItem('token')
         },
         params: {
-          role, // Pass the role to the backend
-          userId: _id // Pass the user ID (for Employees)
+          role,
+          userId: _id
         }
       })
+      const fetchedData = res.data.payload.appointments
 
-      setData(res.data.payload.appointments) // Set the appointments data in the state
+      // Sort the data
+      const sortedData = fetchedData.sort((a, b) => {
+        // Check if emailOpened or emailClicked is true for 'a' and 'b'
+        const aPriority = a.emailOpened || a.emailClicked
+        const bPriority = b.emailOpened || b.emailClicked
+
+        // Prioritize appointments with emailOpened or emailClicked
+        if (aPriority && !bPriority) {
+          return -1 // 'a' should be before 'b'
+        }
+        if (!aPriority && bPriority) {
+          return 1 // 'b' should be before 'a'
+        }
+
+        // If both have the same priority, sort by creation date (older ones on top)
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      })
+
+      setData(sortedData)
     } catch (error) {
-      console.error('Error fetching appointments:', error)
-      toast.error('Error fetching appointments, please try again later')
+      console.log(error)
+      toast.error('Error fetching data')
     }
   }
 
@@ -175,6 +195,15 @@ const Home = () => {
       {
         header: 'Client Email',
         accessorKey: 'client_email'
+      },
+      {
+        header: 'Created By', // New column to show the employee who created the appointment
+        accessorKey: 'employee',
+        Cell: ({ cell }) => {
+          const employee = cell.getValue()
+
+          return employee?.user_name || 'Admin' // Display the user_name of the employee or 'Admin' if null
+        }
       },
       {
         header: 'Appointment Date',
