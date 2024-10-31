@@ -183,6 +183,7 @@ const UserAppointmentFormComponent = () => {
         try {
           setApiLoading(true)
 
+          //
           const res = await axios.get(`/api/appointments/${appointmentId}`, {
             headers: { authorization: localStorage.getItem('token') }
           })
