@@ -46,7 +46,7 @@ import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import NewForm from './NewForm'
 import WarrantyContent from './WarrantyContent'
-import useUserData from 'src/hooks/useUserData';
+import useUserData from 'src/hooks/useUserData'
 
 interface FormItemProps {
   name: string
@@ -128,7 +128,7 @@ const CreateInvoice = () => {
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
   const [warrantyDate, setWarrantyDate] = useState('')
-  const userData: any = useUserData();
+  const userData: any = useUserData()
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -685,7 +685,9 @@ const CreateInvoice = () => {
 
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
-          const templateID = 'template_hiu1lu8'
+
+          // const templateID = 'template_hiu1lu8'
+          const templateID = 'template_1lspwpp'
           const userID = '1rRx93iEXQmVegiJX'
           if (!allData.email) {
             toast.error('No email address provided')
@@ -1476,7 +1478,9 @@ const CreateInvoice = () => {
     setStatusLoading(true)
 
     const serviceID = 'service_pypvnz1'
-    const templateID = 'template_nz7lf5l'
+
+    // const templateID = 'template_nz7lf5l'
+    const templateID = 'template_1lspwpp'
     const userID = '1rRx93iEXQmVegiJX'
 
     const templateParams = {
