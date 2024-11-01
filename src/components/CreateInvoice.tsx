@@ -699,7 +699,8 @@ const CreateInvoice = () => {
             to_email: allData.email,
             custom_id: allData.custom_id, // Include the custom_id
             approval_token: allData.approval_token, // Include the approval token
-            pdf_url: pdfUrl
+            pdf_url: pdfUrl,
+            form_type: allData.form_type
           }
 
           emailjs
