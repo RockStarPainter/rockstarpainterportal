@@ -685,7 +685,7 @@ const CreateInvoice = () => {
 
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
-          const templateID = 'template_hiu1lu8'
+          const templateID = 'template_1lspwpp'
           const userID = '1rRx93iEXQmVegiJX'
           if (!allData.email) {
             toast.error('No email address provided')
@@ -699,7 +699,8 @@ const CreateInvoice = () => {
             to_email: allData.email,
             custom_id: allData.custom_id, // Include the custom_id
             approval_token: allData.approval_token, // Include the approval token
-            pdf_url: pdfUrl
+            pdf_url: pdfUrl,
+            form_type: allData.form_type
           }
 
           emailjs
@@ -1476,7 +1477,7 @@ const CreateInvoice = () => {
     setStatusLoading(true)
 
     const serviceID = 'service_pypvnz1'
-    const templateID = 'template_nz7lf5l'
+    const templateID = 'template_1lspwpp'
     const userID = '1rRx93iEXQmVegiJX'
 
     const templateParams = {
