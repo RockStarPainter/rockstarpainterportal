@@ -115,7 +115,7 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
     </Box>
   )
 
-  const interiorContent = `Rockstar Painting will repair blistering,
+  const interiorContent = ` Rockstar Painting will repair blistering,
         chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's interior warranty does not apply to metal surfaces unless specified otherwise in the contract
         details. The warranty does not apply to cracks in drywall, mud, tape, or texture. The warranty does not apply to
         damages caused by harmful chemicals or cleaners or wear and tear. The standard warranty repairs only include
@@ -124,7 +124,7 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
         in with the original color due to fading, abrasion, and wear and tear.`
 
   const exteriorContent =
-    "Rockstar Painting will repair blistering, chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's exterior warranty only applies to vertical surfaces; it does not apply on any horizontal surfaces unless specified otherwise in the contract details. The standard warranty repairs only include prepping, priming (where necessary) and painting individual spots or sections where there is a blister, chipping, or peeling paint. Therefore; Rockstar Painting does not guarantee that individual (touch-up) repairs will blend in with the original color due to fading, abrasion, and wear and tear. Damages caused by weather, such as snow and hail, are not covered by this warranty."
+    " Rockstar Painting will repair blistering, chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's exterior warranty only applies to vertical surfaces; it does not apply on any horizontal surfaces unless specified otherwise in the contract details. The standard warranty repairs only include prepping, priming (where necessary) and painting individual spots or sections where there is a blister, chipping, or peeling paint. Therefore, Rockstar Painting does not guarantee that individual (touch-up) repairs will blend in with the original color due to fading, abrasion, and wear and tear. Damages caused by weather, such as snow and hail, are not covered by this warranty."
 
   return (
     <Box paddingLeft={'5%'}>
