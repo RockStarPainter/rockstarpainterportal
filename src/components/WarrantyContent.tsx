@@ -115,7 +115,8 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
         damages caused by harmful chemicals or cleaners or wear and tear. The standard warranty repairs only include
         prepping, priming (where necessary) and painting individual spots or sections where there is blister, chipping,
         or peeling paint. Therefore, Rockstar Painting does not guarantee that individual (touch-up) repairs will blend
-        in with the original color due to fading, abrasion, and wear and tear.
+        in with the original color due to fading, abrasion, and wear and tear. Damages caused by weather, such as snow
+        and hail, are not covered by this warranty.
       </Typography>
     </Box>
   )
