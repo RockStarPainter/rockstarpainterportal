@@ -91,12 +91,13 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
   const renderWarranty = (
     title: string,
     warranty: string,
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
+    content: string
   ) => (
     <Box width={'90%'} marginBottom={'2%'}>
       <Typography variant='h4'>{title} Warranty</Typography>
       <Typography fontSize={'20px'}>
-        A warranty of{' '}
+        A warranty of
         {view ? (
           <b> {warranty}</b>
         ) : (
@@ -105,30 +106,34 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
             onChange={onChange}
             type='number'
             inputProps={{ min: 0 }}
-            style={{ width: '100px' }}
+            style={{ width: '100px', margin: '0 5px' }}
           />
         )}{' '}
-        months applies to the scope of work described in this contract. Rockstar Painting will repair blistering,
-        chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's{' '}
-        {title.toLowerCase()} warranty does not apply to metal surfaces unless specified otherwise in the contract
-        details. The warranty does not apply to cracks in drywall, mud, tape, or texture. The warranty does not apply to
-        damages caused by harmful chemicals or cleaners or wear and tear. The standard warranty repairs only include
-        prepping, priming (where necessary) and painting individual spots or sections where there is blister, chipping,
-        or peeling paint. Therefore, Rockstar Painting does not guarantee that individual (touch-up) repairs will blend
-        in with the original color due to fading, abrasion, and wear and tear. Damages caused by weather, such as snow
-        and hail, are not covered by this warranty.
+        months applies to the scope of work described in this contract.
+        {content}
       </Typography>
     </Box>
   )
 
+  const interiorContent = `Rockstar Painting will repair blistering,
+        chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's interior warranty does not apply to metal surfaces unless specified otherwise in the contract
+        details. The warranty does not apply to cracks in drywall, mud, tape, or texture. The warranty does not apply to
+        damages caused by harmful chemicals or cleaners or wear and tear. The standard warranty repairs only include
+        prepping, priming (where necessary) and painting individual spots or sections where there is blister, chipping,
+        or peeling paint. Therefore, Rockstar Painting does not guarantee that individual (touch-up) repairs will blend
+        in with the original color due to fading, abrasion, and wear and tear.`
+
+  const exteriorContent =
+    "Rockstar Painting will repair blistering, chipping, or peeling paint when it is a direct result of poor workmanship. Rockstar Painting's exterior warranty does not apply to metal surfaces unless specified otherwise in the contract details. The warranty does not apply to cracks in drywall, mud, tape, or texture. The warranty does not apply to damages caused by harmful chemicals or cleaners or wear and tear. The standard warranty repairs only include prepping, priming (where necessary), and painting individual spots or sections where there is blister, chipping, or peeling paint. Therefore, Rockstar Painting does not guarantee that individual (touch-up) repairs will blend in with the original color due to fading, abrasion, and wear and tear. Damages caused by weather, such as snow and hail, are not covered by this warranty."
+
   return (
     <Box paddingLeft={'5%'}>
-      {type === 'Interior' && renderWarranty('Interior', interiorWarranty, handleInteriorChange)}
-      {type === 'Exterior' && renderWarranty('Exterior', exteriorWarranty, handleExteriorChange)}
+      {type === 'Interior' && renderWarranty('Interior', interiorWarranty, handleInteriorChange, interiorContent)}
+      {type === 'Exterior' && renderWarranty('Exterior', exteriorWarranty, handleExteriorChange, exteriorContent)}
       {type === 'Both' && (
         <>
-          {renderWarranty('Interior', interiorWarranty, handleInteriorChange)}
-          {renderWarranty('Exterior', exteriorWarranty, handleExteriorChange)}
+          {renderWarranty('Interior', interiorWarranty, handleInteriorChange, interiorContent)}
+          {renderWarranty('Exterior', exteriorWarranty, handleExteriorChange, exteriorContent)}
         </>
       )}
       {type !== 'None' && (
