@@ -46,7 +46,7 @@ import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import NewForm from './NewForm'
 import WarrantyContent from './WarrantyContent'
-import useUserData from 'src/hooks/useUserData';
+import useUserData from 'src/hooks/useUserData'
 
 interface FormItemProps {
   name: string
@@ -128,7 +128,7 @@ const CreateInvoice = () => {
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
   const [warrantyDate, setWarrantyDate] = useState('')
-  const userData: any = useUserData();
+  const userData: any = useUserData()
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -304,6 +304,8 @@ const CreateInvoice = () => {
   const [showPrimerPaintsList, setShowPrimerPaintsList] = useState(false)
   const [showPrimerConcretePaintsList, setShowPrimerConcretePaintsList] = useState(false)
   const [showCaulkSealantPaintsList, setShowCaulkSealantPaintsList] = useState(false)
+  const [interiorWarrantyNote, setInteriorWarrantyNote] = useState('') // New state
+  const [exteriorWarrantyNote, setExteriorWarrantyNote] = useState('') // New state
 
   const rows = 5 // Define the number of rows
   const cols = 3 // Define the number of columns
@@ -403,6 +405,9 @@ const CreateInvoice = () => {
         defaultValues.interiorRows = []
         defaultValues.exteriorRows = []
         const tableData = response.data.payload.data
+        setInteriorWarrantyNote(tableData.interiorWarrantyNote || '')
+        setExteriorWarrantyNote(tableData.exteriorWarrantyNote || '')
+
         const benjaminOptions: { [key: string]: string[] } = {}
         tableData.benjamin_paints.forEach((paint: any) => {
           benjaminOptions[paint.paint_name] = paint.finishing_types
@@ -490,6 +495,8 @@ const CreateInvoice = () => {
       })
     } else {
       reset(defaultValues)
+      setInteriorWarrantyNote('')
+      setExteriorWarrantyNote('')
       setIsLoading(false)
       setExteriorData([
         { name: 'BODY SIDING', columns: Array(eNumCols).fill({ value: false }) },
@@ -685,7 +692,7 @@ const CreateInvoice = () => {
 
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
-          const templateID = 'template_1lspwpp'
+          const templateID = 'template_hiu1lu8'
           const userID = '1rRx93iEXQmVegiJX'
           if (!allData.email) {
             toast.error('No email address provided')
@@ -697,10 +704,10 @@ const CreateInvoice = () => {
             // content: base64data,
             customer_name: allData.customer_name,
             to_email: allData.email,
+            form_type: allData.form_type,
             custom_id: allData.custom_id, // Include the custom_id
             approval_token: allData.approval_token, // Include the approval token
-            pdf_url: pdfUrl,
-            form_type: allData.form_type
+            pdf_url: pdfUrl
           }
 
           emailjs
@@ -783,6 +790,9 @@ const CreateInvoice = () => {
         exterior_warranty: exteriorWarranty,
         interior_warranty: interiorWarranty,
         warranty_date: warrantyDate,
+        interiorWarrantyNote: interiorWarrantyNote, // Explicitly include interior warranty note
+        exteriorWarrantyNote: exteriorWarrantyNote, // Explicitly include exterior warranty note
+
         work_started_date: workStartedDate,
         work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null
       }
@@ -1477,12 +1487,13 @@ const CreateInvoice = () => {
     setStatusLoading(true)
 
     const serviceID = 'service_pypvnz1'
-    const templateID = 'template_1lspwpp'
+    const templateID = 'template_nz7lf5l'
     const userID = '1rRx93iEXQmVegiJX'
 
     const templateParams = {
       customer_name: allData.customer_name,
       to_email: allData.email,
+      form_type: allData.form_type,
       work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
       work_started_time: workStartedTime ? workStartedTime : 'N/A'
     }
@@ -3026,6 +3037,10 @@ const CreateInvoice = () => {
                       customerName={allData?.customer_name}
                       warrantyDate={warrantyDate}
                       setWarrantyDate={newDate => setWarrantyDate(newDate)}
+                      interiorWarrantyNote={interiorWarrantyNote}
+                      setInteriorWarrantyNote={setInteriorWarrantyNote}
+                      exteriorWarrantyNote={exteriorWarrantyNote}
+                      setExteriorWarrantyNote={setExteriorWarrantyNote}
                     />
                   </Box>
                 )}

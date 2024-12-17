@@ -11,6 +11,10 @@ interface WarrantyContentProps {
   customerName: string
   warrantyDate: string
   setWarrantyDate: (newDate: string) => void
+  interiorWarrantyNote: string
+  setInteriorWarrantyNote: (note: string) => void
+  exteriorWarrantyNote: string
+  setExteriorWarrantyNote: (note: string) => void
 }
 
 const Something = ({ value, title }: any) => {
@@ -78,7 +82,11 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
   view,
   customerName,
   warrantyDate,
-  setWarrantyDate
+  setWarrantyDate,
+  interiorWarrantyNote,
+  setInteriorWarrantyNote,
+  exteriorWarrantyNote,
+  setExteriorWarrantyNote
 }) => {
   const handleInteriorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInteriorWarranty(event.target.value)
@@ -88,11 +96,21 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
     setExteriorWarranty(event.target.value)
   }
 
+  const handleInteriorNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInteriorWarrantyNote(event.target.value)
+  }
+
+  const handleExteriorNoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setExteriorWarrantyNote(event.target.value)
+  }
+
   const renderWarranty = (
     title: string,
     warranty: string,
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void,
-    content: string
+    content: string,
+    note: string,
+    onNoteChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   ) => (
     <Box width={'90%'} marginBottom={'2%'}>
       <Typography variant='h4'>{title} Warranty</Typography>
@@ -112,6 +130,20 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
         months applies to the scope of work described in this contract.
         {content}
       </Typography>
+      {/* Heading for the warranty notes */}
+      <Typography variant='h6' style={{ marginTop: '20px' }}>
+        {title} Warranty Notes
+      </Typography>
+      <TextField
+        multiline
+        rows={3}
+        fullWidth
+        value={note}
+        onChange={onNoteChange}
+        placeholder={`Enter additional notes for the ${title.toLowerCase()} warranty...`}
+        style={{ marginTop: '10px' }}
+        variant='outlined'
+      />
     </Box>
   )
 
@@ -128,12 +160,42 @@ const WarrantyContent: React.FC<WarrantyContentProps> = ({
 
   return (
     <Box paddingLeft={'5%'}>
-      {type === 'Interior' && renderWarranty('Interior', interiorWarranty, handleInteriorChange, interiorContent)}
-      {type === 'Exterior' && renderWarranty('Exterior', exteriorWarranty, handleExteriorChange, exteriorContent)}
+      {type === 'Interior' &&
+        renderWarranty(
+          'Interior',
+          interiorWarranty,
+          handleInteriorChange,
+          interiorContent,
+          interiorWarrantyNote,
+          handleInteriorNoteChange
+        )}
+      {type === 'Exterior' &&
+        renderWarranty(
+          'Exterior',
+          exteriorWarranty,
+          handleExteriorChange,
+          exteriorContent,
+          exteriorWarrantyNote,
+          handleExteriorNoteChange
+        )}
       {type === 'Both' && (
         <>
-          {renderWarranty('Interior', interiorWarranty, handleInteriorChange, interiorContent)}
-          {renderWarranty('Exterior', exteriorWarranty, handleExteriorChange, exteriorContent)}
+          {renderWarranty(
+            'Interior',
+            interiorWarranty,
+            handleInteriorChange,
+            interiorContent,
+            interiorWarrantyNote,
+            handleInteriorNoteChange
+          )}
+          {renderWarranty(
+            'Exterior',
+            exteriorWarranty,
+            handleExteriorChange,
+            exteriorContent,
+            exteriorWarrantyNote,
+            handleExteriorNoteChange
+          )}
         </>
       )}
       {type !== 'None' && (

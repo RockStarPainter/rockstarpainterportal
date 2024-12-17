@@ -2,7 +2,6 @@ import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
 import crypto from 'crypto'
 
-
 // Function to generate a random token
 const generateToken = () => {
   return crypto.randomBytes(16).toString('hex')
@@ -16,19 +15,20 @@ const generateUniqueCustomId = async () => {
 const handler = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
-
       const { userId } = req.query // Get role and userId from query params
-
 
       const customId = await generateUniqueCustomId()
       const approvalToken = await generateToken() // Generate a secure token
-      console.log('approvalToken', approvalToken)
+      // const { interiorWarrantyNote, exteriorWarrantyNote } = req.body
 
       const newInvoice = new InvoiceModel({
         ...req.body,
         custom_id: customId,
         approval_token: approvalToken, // Save the token to the invoice,
         employee: userId
+
+        // interiorWarrantyNote,
+        // exteriorWarrantyNote
       })
       console.log('Generated Invoice - custom_id:', customId, 'approval_token:', approvalToken)
 
@@ -53,7 +53,5 @@ const handler = async (req: any, res: any) => {
     return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }
-
-
 
 export default connectDb(handler)

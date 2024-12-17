@@ -66,6 +66,9 @@ const invoiceSchema = new Schema(
     exterior_warranty: { type: Number, required: false },
     warranty_type: { type: String, enum: ['None', 'Interior', 'Exterior', 'Both'], default: 'None' }, // Add warranty_type field
     warranty_date: { type: Date, required: false },
+    interiorWarrantyNote: { type: String, required: false }, // Add this field
+    exteriorWarrantyNote: { type: String, required: false }, // Add this field
+
     handyMan_total_cost: { type: Number, required: false },
     handyMan_balance_due: { type: Number, required: false },
     handyMan_down_payment: { type: Number, required: false },
