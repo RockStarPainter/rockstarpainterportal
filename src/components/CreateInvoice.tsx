@@ -1,4 +1,5 @@
 import React, { forwardRef, useEffect, useState } from 'react'
+import CloseIcon from '@mui/icons-material/Close'
 
 import { useForm, Controller, FormProvider } from 'react-hook-form'
 import {
@@ -18,8 +19,10 @@ import {
   Select,
   MenuItem,
   Divider,
-  FormControlLabel
+  FormControlLabel,
+  IconButton
 } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 import axios from 'axios'
 import { InvoiceTypes, InvoiceTypesValues } from 'src/enums/FormTypes'
 import { useRouter } from 'next/router'
@@ -129,6 +132,30 @@ const CreateInvoice = () => {
   const [exteriorWarranty, setExteriorWarranty] = useState('')
   const [warrantyDate, setWarrantyDate] = useState('')
   const userData: any = useUserData()
+
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+
+  // const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([])
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return
+
+    const filesArray = Array.from(event.target.files)
+
+    // Prevent duplicate selections
+    const newImages = filesArray.filter(file => !selectedImages.some(img => img.name === file.name))
+
+    if (newImages.length === 0) return
+
+    // Update selected images state (do NOT upload here)
+    setSelectedImages(prev => [...prev, ...newImages])
+
+    console.log('Selected Images Updated:', [...selectedImages, ...newImages]) // Debugging
+  }
+
+  const handleImageDelete = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index))
+  }
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
@@ -563,6 +590,33 @@ const CreateInvoice = () => {
     }
   }
 
+  async function uploadImagesToCloudinary(files: File[]) {
+    try {
+      const formData = new FormData()
+      files.forEach(file => formData.append('images', file)) // Append multiple images
+
+      const res = await axios.post('/api/upload-images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          authorization: localStorage.getItem('token')
+        }
+      })
+
+      if (res?.data?.urls) {
+        return res.data.urls // Return uploaded image URLs
+      } else {
+        toast.error('Failed to upload images')
+
+        return []
+      }
+    } catch (err) {
+      console.error('Error uploading images:', err)
+      toast.error('Failed to upload images')
+
+      return []
+    }
+  }
+
   const generatePdf = async (str?: string) => {
     try {
       if (typeof window === 'undefined') return
@@ -730,6 +784,19 @@ const CreateInvoice = () => {
   const onSubmit = async (formData: any) => {
     try {
       setApiLoading(true)
+      let uploadedImageUrls: string[] = []
+
+      // 🚀 Upload images to Cloudinary inside onSubmit
+      if (selectedImages.length > 0) {
+        console.log('Uploading images to Cloudinary...', selectedImages)
+        uploadedImageUrls = await uploadImagesToCloudinary(selectedImages)
+
+        if (uploadedImageUrls.length === 0) {
+          console.warn('No valid image URLs to save.')
+        }
+      }
+
+      console.log('Uploaded Image URLs (Before Saving to Database):', uploadedImageUrls)
 
       const { _id: userId } = userData // Extract role and user ID from localStorage
 
@@ -794,7 +861,8 @@ const CreateInvoice = () => {
         exteriorWarrantyNote: exteriorWarrantyNote, // Explicitly include exterior warranty note
 
         work_started_date: workStartedDate,
-        work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null
+        work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null,
+        images: uploadedImageUrls
       }
 
       if (invoiceId) {
@@ -1495,7 +1563,8 @@ const CreateInvoice = () => {
       to_email: allData.email,
       form_type: allData.form_type,
       work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
-      work_started_time: workStartedTime ? workStartedTime : 'N/A'
+      work_started_time: workStartedTime ? workStartedTime : 'N/A',
+      invoice_id: invoiceId
     }
 
     // console.log(workStartedDate, workStartedTime)
@@ -3018,6 +3087,110 @@ const CreateInvoice = () => {
                 </Grid>
               </Grid>
             </div>
+            <StyledTypography>Add Images</StyledTypography>
+            <Box>
+              {/* Centered Button */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center', // Center horizontally
+                  alignItems: 'center',
+                  width: '100%',
+                  paddingTop: '20px'
+                }}
+              >
+                {/* Hidden Input Field for File Selection */}
+                <input
+                  type='file'
+                  accept='image/*'
+                  multiple
+                  id='image-upload'
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                />
+                <label htmlFor='image-upload'>
+                  <Button
+                    variant='outlined'
+                    component='span'
+                    sx={{
+                      border: '1px solid #B0B0B0', // Light border color
+                      borderRadius: '8px', // Rounded edges
+                      padding: '10px 20px',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      color: '#6D6D6D', // Grey text color
+                      textTransform: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px', // Spacing between icon and text
+                      backgroundColor: '#F7F7F9', // Background color matching the image
+                      transition: 'background-color 0.3s ease-in-out', // Smooth transition
+                      '&:hover': {
+                        backgroundColor: '#81a84e', // New color on hover
+                        color: 'black', // White text on hover for contrast
+                        border: '1px solid #81a84e' // Matching border on hover
+                      }
+                    }}
+                  >
+                    Add Images <AddIcon sx={{ fontSize: '20px' }} />
+                  </Button>
+                </label>
+              </Box>
+
+              {/* Image Display Section */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  mt: 10 // Adds spacing below the button without affecting it
+                }}
+              >
+                {selectedImages.map((image, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: 100,
+                      height: 100,
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      position: 'relative'
+                    }}
+                  >
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Selected ${index}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    {/* Delete Button (Appears on Hover) */}
+                    <IconButton
+                      sx={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 5,
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: 24,
+                        height: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        opacity: 0,
+                        transition: 'opacity 0.2s ease-in-out',
+                        '&:hover': { backgroundColor: 'black', opacity: 1 }
+                      }}
+                      onClick={() => handleImageDelete(index)}
+                    >
+                      <CloseIcon sx={{ fontSize: '16px' }} />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
             {/* Warranty Content */}
             <div id='section5'>
               {warrantyType !== 'None' && view && (

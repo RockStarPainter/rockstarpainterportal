@@ -83,7 +83,7 @@ const invoiceSchema = new Schema(
     },
     customer_remarks: { type: String, required: false },
     approval_token: { type: String, required: false }, // Unique token to track approval requests
-
+    images:[{type:String}],
     moreDetails: {}
   },
   { timestamps: true }

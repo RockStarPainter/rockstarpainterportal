@@ -25,6 +25,7 @@ export default function handler(req: any, res: any) {
     if (req.file && req.file.path) {
       return res.status(200).json({
         message: 'File uploaded successfully',
+        fileType: req.file.mimetype.includes('pdf') ? 'PDF' : 'Image',
         url: req.file.path // Cloudinary returns the uploaded file's URL in `path`
       })
     }
