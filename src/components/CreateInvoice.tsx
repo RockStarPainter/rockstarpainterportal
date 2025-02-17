@@ -159,7 +159,9 @@ const CreateInvoice = () => {
 
   // Generate default values dynamically
   const generateDefaultValues = (rows: any, cols: any) => {
-    const defaultValues: any = {}
+    const defaultValues: any = {
+      imageComments: ''
+    }
     defaultValues.interiorRows = []
     defaultValues.exteriorRows = []
     for (let row = 0; row < rows; row++) {
@@ -863,7 +865,8 @@ const CreateInvoice = () => {
 
         work_started_date: workStartedDate,
         work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null,
-        images: uploadedImageUrls
+        images: uploadedImageUrls,
+        imageComments: formData.imageComments
       }
 
       if (invoiceId) {
@@ -3190,6 +3193,52 @@ const CreateInvoice = () => {
                   </Box>
                 ))}
               </Box>
+            </Box>
+
+            {/* Add Comments Field */}
+            <Box sx={{ mt: 4, width: '100%' }}>
+              <Typography variant='h6' gutterBottom sx={{ fontWeight: 'bold', color: '#323232' }}>
+                Image Comments
+              </Typography>
+              {!view ? (
+                <FormControl fullWidth>
+                  <Controller
+                    name='imageComments'
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        multiline
+                        rows={4}
+                        placeholder='Add comments about the images...'
+                        variant='outlined'
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '8px',
+                            borderColor: '#B0B0B0',
+                            '&:hover fieldset': {
+                              borderColor: '#719E37'
+                            }
+                          }
+                        }}
+                      />
+                    )}
+                  />
+                </FormControl>
+              ) : (
+                <Typography
+                  variant='body1'
+                  sx={{
+                    p: 2,
+                    borderRadius: '8px',
+                    border: '1px solid #B0B0B0',
+                    minHeight: '120px',
+                    backgroundColor: '#F7F7F9'
+                  }}
+                >
+                  {allData?.imageComments || 'No image comments'}
+                </Typography>
+              )}
             </Box>
 
             {/* Warranty Content */}
