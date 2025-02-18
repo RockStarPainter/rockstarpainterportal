@@ -1562,11 +1562,13 @@ const CreateInvoice = () => {
     const templateID = 'template_nz7lf5l'
     const userID = '1rRx93iEXQmVegiJX'
 
+    const workStartedDateLocal = workStartedDate ? new Date(`${workStartedDate}T00:00`).toLocaleDateString() : 'N/A'
+
     const templateParams = {
       customer_name: allData.customer_name,
       to_email: allData.email,
       form_type: allData.form_type,
-      work_started_date: workStartedDate ? new Date(workStartedDate).toLocaleDateString() : 'N/A',
+      work_started_date: workStartedDateLocal,
       work_started_time: workStartedTime ? workStartedTime : 'N/A',
       invoice_id: invoiceId
     }
