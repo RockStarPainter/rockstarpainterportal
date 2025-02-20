@@ -3105,42 +3105,46 @@ const CreateInvoice = () => {
                   paddingTop: '20px'
                 }}
               >
-                {/* Hidden Input Field for File Selection */}
-                <input
-                  type='file'
-                  accept='image/*'
-                  multiple
-                  id='image-upload'
-                  style={{ display: 'none' }}
-                  onChange={handleImageChange}
-                />
-                <label htmlFor='image-upload'>
-                  <Button
-                    variant='outlined'
-                    component='span'
-                    sx={{
-                      border: '1px solid #B0B0B0', // Light border color
-                      borderRadius: '8px', // Rounded edges
-                      padding: '10px 20px',
-                      fontSize: '16px',
-                      fontWeight: 'bold',
-                      color: '#6D6D6D', // Grey text color
-                      textTransform: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px', // Spacing between icon and text
-                      backgroundColor: '#F7F7F9', // Background color matching the image
-                      transition: 'background-color 0.3s ease-in-out', // Smooth transition
-                      '&:hover': {
-                        backgroundColor: '#81a84e', // New color on hover
-                        color: 'black', // White text on hover for contrast
-                        border: '1px solid #81a84e' // Matching border on hover
-                      }
-                    }}
-                  >
-                    Add Images <AddIcon sx={{ fontSize: '20px' }} />
-                  </Button>
-                </label>
+                {/* Only show the file input and button when not in view mode */}
+                {!view && (
+                  <>
+                    <input
+                      type='file'
+                      accept='image/*'
+                      multiple
+                      id='image-upload'
+                      style={{ display: 'none' }}
+                      onChange={handleImageChange}
+                    />
+                    <label htmlFor='image-upload'>
+                      <Button
+                        variant='outlined'
+                        component='span'
+                        sx={{
+                          border: '1px solid #B0B0B0',
+                          borderRadius: '8px',
+                          padding: '10px 20px',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          color: '#6D6D6D',
+                          textTransform: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          backgroundColor: '#F7F7F9',
+                          transition: 'background-color 0.3s ease-in-out',
+                          '&:hover': {
+                            backgroundColor: '#81a84e',
+                            color: 'black',
+                            border: '1px solid #81a84e'
+                          }
+                        }}
+                      >
+                        Add Images <AddIcon sx={{ fontSize: '20px' }} />
+                      </Button>
+                    </label>
+                  </>
+                )}
               </Box>
 
               {/* Image Display Section */}
@@ -3150,50 +3154,72 @@ const CreateInvoice = () => {
                   justifyContent: 'center',
                   flexWrap: 'wrap',
                   gap: 2,
-                  mt: 10 // Adds spacing below the button without affecting it
+                  mt: 10
                 }}
               >
-                {selectedImages.map((image, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      width: 100,
-                      height: 100,
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      position: 'relative'
-                    }}
-                  >
-                    <img
-                      src={URL.createObjectURL(image)}
-                      alt={`Selected ${index}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                    {/* Delete Button (Appears on Hover) */}
-                    <IconButton
+                {/* When viewing existing images */}
+                {view &&
+                  allData?.images?.map((imageUrl: string, index: number) => (
+                    <Box
+                      key={index}
                       sx={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 5,
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                        color: 'white',
-                        borderRadius: '50%',
-                        width: 24,
-                        height: 24,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        opacity: 0,
-                        transition: 'opacity 0.2s ease-in-out',
-                        '&:hover': { backgroundColor: 'black', opacity: 1 }
+                        width: 100,
+                        height: 100,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        position: 'relative'
                       }}
-                      onClick={() => handleImageDelete(index)}
                     >
-                      <CloseIcon sx={{ fontSize: '16px' }} />
-                    </IconButton>
-                  </Box>
-                ))}
+                      <img
+                        src={imageUrl} // Use the URL directly
+                        alt={`Image ${index + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  ))}
+
+                {/* When displaying newly selected images */}
+                {!view &&
+                  selectedImages.map((image: File, index: number) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        position: 'relative'
+                      }}
+                    >
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Selected ${index + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                      <IconButton
+                        sx={{
+                          position: 'absolute',
+                          top: 5,
+                          right: 5,
+                          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: 24,
+                          height: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          opacity: 0,
+                          transition: 'opacity 0.2s ease-in-out',
+                          '&:hover': { backgroundColor: 'black', opacity: 1 }
+                        }}
+                        onClick={() => handleImageDelete(index)}
+                      >
+                        <CloseIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                    </Box>
+                  ))}
               </Box>
             </Box>
 
