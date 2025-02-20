@@ -1,5 +1,6 @@
 import connectDb from 'src/Backend/databaseConnection'
 import InvoiceModel from 'src/Backend/schemas/invoice'
+import UserModel from 'src/Backend/schemas/user'
 
 const handler = async (req: any, res: any) => {
   if (req.method === 'GET') {
@@ -7,6 +8,9 @@ const handler = async (req: any, res: any) => {
       const { role, userId } = req.query // Get role and userId from query params
 
       let invoices
+
+      // Make sure UserModel is used to prevent build errors
+      await UserModel.findOne({}) // Dummy query to ensure the UserModel is registered
 
       if (role === 'Admin') {
         // Admins get all invoices
