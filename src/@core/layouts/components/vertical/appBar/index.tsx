@@ -3,6 +3,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import useScrollTrigger from '@mui/material/useScrollTrigger'
 import MuiAppBar, { AppBarProps } from '@mui/material/AppBar'
 import MuiToolbar, { ToolbarProps } from '@mui/material/Toolbar'
+import { useRouter } from 'next/router'
 
 // ** Type Import
 import { LayoutProps } from 'src/@core/layouts/types'
@@ -49,9 +50,18 @@ const LayoutAppBar = (props: Props) => {
   // ** Hooks
   const theme = useTheme()
   const scrollTrigger = useScrollTrigger({ threshold: 0, disableHysteresis: true })
+  const router = useRouter()
 
   // ** Vars
   const { skin, appBar, appBarBlur, contentWidth } = settings
+
+  // Add check for specific routes where we want to hide the header
+  const hideHeaderPaths = ['/view-images'] // Add paths where header should be hidden
+
+  // Return null if we're on a path that should hide the header
+  if (appBar === 'hidden' || hideHeaderPaths.some(path => router.pathname.includes(path))) {
+    return null
+  }
 
   const appBarFixedStyles = () => {
     return {
@@ -63,9 +73,9 @@ const LayoutAppBar = (props: Props) => {
     }
   }
 
-  if (appBar === 'hidden') {
-    return null
-  }
+  // if (appBar === 'hidden') {
+  //   return null
+  // }
 
   let userAppBarStyle = {}
   if (appBarProps && appBarProps.sx) {
