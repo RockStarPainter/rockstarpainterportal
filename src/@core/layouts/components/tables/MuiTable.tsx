@@ -62,7 +62,7 @@ function MuiTable(props: any) {
     ),
 
     // Row styling
-    muiTableBodyRowProps: ({ row }) => ({
+    muiTableBodyRowProps: () => ({
       sx: {
         '&:hover': {
           backgroundColor: 'rgba(0, 0, 0, 0.04)',
