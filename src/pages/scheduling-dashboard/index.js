@@ -39,6 +39,7 @@ const Home = () => {
 
   const [deleting, setDeleting] = useState(false)
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(true) // Add loading state
 
   const fetchData = async () => {
     const storedData = localStorage.getItem('userData')
@@ -53,6 +54,7 @@ const Home = () => {
     const { role, _id } = userData
 
     try {
+      setIsLoading(true) // Set loading to true before fetching
       const res = await axios.get('/api/appointments/get-all', {
         headers: {
           authorization: localStorage.getItem('token')
@@ -86,6 +88,8 @@ const Home = () => {
     } catch (error) {
       console.log(error)
       toast.error('Error fetching data')
+    } finally {
+      setIsLoading(false) // Set loading to false after fetching
     }
   }
 
@@ -346,7 +350,10 @@ const Home = () => {
     enableSorting: false,
     enableDensityToggle: false,
     enableFullScreenToggle: false,
-    enableHiding: false
+    enableHiding: false,
+    state: {
+      isLoading // Add loading state to the table
+    }
   })
 
   return (

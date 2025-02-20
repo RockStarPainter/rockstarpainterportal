@@ -29,6 +29,7 @@ const Home = () => {
   const [openDialog, setOpenDialog] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   const fetchData = async () => {
@@ -44,6 +45,7 @@ const Home = () => {
     const { role, _id } = userData
 
     try {
+      setIsLoading(true)
       const res = await axios.get('/api/get-all', {
         headers: {
           authorization: localStorage.getItem('token')
@@ -70,6 +72,8 @@ const Home = () => {
     } catch (error) {
       console.log(error)
       toast.error('Error fetching data')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -297,7 +301,10 @@ const Home = () => {
     enableSorting: false,
     enableDensityToggle: false,
     enableFullScreenToggle: false,
-    enableHiding: false
+    enableHiding: false,
+    state: {
+      isLoading
+    }
   })
 
   return (
