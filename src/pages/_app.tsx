@@ -124,6 +124,7 @@ const App = (props: ExtendedAppProps) => {
         />
         <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
+        <link rel='icon' type='image/png' href='/images/rockstar-logo.png' />
       </Head>
 
       <AuthProvider>
