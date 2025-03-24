@@ -118,7 +118,7 @@ const FormItem: React.FC<FormItemProps> = ({ name, label, control, allData, view
 }
 
 emailjs.init({
-  publicKey: '1rRx93iEXQmVegiJX'
+  publicKey: 'eRfLom_ng8fyoXf1a'
 })
 const CreateInvoice = () => {
   const numRows = 18 // Number of rows in your table
@@ -749,7 +749,7 @@ const CreateInvoice = () => {
           // EmailJS configuration
           const serviceID = 'service_pypvnz1'
           const templateID = 'template_1lspwpp'
-          const userID = '1rRx93iEXQmVegiJX'
+          const userID = 'eRfLom_ng8fyoXf1a'
           if (!allData.email) {
             toast.error('No email address provided')
             setemailLoading(false)
@@ -1559,8 +1559,8 @@ const CreateInvoice = () => {
     setStatusLoading(true)
 
     const serviceID = 'service_pypvnz1'
-    const templateID = 'template_nz7lf5l'
-    const userID = '1rRx93iEXQmVegiJX'
+    const templateID = 'template_1lspwpp'
+    const userID = 'eRfLom_ng8fyoXf1a'
 
     const workStartedDateLocal = workStartedDate ? new Date(`${workStartedDate}T00:00`).toLocaleDateString() : 'N/A'
 
