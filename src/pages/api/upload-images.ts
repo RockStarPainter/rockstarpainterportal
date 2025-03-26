@@ -4,6 +4,8 @@ import multer from 'multer'
 export const config = {
   api: {
     bodyParser: false, // Let Multer handle file parsing
+    responseLimit: false,
+    bodyLimit: "50mb"  // Increase from default 4mb
   },
 };
 
