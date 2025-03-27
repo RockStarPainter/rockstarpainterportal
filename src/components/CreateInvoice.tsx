@@ -31,6 +31,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Grid } from '@mui/material'
+import { uploadImagesToCloudinary as clientUpload } from 'src/utils/cloudinaryUpload'
 
 // import Create from 'src/pages/create'
 import { Status, statusValues } from 'src/enums'
@@ -134,6 +135,7 @@ const CreateInvoice = () => {
   const userData: any = useUserData()
 
   const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [imagesToRemove, setImagesToRemove] = useState<number[]>([])
 
   // const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([])
 
@@ -155,6 +157,10 @@ const CreateInvoice = () => {
 
   const handleImageDelete = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handlePreviousImageDelete = (index: number) => {
+    setImagesToRemove(prev => [...prev, index])
   }
 
   // Generate default values dynamically
@@ -437,6 +443,14 @@ const CreateInvoice = () => {
         setInteriorWarrantyNote(tableData.interiorWarrantyNote || '')
         setExteriorWarrantyNote(tableData.exteriorWarrantyNote || '')
 
+        // Set image comments in the form data
+        defaultValues.imageComments = tableData.imageComments || ''
+
+        // If there are existing images, store their URLs for display
+        if (tableData.images && tableData.images.length > 0) {
+          console.log('Found existing images:', tableData.images)
+        }
+
         const benjaminOptions: { [key: string]: string[] } = {}
         tableData.benjamin_paints.forEach((paint: any) => {
           benjaminOptions[paint.paint_name] = paint.finishing_types
@@ -594,18 +608,11 @@ const CreateInvoice = () => {
 
   async function uploadImagesToCloudinary(files: File[]) {
     try {
-      const formData = new FormData()
-      files.forEach(file => formData.append('images', file)) // Append multiple images
+      // Use the client-side upload utility function to upload images
+      const uploadedUrls = await clientUpload(files)
 
-      const res = await axios.post('/api/upload-images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          authorization: localStorage.getItem('token')
-        }
-      })
-
-      if (res?.data?.urls) {
-        return res.data.urls // Return uploaded image URLs
+      if (uploadedUrls.length > 0) {
+        return uploadedUrls // Return uploaded image URLs
       } else {
         toast.error('Failed to upload images')
 
@@ -865,7 +872,10 @@ const CreateInvoice = () => {
 
         work_started_date: workStartedDate,
         work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null,
-        images: uploadedImageUrls,
+        images: [
+          ...uploadedImageUrls,
+          ...allData.images.filter((_image: string, index: number) => !imagesToRemove.includes(index))
+        ],
         imageComments: formData.imageComments
       }
 
@@ -3220,6 +3230,60 @@ const CreateInvoice = () => {
                       </IconButton>
                     </Box>
                   ))}
+
+                {/* When editing an existing invoice, show the existing images */}
+                {!view && invoiceId && allData?.images?.length > 0 && (
+                  <>
+                    <Divider sx={{ width: '100%', my: 2 }} />
+                    <Typography variant='subtitle1' sx={{ width: '100%', textAlign: 'center', mb: 2 }}>
+                      Previously Uploaded Images
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
+                      {allData.images.map((imageUrl: string, index: number) => (
+                        <Box
+                          key={`existing-${index}`}
+                          sx={{
+                            width: 100,
+                            height: 100,
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            position: 'relative',
+                            border: '2px solid #81a84e',
+                            display: imagesToRemove.includes(index) ? 'none' : 'block'
+                          }}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`Existing ${index + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                          <IconButton
+                            sx={{
+                              position: 'absolute',
+                              top: 5,
+                              right: 5,
+                              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                              color: 'white',
+                              borderRadius: '50%',
+                              width: 24,
+                              height: 24,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              opacity: 0,
+                              transition: 'opacity 0.2s ease-in-out',
+                              '&:hover': { backgroundColor: 'black', opacity: 1 }
+                            }}
+                            onClick={() => handlePreviousImageDelete(index)}
+                          >
+                            <CloseIcon sx={{ fontSize: '16px' }} />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Box>
+                  </>
+                )}
               </Box>
             </Box>
 
