@@ -874,7 +874,9 @@ const CreateInvoice = () => {
         work_started_time: workStartedTime instanceof Date ? workStartedTime.toLocaleTimeString() : null,
         images: [
           ...uploadedImageUrls,
-          ...allData.images.filter((_image: string, index: number) => !imagesToRemove.includes(index))
+          ...(allData?.images
+            ? allData.images.filter((_image: string, index: number) => !imagesToRemove.includes(index))
+            : [])
         ],
         imageComments: formData.imageComments
       }
@@ -898,7 +900,7 @@ const CreateInvoice = () => {
         toast.success('Invoice created successfully')
       }
     } catch (error) {
-      console.log(error)
+      console.log('invoice creation error:', error)
       toast.error('Network Error')
     } finally {
       setApiLoading(false)
