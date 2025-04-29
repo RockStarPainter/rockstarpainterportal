@@ -1571,7 +1571,7 @@ const CreateInvoice = () => {
     setStatusLoading(true)
 
     const serviceID = 'service_pypvnz1'
-    const templateID = 'template_1lspwpp'
+    const templateID = 'template_5myw1jn'
     const userID = 'eRfLom_ng8fyoXf1a'
 
     const workStartedDateLocal = workStartedDate ? new Date(`${workStartedDate}T00:00`).toLocaleDateString() : 'N/A'
