@@ -49,8 +49,12 @@ import { styled } from '@mui/system'
 import CustomerSection from './CustomerSection'
 import { toast } from 'react-hot-toast'
 import NewForm from './NewForm'
+import dynamic from 'next/dynamic'
+
+const VoiceInvoiceAssistant = dynamic(() => import('./VoiceInvoiceAssistant'), { ssr: false })
 import WarrantyContent from './WarrantyContent'
 import useUserData from 'src/hooks/useUserData'
+import { registerVoiceCustomerGroq } from 'src/lib/voiceForm/voiceCustomerGroqBridge'
 
 interface FormItemProps {
   name: string
@@ -128,6 +132,7 @@ const CreateInvoice = () => {
   const eNumCols = 2 // Number of columns in each row
   const router = useRouter()
   const { invoiceId, view } = router.query
+  const isViewMode = view === 'true' || (Array.isArray(view) && view[0] === 'true')
   const [warrantyType, setWarrantyType] = useState<'None' | 'Interior' | 'Exterior' | 'Both'>('None')
   const [interiorWarranty, setInteriorWarranty] = useState('')
   const [exteriorWarranty, setExteriorWarranty] = useState('')
@@ -312,7 +317,7 @@ const CreateInvoice = () => {
   const methods = useForm({
     defaultValues
   })
-  const { control, handleSubmit, reset, getValues } = methods
+  const { control, handleSubmit, reset, getValues, setValue, setFocus } = methods
 
   const [isLoading, setIsLoading] = useState(true)
   const [apiLoading, setApiLoading] = useState(false)
@@ -341,6 +346,11 @@ const CreateInvoice = () => {
   const [showCaulkSealantPaintsList, setShowCaulkSealantPaintsList] = useState(false)
   const [interiorWarrantyNote, setInteriorWarrantyNote] = useState('') // New state
   const [exteriorWarrantyNote, setExteriorWarrantyNote] = useState('') // New state
+  const [voiceFlashFields, setVoiceFlashFields] = useState<string[]>([])
+  const [voiceAssistHighlight, setVoiceAssistHighlight] = useState<{
+    paths: string[]
+    kind: 'fill' | 'correct'
+  } | null>(null)
 
   const rows = 5 // Define the number of rows
   const cols = 3 // Define the number of columns
@@ -381,6 +391,40 @@ const CreateInvoice = () => {
       setShowCaulkSealantPaintsList(true) // Auto-expand Caulk Sealant paints in view mode
     }
   }, [view, selectedSherwin, selectedBenjamin, selectedPrimerConcrete, selectedPrimer, selectedCaulkSealant])
+
+  useEffect(() => {
+    if (!voiceFlashFields.length) return
+    const t = window.setTimeout(() => setVoiceFlashFields([]), 2400)
+
+    return () => clearTimeout(t)
+  }, [voiceFlashFields])
+
+  useEffect(() => {
+    if (!voiceAssistHighlight?.paths.length) return
+    const t = window.setTimeout(() => setVoiceAssistHighlight(null), 2400)
+
+    return () => clearTimeout(t)
+  }, [voiceAssistHighlight])
+
+  useEffect(() => {
+    registerVoiceCustomerGroq({
+      disabled: isViewMode,
+      setValue,
+      getValues,
+      setFocus,
+      setInvoiceStatus: v => setStatus(v),
+      focusInvoiceStatus: () => {
+        document.getElementById('invoice-status-select')?.focus()
+      },
+      setInvoiceType: v => setInvoiceType(v),
+      setWarrantyType: v => setWarrantyType(v),
+      focusInvoiceService: () => document.getElementById('invoice-service-select')?.focus(),
+      focusInvoiceWarranty: () => document.getElementById('invoice-warranty-select')?.focus(),
+      onCustomerFieldsApplied: fields => setVoiceFlashFields(fields as string[])
+    })
+
+    return () => registerVoiceCustomerGroq(null)
+  }, [isViewMode, setValue, getValues, setFocus, setInvoiceType, setWarrantyType, setStatus])
 
   const handleDialogOpen = () => {
     setIsDialogOpen(true)
@@ -1074,9 +1118,10 @@ const CreateInvoice = () => {
     label: string
     error: boolean
     onChange: (event: any) => void
+    sx?: object
   }
-  const CustomInput = forwardRef(({ ...props }: CustomInputProps, ref) => {
-    return <TextField inputRef={ref} {...props} sx={{ width: '100%' }} />
+  const CustomInput = forwardRef(({ sx: inputSx, ...props }: CustomInputProps, ref) => {
+    return <TextField inputRef={ref} {...props} sx={{ width: '100%', ...(inputSx ?? {}) }} />
   })
 
   const sherwinPaints = [
@@ -1701,6 +1746,20 @@ const CreateInvoice = () => {
       <div id='pdf-content' style={{ padding: 20 }}>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
+            <VoiceInvoiceAssistant
+              disabled={isViewMode}
+              getValues={getValues}
+              setValue={setValue}
+              reset={reset}
+              setFocus={setFocus}
+              selectedOption={selectedOption}
+              setSelectedOption={setSelectedOption}
+              invoiceType={invoiceType}
+              setInvoiceType={setInvoiceType}
+              warrantyType={warrantyType}
+              setWarrantyType={setWarrantyType}
+              onRealtimeCustomerVoiceApplied={(paths, kind) => setVoiceAssistHighlight({ paths, kind })}
+            />
             <div id='CustomerWithSingle'>
               <div id='CustomerWithExterior'>
                 <div id='section1'>
@@ -1732,6 +1791,19 @@ const CreateInvoice = () => {
                                           label={'Issue Date'}
                                           error={false}
                                           aria-describedby='validation-basic-dob'
+                                          sx={{
+                                            '& .MuiOutlinedInput-root':
+                                              voiceAssistHighlight?.paths.includes('issue_date') && voiceAssistHighlight
+                                                ? {
+                                                    boxShadow:
+                                                      voiceAssistHighlight.kind === 'correct'
+                                                        ? '0 0 0 3px rgba(249, 115, 22, 0.55)'
+                                                        : '0 0 0 3px rgba(34, 197, 94, 0.45)',
+                                                    borderRadius: 1,
+                                                    transition: 'box-shadow 0.35s ease'
+                                                  }
+                                                : {}
+                                          }}
                                         />
                                       }
                                     />
@@ -1749,6 +1821,25 @@ const CreateInvoice = () => {
                                       label={c.label}
                                       onChange={onChange}
                                       aria-describedby='validation-basic-last-name'
+                                      sx={{
+                                        '& .MuiOutlinedInput-root':
+                                          voiceAssistHighlight?.paths.includes(c.name) && voiceAssistHighlight
+                                            ? {
+                                                boxShadow:
+                                                  voiceAssistHighlight.kind === 'correct'
+                                                    ? '0 0 0 3px rgba(249, 115, 22, 0.55)'
+                                                    : '0 0 0 3px rgba(34, 197, 94, 0.45)',
+                                                borderRadius: 1,
+                                                transition: 'box-shadow 0.35s ease'
+                                              }
+                                            : voiceFlashFields.includes(c.name)
+                                              ? {
+                                                  boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.45)',
+                                                  borderRadius: 1,
+                                                  transition: 'box-shadow 0.35s ease'
+                                                }
+                                              : {}
+                                      }}
                                     />
                                   )}
                                 />
@@ -1772,11 +1863,24 @@ const CreateInvoice = () => {
                     })}
                   </Grid>
                   {!view && (
-                    <FormControl fullWidth sx={{ mt: 10 }}>
-                      <InputLabel id='demo-simple-select-label'>Select Status</InputLabel>
+                    <FormControl
+                      fullWidth
+                      sx={{
+                        mt: 10,
+                        '& .MuiOutlinedInput-root':
+                          voiceFlashFields.includes('invoice_status')
+                            ? {
+                                boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.45)',
+                                borderRadius: 1,
+                                transition: 'box-shadow 0.35s ease'
+                              }
+                            : {}
+                      }}
+                    >
+                      <InputLabel id='invoice-status-select-label'>Select Status</InputLabel>
                       <Select
-                        labelId='demo-simple-select-label'
-                        id='demo-simple-select'
+                        labelId='invoice-status-select-label'
+                        id='invoice-status-select'
                         value={status}
                         label='Select Status'
                         onChange={(e: any) => setStatus(e.target.value)}
@@ -1792,11 +1896,24 @@ const CreateInvoice = () => {
                     </FormControl>
                   )}
                   {!view && (
-                    <FormControl fullWidth sx={{ mt: 10 }}>
-                      <InputLabel id='demo-simple-select-label'>Select Service</InputLabel>
+                    <FormControl
+                      fullWidth
+                      sx={{
+                        mt: 10,
+                        '& .MuiOutlinedInput-root':
+                          voiceFlashFields.includes('invoice_service')
+                            ? {
+                                boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.45)',
+                                borderRadius: 1,
+                                transition: 'box-shadow 0.35s ease'
+                              }
+                            : {}
+                      }}
+                    >
+                      <InputLabel id='invoice-service-select-label'>Select Service</InputLabel>
                       <Select
-                        labelId='demo-simple-select-label'
-                        id='demo-simple-select'
+                        labelId='invoice-service-select-label'
+                        id='invoice-service-select'
                         value={invoiceType}
                         label='Select Service'
                         onChange={e => setInvoiceType(e.target.value)}
@@ -1813,10 +1930,26 @@ const CreateInvoice = () => {
                   )}
                   {/* Add Warranty Dropdown */}
                   {!view && (
-                    <FormControl fullWidth margin='normal'>
-                      <InputLabel>Add Warranty</InputLabel>
+                    <FormControl
+                      fullWidth
+                      margin='normal'
+                      sx={{
+                        '& .MuiOutlinedInput-root':
+                          voiceFlashFields.includes('invoice_warranty')
+                            ? {
+                                boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.45)',
+                                borderRadius: 1,
+                                transition: 'box-shadow 0.35s ease'
+                              }
+                            : {}
+                      }}
+                    >
+                      <InputLabel id='invoice-warranty-select-label'>Add Warranty</InputLabel>
                       <Select
+                        labelId='invoice-warranty-select-label'
+                        id='invoice-warranty-select'
                         value={warrantyType}
+                        label='Add Warranty'
                         onChange={e => setWarrantyType(e.target.value as 'None' | 'Interior' | 'Exterior' | 'Both')}
                       >
                         <MenuItem value='None'>None</MenuItem>

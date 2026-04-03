@@ -1,0 +1,362 @@
+/* Floating STT widget — utility-style tokens (Tailwind-like) without adding Tailwind */
+
+.launcher {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1300;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #6366f1 0%, #4f46e5 55%, #4338ca 100%);
+  color: #fff;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.12),
+    0 4px 6px -4px rgb(0 0 0 / 0.08);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.launcher:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:
+    0 20px 25px -5px rgb(99 102 241 / 0.35),
+    0 8px 10px -6px rgb(0 0 0 / 0.12);
+}
+
+.launcher:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1290;
+  /* Invisible layer so clicking outside closes the panel; no blur or tint on the page */
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+/* When open, accept clicks outside the card to close */
+.backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panelWrap {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 5.5rem;
+  z-index: 1310;
+  width: min(22rem, calc(100vw - 2rem));
+  transform-origin: bottom right;
+  transform: scale(0.92) translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.24s cubic-bezier(0.34, 1.2, 0.64, 1),
+    opacity 0.2s ease;
+}
+
+.panelWrap.visible {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panelWrapWide {
+  width: min(26rem, calc(100vw - 2rem));
+  max-height: min(85vh, 560px);
+}
+
+.panelWrapWide .panel {
+  max-height: min(85vh, 560px);
+  overflow: hidden;
+}
+
+.panelWrapWide .body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel {
+  border-radius: 1rem;
+  background: #fff;
+  color: #0f172a;
+  box-shadow:
+    0 25px 50px -12px rgb(0 0 0 / 0.25),
+    0 0 0 1px rgb(15 23 42 / 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.closeBtn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.statusDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dotIdle {
+  background: #94a3b8;
+}
+
+.dotListening {
+  background: #ef4444;
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.dotProcessing {
+  background: #6366f1;
+  animation: pulseDot 0.8s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.15);
+  }
+}
+
+.body {
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.micRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.micBtn {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  color: #475569;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.micBtn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.micBtn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.micBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.micBtn.recording {
+  background: linear-gradient(145deg, #fecaca 0%, #f87171 100%);
+  color: #fff;
+  animation: micPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgb(239 68 68 / 0);
+  }
+}
+
+.textarea {
+  width: 100%;
+  min-height: 6.5rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.2);
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #dc2626;
+  line-height: 1.4;
+}
+
+.liveBox {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+}
+
+.liveMeta {
+  margin: 0 0 0.35rem;
+  font-size: 0.6875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.liveText {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #0f172a;
+}
+
+.liveTextMuted {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.liveWarn {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #b45309;
+}
+
+.textBtn {
+  align-self: flex-start;
+  padding: 0.35rem 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.textBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.textBtn:hover:not(:disabled) {
+  color: #4338ca;
+}
+
+.actionRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+}
+
+.undoBtn {
+  padding: 0.35rem 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.undoBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.undoBtn:hover:not(:disabled) {
+  color: #0f172a;
+}

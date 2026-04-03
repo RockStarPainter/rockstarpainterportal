@@ -1,4 +1,8 @@
+import dns from 'dns'
 import mongoose from 'mongoose'
+
+// System DNS sometimes refuses SRV queries (querySrv ECONNREFUSED); Atlas needs SRV for mongodb+srv://
+dns.setServers(['8.8.8.8', '1.1.1.1'])
 
 const connectDb = (handler: any) => async (req: any, res: any) => {
   if (mongoose.connections[0].readyState) {

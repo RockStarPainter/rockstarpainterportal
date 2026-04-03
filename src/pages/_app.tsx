@@ -61,6 +61,7 @@ import GuestGuard from 'src/@core/components/auth/GuestGuard'
 import Spinner from 'src/@core/components/spinner'
 import AuthGuard from 'src/@core/components/auth/AuthGuard'
 import { AuthProvider } from 'src/context/AuthContext'
+import GroqSpeechToText from 'src/components/GroqSpeechToText'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -139,6 +140,7 @@ const App = (props: ExtendedAppProps) => {
                   <ReactHotToast>
                     <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
                   </ReactHotToast>
+                  <GroqSpeechToText />
                 </ThemeComponent>
               )
             }}
