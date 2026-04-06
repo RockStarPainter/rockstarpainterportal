@@ -4,6 +4,10 @@
  */
 
 import { parseVoiceIntentText } from 'src/lib/voiceIntent/parseVoiceIntent'
+import {
+  isMeaningfulCustomerVoiceValue,
+  normalizeVoiceCustomerFieldValue
+} from 'src/lib/voiceForm/voiceCustomerFieldNormalize'
 
 /** RHF field names used in CreateInvoice customer section */
 export type CustomerRhfField =
@@ -74,9 +78,10 @@ export function parseAllCustomerVoiceCommands(text: string): CustomerVoiceComman
   const out: CustomerVoiceCommand[] = []
   for (const u of updates) {
     if (u.target !== 'rhf' || !u.path || !CUSTOMER_PATHS.has(u.path)) continue
-    const value = String(u.value ?? '').trim()
-    if (!value) continue
-    out.push({ field: u.path as CustomerRhfField, value })
+    const field = u.path as CustomerRhfField
+    const value = normalizeVoiceCustomerFieldValue(String(u.value ?? '').trim(), field)
+    if (!isMeaningfulCustomerVoiceValue(value, field)) continue
+    out.push({ field, value })
   }
 
   return out

@@ -1,36 +1,7 @@
-import { FormTypes, InvoiceTypes } from 'src/enums/FormTypes'
+import { InvoiceTypes } from 'src/enums/FormTypes'
 import type { VoiceIntentResponse, VoiceIntentUpdate } from 'src/types/voiceIntent'
-
-const INTERIOR_ROOMS: string[] = [
-  'OFFICE/STUDY',
-  'LIVING ROOM',
-  'ENTRY',
-  'HALLWAY',
-  'KITCHEN',
-  'MASTER BED',
-  'MASTER BATH',
-  'BEDROOM A',
-  'BEDROOM B',
-  'BATHROOM B',
-  'BEDROOM C',
-  'LAUNDRY ROOM',
-  'BASEMENT',
-  'REPAIR',
-  'DRY WALL',
-  'BUILT-IN BOOK SHELVES',
-  'CABINETS',
-  'POWDER BATHROOM'
-]
-
-const INTERIOR_SURFACES: Record<string, number> = {
-  wall: 1,
-  walls: 1,
-  ceiling: 2,
-  closet: 3,
-  door: 4,
-  baseboard: 5,
-  baseboards: 5
-}
+import { extractFormTypeOptionFromSegment } from 'src/lib/voiceForm/parseInvoiceMetaVoice'
+import { parseInteriorVoiceToUpdates } from 'src/lib/voiceIntent/parseInteriorVoiceIntent'
 
 const EXTERIOR_ROWS: string[] = [
   'BODY SIDING',
@@ -51,36 +22,6 @@ const EXTERIOR_ROWS: string[] = [
   'BRICKS',
   'REPLACE GARAGE WEATHER STRIP'
 ]
-
-const ROOM_ALIASES: Record<string, string> = {
-  'office': 'OFFICE/STUDY',
-  'study': 'OFFICE/STUDY',
-  'living room': 'LIVING ROOM',
-  'lr': 'LIVING ROOM',
-  entry: 'ENTRY',
-  hallway: 'HALLWAY',
-  hall: 'HALLWAY',
-  kitchen: 'KITCHEN',
-  'master bed': 'MASTER BED',
-  'master bedroom': 'MASTER BED',
-  'master bath': 'MASTER BATH',
-  'bedroom a': 'BEDROOM A',
-  'bedroom b': 'BEDROOM B',
-  'bedroom c': 'BEDROOM C',
-  'bathroom b': 'BATHROOM B',
-  'laundry room': 'LAUNDRY ROOM',
-  laundry: 'LAUNDRY ROOM',
-  basement: 'BASEMENT',
-  repair: 'REPAIR',
-  repairs: 'REPAIR',
-  'dry wall': 'DRY WALL',
-  drywall: 'DRY WALL',
-  'built-in book shelves': 'BUILT-IN BOOK SHELVES',
-  cabinets: 'CABINETS',
-  cabinet: 'CABINETS',
-  'powder bathroom': 'POWDER BATHROOM',
-  'powder room': 'POWDER BATHROOM'
-}
 
 const EXTERIOR_ALIASES: Record<string, string> = {
   siding: 'BODY SIDING',
@@ -522,33 +463,13 @@ export function parseVoiceIntentText(raw: string): VoiceIntentResponse {
     })
   }
 
-  if (/\bestimate\b/i.test(text) && !/\bcontract\b/i.test(text)) {
+  const formTypeFromVoice = extractFormTypeOptionFromSegment(text)
+  if (formTypeFromVoice != null) {
     pushUnique(updates, {
       target: 'state',
       key: 'selectedOption',
-      value: FormTypes.ESTIMATE,
-      confidence: 0.92,
-      source: 'rule'
-    })
-  }
-  if (/\bcontract\b/i.test(text) && !/\bestimate\b/i.test(text)) {
-    pushUnique(updates, {
-      target: 'state',
-      key: 'selectedOption',
-      value: FormTypes.CONTRACT,
-      confidence: 0.9,
-      source: 'rule'
-    })
-  }
-  if (
-    /\b(set|this is|make it)\s+(an?\s+)?invoice\b/i.test(text) ||
-    (/^\s*invoice\s*$/i.test(text.trim()) && text.length < 20)
-  ) {
-    pushUnique(updates, {
-      target: 'state',
-      key: 'selectedOption',
-      value: FormTypes.INVOICE,
-      confidence: 0.85,
+      value: formTypeFromVoice,
+      confidence: 0.93,
       source: 'rule'
     })
   }
@@ -616,42 +537,8 @@ export function parseVoiceIntentText(raw: string): VoiceIntentResponse {
     }
   }
 
-  let matchedInterior = false
-  for (const [alias, canonical] of Object.entries(ROOM_ALIASES)) {
-    if (!lower.includes(alias)) continue
-    const rowIndex = INTERIOR_ROOMS.indexOf(canonical)
-    if (rowIndex < 0) continue
-    for (const [surf, col] of Object.entries(INTERIOR_SURFACES)) {
-      if (lower.includes(surf)) {
-        pushUnique(updates, {
-          target: 'rhf',
-          path: `interiorRows.row-${rowIndex}-col-${col}`,
-          value: true,
-          confidence: 0.86,
-          source: 'rule'
-        })
-        matchedInterior = true
-        break
-      }
-    }
-  }
-  if (!matchedInterior) {
-    for (const [alias, canonical] of Object.entries(ROOM_ALIASES)) {
-      if (!lower.includes(alias)) continue
-      const rowIndex = INTERIOR_ROOMS.indexOf(canonical)
-      if (rowIndex < 0) continue
-      if (/\bwall\b|\bwalls\b|\bceil|\bcloset|\bdoor|\bbase\b/i.test(lower)) continue
-      if (/\broom\b/i.test(lower) || alias.length > 3) {
-        pushUnique(updates, {
-          target: 'rhf',
-          path: `interiorRows.row-${rowIndex}-col-1`,
-          value: true,
-          confidence: 0.78,
-          source: 'rule'
-        })
-        break
-      }
-    }
+  for (const u of parseInteriorVoiceToUpdates(text)) {
+    pushUnique(updates, u)
   }
 
   for (const [alias, canonical] of Object.entries(EXTERIOR_ALIASES)) {

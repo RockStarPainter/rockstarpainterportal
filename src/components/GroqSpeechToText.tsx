@@ -23,6 +23,12 @@ import {
   snapshotCustomerVoiceFields,
   type CustomerVoiceSnapshot
 } from 'src/lib/voiceForm/customerVoiceSnapshot'
+import {
+  getCustomerScopeConsumeAdvance,
+  trimTextBeforeInvoiceMetaCues
+} from 'src/lib/voiceForm/incrementalCustomerVoice'
+import { normalizeVoiceTypos } from 'src/lib/voiceForm/parseCustomerVoiceCommands'
+import { applyVoiceIntentRhfFromText } from 'src/lib/voiceIntent/applyVoiceIntentToForm'
 import { toast } from 'react-hot-toast'
 import styles from './GroqSpeechToText.module.css'
 
@@ -59,7 +65,15 @@ export default function GroqSpeechToText() {
   const liveVoiceStateRef = useRef<LiveVoiceApplyState>(createLiveVoiceApplyState())
   const invoiceMetaLiveStateRef = useRef<InvoiceMetaLiveState>(createInvoiceMetaLiveState())
   const liveGateRef = useRef(false)
-  const clearTranscriptRef = useRef<() => void>(() => {})
+  const clearTranscriptRef = useRef<() => void>(() => {
+    void 0
+  })
+
+  /** Leading chars of typo-normalized, meta-trimmed customer scope already applied (avoid full transcript clear). */
+  const customerScopeCursorRef = useRef(0)
+
+  /** Full voice intent (interior + exterior + customer RHF, etc.) while Groq streams — no wait for stop. */
+  const voiceIntentLiveDebounceRef = useRef<number | null>(null)
 
   useEffect(() => {
     invoiceCtxRef.current = invoiceCtx
@@ -69,6 +83,14 @@ export default function GroqSpeechToText() {
     if (!liveGateRef.current) return
     const ctx = invoiceCtxRef.current
     if (!ctx || ctx.disabled) return
+
+    const fullScope = trimTextBeforeInvoiceMetaCues(normalizeVoiceTypos(combined).trim())
+    if (customerScopeCursorRef.current > fullScope.length) {
+      customerScopeCursorRef.current = 0
+    }
+    const offset = customerScopeCursorRef.current
+    const advance = getCustomerScopeConsumeAdvance(fullScope.slice(offset))
+
     const customerTouched = applyIncrementalCustomerVoiceForm(
       combined,
       {
@@ -76,7 +98,8 @@ export default function GroqSpeechToText() {
         setFocus: ctx.setFocus,
         onCustomerFieldsApplied: ctx.onCustomerFieldsApplied
       },
-      liveVoiceStateRef.current
+      liveVoiceStateRef.current,
+      { customerScopeOffset: offset }
     )
     const metaTouched = applyIncrementalInvoiceMetaForm(
       combined,
@@ -85,6 +108,7 @@ export default function GroqSpeechToText() {
         setFocus: ctx.setFocus,
         setInvoiceStatus: ctx.setInvoiceStatus,
         focusInvoiceStatus: ctx.focusInvoiceStatus,
+        setFormTypeOption: ctx.setFormTypeOption,
         setInvoiceType: ctx.setInvoiceType,
         setWarrantyType: ctx.setWarrantyType,
         focusInvoiceService: ctx.focusInvoiceService,
@@ -93,7 +117,31 @@ export default function GroqSpeechToText() {
       },
       invoiceMetaLiveStateRef.current
     )
-    if (customerTouched || metaTouched) clearTranscriptRef.current()
+    if (customerTouched && advance > 0) {
+      customerScopeCursorRef.current = Math.min(offset + advance, fullScope.length)
+    }
+    const skipClearForConsumedPrefix = customerTouched && advance > 0
+    if ((customerTouched || metaTouched) && !skipClearForConsumedPrefix) {
+      clearTranscriptRef.current()
+    }
+
+    const ctxIntent = invoiceCtxRef.current
+    if (ctxIntent?.setValue && !ctxIntent.disabled) {
+      const snapCombined = normalizeVoiceTypos(combined).trim()
+      if (voiceIntentLiveDebounceRef.current) clearTimeout(voiceIntentLiveDebounceRef.current)
+      voiceIntentLiveDebounceRef.current = window.setTimeout(() => {
+        voiceIntentLiveDebounceRef.current = null
+        const ctx = invoiceCtxRef.current
+        if (!ctx?.setValue || ctx.disabled) return
+        applyVoiceIntentRhfFromText(snapCombined, {
+          setValue: ctx.setValue,
+          setFocus: ctx.setFocus,
+          suppressFocus: true,
+          onPathsApplied: ctx.onVoiceIntentRhfApplied,
+          debugLabel: '[Groq live]'
+        })
+      }, 75)
+    }
   }, [])
 
   const voiceOptions = useMemo(
@@ -102,6 +150,14 @@ export default function GroqSpeechToText() {
   )
 
   const { isRecording, isTranscribing, error, clearError, startRecording, stopRecording } = useGroqSpeechRecorder()
+
+  useEffect(() => {
+    if (isRecording) return
+    if (voiceIntentLiveDebounceRef.current != null) {
+      clearTimeout(voiceIntentLiveDebounceRef.current)
+      voiceIntentLiveDebounceRef.current = null
+    }
+  }, [isRecording])
 
   const {
     supported: voiceSupported,
@@ -215,11 +271,18 @@ export default function GroqSpeechToText() {
             setFocus: invoiceCtx.setFocus,
             setInvoiceStatus: invoiceCtx.setInvoiceStatus,
             focusInvoiceStatus: invoiceCtx.focusInvoiceStatus,
+            setFormTypeOption: invoiceCtx.setFormTypeOption,
             setInvoiceType: invoiceCtx.setInvoiceType,
             setWarrantyType: invoiceCtx.setWarrantyType,
             focusInvoiceService: invoiceCtx.focusInvoiceService,
             focusInvoiceWarranty: invoiceCtx.focusInvoiceWarranty,
             onHighlight: invoiceCtx.onCustomerFieldsApplied
+          })
+          applyVoiceIntentRhfFromText(text, {
+            setValue: invoiceCtx.setValue,
+            setFocus: invoiceCtx.setFocus,
+            onPathsApplied: invoiceCtx.onVoiceIntentRhfApplied,
+            debugLabel: '[Groq stop]'
           })
           if (ok && snap) {
             setCanUndoCustomerVoice(true)
@@ -240,6 +303,7 @@ export default function GroqSpeechToText() {
     } else {
       voiceStop()
       clearTranscript()
+      customerScopeCursorRef.current = 0
       liveVoiceStateRef.current = createLiveVoiceApplyState()
       invoiceMetaLiveStateRef.current = createInvoiceMetaLiveState()
       if (fillCustomer && invoiceCtx?.getValues) {
@@ -278,11 +342,18 @@ export default function GroqSpeechToText() {
         setFocus: invoiceCtx.setFocus,
         setInvoiceStatus: invoiceCtx.setInvoiceStatus,
         focusInvoiceStatus: invoiceCtx.focusInvoiceStatus,
+        setFormTypeOption: invoiceCtx.setFormTypeOption,
         setInvoiceType: invoiceCtx.setInvoiceType,
         setWarrantyType: invoiceCtx.setWarrantyType,
         focusInvoiceService: invoiceCtx.focusInvoiceService,
         focusInvoiceWarranty: invoiceCtx.focusInvoiceWarranty,
         onHighlight: invoiceCtx.onCustomerFieldsApplied
+      })
+      applyVoiceIntentRhfFromText(transcript, {
+        setValue: invoiceCtx.setValue,
+        setFocus: invoiceCtx.setFocus,
+        onPathsApplied: invoiceCtx.onVoiceIntentRhfApplied,
+        debugLabel: '[Groq transcript]'
       })
       if (ok && snap) {
         undoCustomerSnapRef.current = snap

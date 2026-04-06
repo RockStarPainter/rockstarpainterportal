@@ -86,6 +86,21 @@ export function preprocessVoiceForRealtimeIntent(raw: string): string {
     }
   }
 
+  // Interior work order: compact window correction phrasing
+  const winCh = s.match(/\bchange\s+(?:that\s+to\s+)?(yes|no)\s+for\s+window\s+(trim|seal)\b/i)
+  if (winCh) {
+    const kind = winCh[2].toLowerCase().startsWith('trim') ? 'trim' : 'seal'
+
+    return `${winCh[1]} window ${kind}`
+  }
+
+  // "actually no doors in bedroom a" → drop leading filler for re-parse
+  if (/\bactually\b/i.test(s) && /\b(bedroom|kitchen|hallway|living|bathroom|window|ceiling|walls?|doors?)\b/i.test(s)) {
+    const stripped = s.replace(/^\s*actually\s*,?\s*/i, '').replace(/\bwrong\b/gi, '').trim()
+
+    return stripped.length >= 8 ? stripped : s
+  }
+
   return s
 }
 

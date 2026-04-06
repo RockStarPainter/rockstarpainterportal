@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from 'react'
+import React, { forwardRef, useCallback, useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { useForm, Controller, FormProvider } from 'react-hook-form'
@@ -55,6 +55,7 @@ const VoiceInvoiceAssistant = dynamic(() => import('./VoiceInvoiceAssistant'), {
 import WarrantyContent from './WarrantyContent'
 import useUserData from 'src/hooks/useUserData'
 import { registerVoiceCustomerGroq } from 'src/lib/voiceForm/voiceCustomerGroqBridge'
+import { applyInteriorCustomerProfile } from 'src/lib/voiceForm/interiorFormVoiceAgent'
 
 interface FormItemProps {
   name: string
@@ -173,8 +174,8 @@ const CreateInvoice = () => {
     const defaultValues: any = {
       imageComments: ''
     }
-    defaultValues.interiorRows = []
-    defaultValues.exteriorRows = []
+    defaultValues.interiorRows = {}
+    defaultValues.exteriorRows = {}
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         defaultValues.interiorRows[`row-${row}-col-${col + 1}`] = false
@@ -188,7 +189,24 @@ const CreateInvoice = () => {
     defaultValues.customer_name = ''
     defaultValues.interiorData = {
       paint_textarea: '',
-      stain_textarea: ''
+      stain_textarea: '',
+      window: {
+        'row-0-col-2': false,
+        'row-0-col-3': false,
+        'row-1-col-2': false,
+        'row-1-col-3': false
+      },
+      extras: {
+        paint: false,
+        patch_cracks: false,
+        primer: false,
+        apply_primer: false,
+        paper: false,
+        caulking: false,
+        plastic: false,
+        stain: false,
+        tape: false
+      }
     }
     defaultValues.exteriorData = {
       paint_textarea: '',
@@ -352,6 +370,22 @@ const CreateInvoice = () => {
     kind: 'fill' | 'correct'
   } | null>(null)
 
+  const voicePathHighlightSx = useCallback(
+    (path: string) => {
+      if (!voiceAssistHighlight?.paths.includes(path)) return {}
+
+      return {
+        boxShadow:
+          voiceAssistHighlight.kind === 'correct'
+            ? '0 0 0 3px rgba(249, 115, 22, 0.55)'
+            : '0 0 0 3px rgba(34, 197, 94, 0.45)',
+        borderRadius: 1,
+        transition: 'box-shadow 0.35s ease'
+      }
+    },
+    [voiceAssistHighlight]
+  )
+
   const rows = 5 // Define the number of rows
   const cols = 3 // Define the number of columns
 
@@ -407,11 +441,12 @@ const CreateInvoice = () => {
   }, [voiceAssistHighlight])
 
   useEffect(() => {
-    registerVoiceCustomerGroq({
+      registerVoiceCustomerGroq({
       disabled: isViewMode,
       setValue,
       getValues,
       setFocus,
+      setFormTypeOption: v => setSelectedOption(v),
       setInvoiceStatus: v => setStatus(v),
       focusInvoiceStatus: () => {
         document.getElementById('invoice-status-select')?.focus()
@@ -420,7 +455,12 @@ const CreateInvoice = () => {
       setWarrantyType: v => setWarrantyType(v),
       focusInvoiceService: () => document.getElementById('invoice-service-select')?.focus(),
       focusInvoiceWarranty: () => document.getElementById('invoice-warranty-select')?.focus(),
-      onCustomerFieldsApplied: fields => setVoiceFlashFields(fields as string[])
+      onCustomerFieldsApplied: fields => setVoiceFlashFields(fields as string[]),
+      onVoiceIntentRhfApplied: paths => {
+        if (paths.length) setVoiceAssistHighlight({ paths, kind: 'fill' })
+      },
+      applyInteriorProfile: profile =>
+        applyInteriorCustomerProfile({ setValue, getValues }, profile, { runWindowValidation: true })
     })
 
     return () => registerVoiceCustomerGroq(null)
@@ -481,8 +521,8 @@ const CreateInvoice = () => {
     if (invoiceId) {
       axios.post(`/api/get`, { invoiceId }).then(response => {
         const defaultValues: any = {}
-        defaultValues.interiorRows = []
-        defaultValues.exteriorRows = []
+        defaultValues.interiorRows = {}
+        defaultValues.exteriorRows = {}
         const tableData = response.data.payload.data
         setInteriorWarrantyNote(tableData.interiorWarrantyNote || '')
         setExteriorWarrantyNote(tableData.exteriorWarrantyNote || '')
@@ -1763,7 +1803,11 @@ const CreateInvoice = () => {
             <div id='CustomerWithSingle'>
               <div id='CustomerWithExterior'>
                 <div id='section1'>
-                  <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                  <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
                   {/* <Button onClick={() => reset()}>Reset</Button> */}
                   <StyledTypography>CUSTOMER DETAILS</StyledTypography>
 
@@ -2024,6 +2068,9 @@ const CreateInvoice = () => {
                                             (view && field.value) || !view ? (
                                               <Checkbox
                                                 {...field}
+                                                sx={voicePathHighlightSx(
+                                                  `interiorRows.row-${rowIndex}-col-${colIndex + 1}`
+                                                )}
                                                 icon={
                                                   field.value && !view ? (
                                                     <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2067,7 +2114,16 @@ const CreateInvoice = () => {
                                   name='interiorData.paint_textarea'
                                   control={control}
                                   render={({ field }) => (
-                                    <TextField rows={4} multiline label='Paint' fullWidth {...field} />
+                                    <TextField
+                                      rows={4}
+                                      multiline
+                                      label='Paint'
+                                      fullWidth
+                                      {...field}
+                                      sx={{
+                                        '& .MuiOutlinedInput-root': voicePathHighlightSx('interiorData.paint_textarea')
+                                      }}
+                                    />
                                   )}
                                 />
                               </FormControl>
@@ -2089,7 +2145,16 @@ const CreateInvoice = () => {
                                   name='interiorData.stain_textarea'
                                   control={control}
                                   render={({ field }) => (
-                                    <TextField rows={4} multiline label='Stain' fullWidth {...field} />
+                                    <TextField
+                                      rows={4}
+                                      multiline
+                                      label='Stain'
+                                      fullWidth
+                                      {...field}
+                                      sx={{
+                                        '& .MuiOutlinedInput-root': voicePathHighlightSx('interiorData.stain_textarea')
+                                      }}
+                                    />
                                   )}
                                 />
                               </FormControl>
@@ -2145,6 +2210,7 @@ const CreateInvoice = () => {
                                           (view && field.value) || !view ? (
                                             <Checkbox
                                               {...field}
+                                              sx={voicePathHighlightSx('interiorData.window.row-0-col-2')}
                                               icon={
                                                 field.value && !view ? (
                                                   <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2177,6 +2243,7 @@ const CreateInvoice = () => {
                                           (view && field.value) || !view ? (
                                             <Checkbox
                                               {...field}
+                                              sx={voicePathHighlightSx('interiorData.window.row-0-col-3')}
                                               icon={
                                                 field.value && !view ? (
                                                   <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2215,6 +2282,7 @@ const CreateInvoice = () => {
                                           (view && field.value) || !view ? (
                                             <Checkbox
                                               {...field}
+                                              sx={voicePathHighlightSx('interiorData.window.row-1-col-2')}
                                               icon={
                                                 field.value && !view ? (
                                                   <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2247,6 +2315,7 @@ const CreateInvoice = () => {
                                           (view && field.value) || !view ? (
                                             <Checkbox
                                               {...field}
+                                              sx={voicePathHighlightSx('interiorData.window.row-1-col-3')}
                                               icon={
                                                 field.value && !view ? (
                                                   <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2292,6 +2361,7 @@ const CreateInvoice = () => {
                                           render={({ field }) => (
                                             <Checkbox
                                               {...field}
+                                              sx={voicePathHighlightSx(e.name)}
                                               icon={
                                                 field.value && !view ? (
                                                   <CheckCircleIcon sx={{ color: green[500], fontSize: '1.7rem' }} />
@@ -2330,7 +2400,11 @@ const CreateInvoice = () => {
                     invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
                     <>
                       {!(invoiceType === InvoiceTypes.EXTERIOR) === true && view && (
-                        <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                        <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
                       )}
                       <StyledTypography>EXTERIOR</StyledTypography>
                       <Box marginLeft={'2%'} display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
@@ -2703,7 +2777,11 @@ const CreateInvoice = () => {
                   invoiceType === InvoiceTypes.EXTERIOR_WITH_HANDYMAN) && (
                   <>
                     {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
-                      <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                      <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
                     )}
 
                     {/* <Grid container spacing={2} mt={5} mb={10}> */}
@@ -2712,7 +2790,11 @@ const CreateInvoice = () => {
                         <Grid item xs={12} sm={12}>
                           {/* First half of NewForm fields */}
                           {!(invoiceType === InvoiceTypes.HANDYMAN) === true && view && (
-                            <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                            <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
                           )}
                           <StyledTypography>HANDYMAN SERVICES</StyledTypography>
                           <NewForm
@@ -2740,7 +2822,11 @@ const CreateInvoice = () => {
                     <Grid item xs={12} sm={12}>
                       {/* Second half of NewForm fields */}
                       {view && (
-                        <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                        <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
                       )}
                       <StyledTypography>HANDYMAN SERVICES</StyledTypography>
                       <NewForm
@@ -2755,7 +2841,11 @@ const CreateInvoice = () => {
               )}
             </div>
             <div id='section3'>
-              {view && <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />}
+              {view && <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />}
               {showSherwinPaints() && (
                 <>
                   <StyledTypography onClick={toggleSherwinPaintsList} sx={{ cursor: 'pointer' }}>
@@ -3471,7 +3561,11 @@ const CreateInvoice = () => {
             {/* Warranty Content */}
             <div id='section5'>
               {warrantyType !== 'None' && view && (
-                <CustomerSection selectedOption={selectedOption} setSelectedOption={setSelectedOption} />
+                <CustomerSection
+                    selectedOption={selectedOption}
+                    setSelectedOption={setSelectedOption}
+                    voiceFormTypeFlash={voiceFlashFields.includes('invoice_form_type')}
+                  />
               )}
               {warrantyType && warrantyType !== 'None' && <StyledTypography>Warranty</StyledTypography>}
               <Grid container spacing={5} mt={5} mb={10}>

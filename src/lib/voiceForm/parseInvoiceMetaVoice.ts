@@ -2,7 +2,7 @@
  * Real-time issue date, status, service (invoice type), and warranty parsing for voice (streaming + corrections).
  */
 
-import { InvoiceTypes } from 'src/enums/FormTypes'
+import { FormTypes, InvoiceTypes } from 'src/enums/FormTypes'
 import { Status } from 'src/enums'
 import { normalizeVoiceTypos } from './parseCustomerVoiceCommands'
 import { splitCorrectionSegments } from './incrementalCustomerVoice'
@@ -219,6 +219,61 @@ function sliceAfterLastDateCue(raw: string): string | null {
   return raw.slice(lastEnd).trim()
 }
 
+/**
+ * Document kind: Invoice vs Estimate vs Contract (mutually exclusive checkboxes).
+ * Avoids confusing "invoice date", "invoice type interior", etc. with document selection.
+ */
+export function extractFormTypeOptionFromSegment(seg: string): FormTypes | null {
+  const t = seg.replace(/\s+/g, ' ').trim()
+  if (!t) return null
+
+  const blockedInvoiceAsDoc =
+    /\binvoice\s+(?:date|type|number|#|num|service|status)\b/i.test(t) ||
+    /\b(?:issue\s+)?invoice\s+date\b/i.test(t)
+
+  const serviceTypeContext =
+    /\b(?:interior|exterior|handyman|service\s+type|select\s+service|job\s+type|invoice\s+type)\b/i.test(
+      t
+    )
+
+  const strong = t.match(
+    /\b(?:select|choose|pick|use|switch\s+to)\s+(?:the\s+)?(invoice|estimate|contract)\b/i
+  )
+  const strong2 = t.match(
+    /\b(?:set|make)\s+(?:it\s+)?(?:to\s+)?(?:an?\s+)?(invoice|estimate|contract)\b/i
+  )
+  const strong3 = t.match(/\bthis\s+is\s+an?\s+(invoice|estimate|contract)\b/i)
+  const mStrong = strong || strong2 || strong3
+  if (mStrong) {
+    const w = mStrong[1]!.toLowerCase()
+    if (w === 'invoice' && blockedInvoiceAsDoc) return null
+    if (w === 'invoice') return FormTypes.INVOICE
+    if (w === 'estimate') return FormTypes.ESTIMATE
+
+    return FormTypes.CONTRACT
+  }
+
+  if (/^(invoice|estimate|contract)\b[.!?,]?\s*$/i.test(t)) {
+    if (/^invoice\b/i.test(t) && blockedInvoiceAsDoc) return null
+    const w = t.match(/^(invoice|estimate|contract)\b/i)![1]!.toLowerCase()
+    if (w === 'invoice') return FormTypes.INVOICE
+    if (w === 'estimate') return FormTypes.ESTIMATE
+
+    return FormTypes.CONTRACT
+  }
+
+  if (/\bestimate\b/i.test(t) && !/\bcontract\b/i.test(t)) return FormTypes.ESTIMATE
+  if (/\bcontract\b/i.test(t) && !/\bestimate\b/i.test(t)) return FormTypes.CONTRACT
+
+  if (/\binvoice\b/i.test(t) && !blockedInvoiceAsDoc && !serviceTypeContext) {
+    if (/\b(?:set|this is|make it|want|need|use|give me)\s+(?:an?\s+)?invoice\b/i.test(t)) {
+      return FormTypes.INVOICE
+    }
+  }
+
+  return null
+}
+
 export function extractInvoiceStatusFromSegment(seg: string): Status | null {
   const lower = seg.toLowerCase().replace(/\s+/g, ' ').trim()
   if (!lower) return null
@@ -301,6 +356,9 @@ export interface ParsedInvoiceMeta {
   issueDate: Date | null
   issueDateIso: string | null
   status: Status | null
+
+  /** Invoice / Estimate / Contract (single selection). */
+  formType: FormTypes | null
   invoiceType: InvoiceTypes | null
   warrantyType: WarrantyVoiceValue | null
 }
@@ -313,6 +371,7 @@ export function parseInvoiceMetaFromUtterance(raw: string): ParsedInvoiceMeta {
       issueDate: null,
       issueDateIso: null,
       status: null,
+      formType: null,
       invoiceType: null,
       warrantyType: null
     }
@@ -321,6 +380,7 @@ export function parseInvoiceMetaFromUtterance(raw: string): ParsedInvoiceMeta {
   const segs = splitCorrectionSegments(normalized)
   let lastDate: Date | null = null
   let lastStatus: Status | null = null
+  let lastFormType: FormTypes | null = null
   let lastInvoiceType: InvoiceTypes | null = null
   let lastWarranty: WarrantyVoiceValue | null = null
 
@@ -329,6 +389,8 @@ export function parseInvoiceMetaFromUtterance(raw: string): ParsedInvoiceMeta {
     if (d) lastDate = d
     const st = extractInvoiceStatusFromSegment(seg)
     if (st) lastStatus = st
+    const ft = extractFormTypeOptionFromSegment(seg)
+    if (ft != null) lastFormType = ft
     const it = extractInvoiceTypeFromSegment(seg)
     if (it != null) lastInvoiceType = it
     const wt = extractWarrantyFromSegment(seg)
@@ -339,6 +401,7 @@ export function parseInvoiceMetaFromUtterance(raw: string): ParsedInvoiceMeta {
     issueDate: lastDate,
     issueDateIso: lastDate ? dateToIsoLocal(lastDate) : null,
     status: lastStatus,
+    formType: lastFormType,
     invoiceType: lastInvoiceType,
     warrantyType: lastWarranty
   }
@@ -347,10 +410,13 @@ export function parseInvoiceMetaFromUtterance(raw: string): ParsedInvoiceMeta {
 export interface InvoiceMetaLiveState {
   lastIssueDateIso: string | null
   lastStatus: Status | null
+  lastFormType: FormTypes | null
   lastInvoiceType: InvoiceTypes | null
   lastWarrantyType: WarrantyVoiceValue | null
+
   /** Awaits a complete date token after “date” / “set date to”. */
   pendingDate: boolean
+
   /** Awaits status synonym after “status” / “mark as”. */
   pendingStatus: boolean
 }
@@ -359,6 +425,7 @@ export function createInvoiceMetaLiveState(): InvoiceMetaLiveState {
   return {
     lastIssueDateIso: null,
     lastStatus: null,
+    lastFormType: null,
     lastInvoiceType: null,
     lastWarrantyType: null,
     pendingDate: false,
@@ -415,6 +482,7 @@ export function parseInvoiceMetaStreaming(
       issueDate: null,
       issueDateIso: null,
       status: null,
+      formType: null,
       invoiceType: null,
       warrantyType: null
     }
@@ -459,6 +527,7 @@ export function parseInvoiceMetaStreaming(
     issueDate,
     issueDateIso: issueDate ? dateToIsoLocal(issueDate) : null,
     status,
+    formType: fromFull.formType,
     invoiceType: fromFull.invoiceType,
     warrantyType: fromFull.warrantyType
   }

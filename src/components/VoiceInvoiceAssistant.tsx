@@ -1,11 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
+import {
+  parseInteriorVoiceStructured,
+  summarizeInteriorVoiceStructured
+} from 'src/lib/voiceIntent/parseInteriorVoiceIntent'
 import MicIcon from '@mui/icons-material/Mic'
 import MicOffIcon from '@mui/icons-material/MicOff'
 import UndoIcon from '@mui/icons-material/Undo'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { Alert, Box, Button, Collapse, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
-import type { UseFormReset, UseFormSetFocus, UseFormSetValue } from 'react-hook-form'
+import type { UseFormGetValues, UseFormReset, UseFormSetFocus, UseFormSetValue } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { useVoice } from 'src/hooks/useVoice'
 import { parseVoiceIntentText } from 'src/lib/voiceIntent/parseVoiceIntent'
@@ -44,7 +49,17 @@ const NEVER_AUTO_RHF = new Set([
   'pay_link'
 ])
 
-const NEVER_AUTO_STATE = new Set(['invoiceType', 'selectedOption', 'warrantyType'])
+const NEVER_AUTO_STATE = new Set(['invoiceType', 'warrantyType'])
+
+function isInteriorAutoPath(path: string | undefined): boolean {
+  if (!path) return false
+  if (path.startsWith('interiorRows.')) return true
+  if (path.startsWith('interiorData.window.')) return true
+  if (path.startsWith('interiorData.extras.')) return true
+  if (path === 'interiorData.paint_textarea' || path === 'interiorData.stain_textarea') return true
+
+  return false
+}
 
 export type VoiceRealtimeFilledPath = CustomerRhfField | 'issue_date'
 
@@ -90,7 +105,7 @@ export interface VoiceSnapshot {
 
 export interface VoiceInvoiceAssistantProps {
   disabled?: boolean
-  getValues: () => Record<string, unknown>
+  getValues: UseFormGetValues<any>
   setValue: UseFormSetValue<any>
   reset: UseFormReset<any>
   setFocus?: UseFormSetFocus<any>
@@ -101,8 +116,8 @@ export interface VoiceInvoiceAssistantProps {
   warrantyType: 'None' | 'Interior' | 'Exterior' | 'Both'
   setWarrantyType: (v: 'None' | 'Interior' | 'Exterior' | 'Both') => void
 
-  /** Live Web Speech: customer + issue date fields that were auto-applied (green vs orange highlight). */
-  onRealtimeCustomerVoiceApplied?: (paths: VoiceRealtimeFilledPath[], kind: 'fill' | 'correct') => void
+  /** Live Web Speech: RHF paths auto-applied (customer + interior matrix/extras/windows; green vs orange highlight). */
+  onRealtimeCustomerVoiceApplied?: (paths: string[], kind: 'fill' | 'correct') => void
 }
 
 function labelForUpdate(u: VoiceIntentUpdate): string {
@@ -115,6 +130,12 @@ function labelForUpdate(u: VoiceIntentUpdate): string {
 function shouldAutoApply(u: VoiceIntentUpdate): boolean {
   if (u.target === 'rhf' && u.path && CUSTOMER_RHF_PATHS.has(u.path)) {
     return u.confidence >= CUSTOMER_AUTO_MIN_CONF
+  }
+  if (u.target === 'rhf' && u.path && isInteriorAutoPath(u.path)) {
+    return u.confidence >= 0.82
+  }
+  if (u.target === 'state' && u.key === 'selectedOption') {
+    return u.confidence >= 0.82
   }
   if (u.confidence < AUTO_THRESHOLD) return false
   if (u.target === 'rhf' && u.path && NEVER_AUTO_RHF.has(u.path)) return false
@@ -217,6 +238,13 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
     [transcript, interimTranscript]
   )
 
+  const interiorInterpretationPreview = useMemo(() => {
+    const t = liveIntentText.trim()
+    if (!t) return ''
+
+    return summarizeInteriorVoiceStructured(parseInteriorVoiceStructured(t))
+  }, [liveIntentText])
+
   const takeSnapshot = useCallback((): VoiceSnapshot => {
     return {
       form: cloneFormValues(getValues() as Record<string, unknown>),
@@ -227,10 +255,16 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
   }, [getValues, selectedOption, invoiceType, warrantyType])
 
   const applyRhf = useCallback(
-    (u: VoiceIntentUpdate) => {
+    (u: VoiceIntentUpdate, opts?: { focus?: boolean }) => {
       if (u.target !== 'rhf' || !u.path) return
-      setValue(u.path as any, u.value, { shouldDirty: true, shouldTouch: true })
-      setFocus?.(u.path as any)
+      flushSync(() => {
+        setValue(u.path as any, u.value, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: false
+        })
+      })
+      if (opts?.focus !== false) setFocus?.(u.path as any)
     },
     [setFocus, setValue]
   )
@@ -240,6 +274,7 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
       const empty = {
         appliedAutoCount: 0,
         customerRhfApplied: [] as string[],
+        interiorRhfApplied: [] as string[],
         manualCount: 0
       }
       if (!updates.length) return empty
@@ -251,6 +286,7 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
       const manual: VoiceIntentUpdate[] = []
       let appliedAutoCount = 0
       const customerRhfApplied: string[] = []
+      const interiorRhfApplied: string[] = []
       const stateCtx = { selectedOption, invoiceType, warrantyType }
 
       for (const u of updates) {
@@ -259,11 +295,12 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
           continue
         }
         if (u.target === 'rhf' && u.path) {
-          const cur = (getValues() as Record<string, unknown>)[u.path]
+          const cur = getValues(u.path as any)
           if (rhfValueUnchanged(u.path, cur, u.value)) continue
-          applyRhf(u)
+          applyRhf(u, { focus: true })
           appliedAutoCount++
           if (CUSTOMER_RHF_PATHS.has(u.path)) customerRhfApplied.push(u.path)
+          else if (isInteriorAutoPath(u.path)) interiorRhfApplied.push(u.path)
           continue
         }
         if (u.target === 'state' && u.key) {
@@ -284,6 +321,7 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
       return {
         appliedAutoCount,
         customerRhfApplied,
+        interiorRhfApplied,
         manualCount: manual.length
       }
     },
@@ -315,45 +353,126 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
           updates = parseVoiceIntentText(t).updates ?? []
         }
 
-        const result = processUpdates(updates)
+        if (
+          typeof window !== 'undefined' &&
+          process.env.NODE_ENV === 'development' &&
+          window.localStorage?.getItem('VOICE_DEBUG') === '1'
+        ) {
+          console.log('[VoiceInvoiceAssistant] transcript:', t)
+          console.log('[VoiceInvoiceAssistant] updates:', updates)
+        }
 
         const quiet = opts?.quiet ?? false
-        const hadNonCustomerAuto = result.appliedAutoCount > result.customerRhfApplied.length
+        const stateCtx = { selectedOption, invoiceType, warrantyType }
 
-        if (result.customerRhfApplied.length) {
-          const paths = result.customerRhfApplied as VoiceRealtimeFilledPath[]
-          const kind: 'fill' | 'correct' = correction ? 'correct' : 'fill'
-          onRealtimeCustomerVoiceApplied?.(paths, kind)
-          const icon = correction ? '🔁' : '✅'
-          const suffix = correction ? 'corrected' : 'updated'
-          for (const path of result.customerRhfApplied) {
-            const lbl = labelForVoiceRhfPath(path)
-            toast.success(`${lbl} ${suffix}`, { icon })
+        if (quiet) {
+          /** Live streaming: apply every safe RHF field immediately (not only high-confidence auto-apply). */
+          if (!lastSnapshot.current) lastSnapshot.current = takeSnapshot()
+          setPending([])
+
+          let appliedCount = 0
+          const liveHighlight: string[] = []
+
+          for (const u of updates) {
+            if (u.target === 'rhf' && u.path && !NEVER_AUTO_RHF.has(u.path)) {
+              const cur = getValues(u.path as any)
+              if (rhfValueUnchanged(u.path, cur, u.value)) continue
+              applyRhf(u, { focus: false })
+              appliedCount++
+              liveHighlight.push(u.path)
+            } else if (u.target === 'state' && u.key) {
+              const minConf =
+                u.key === 'invoiceType' || u.key === 'warrantyType' ? 0.88 : CUSTOMER_AUTO_MIN_CONF
+              if (u.confidence < minConf) continue
+              if (stateValueUnchanged(u, stateCtx)) continue
+              applyStateUpdate(u, {
+                setSelectedOption,
+                setInvoiceType,
+                setWarrantyType
+              })
+              appliedCount++
+            }
           }
-        }
 
-        if (opts?.clearTranscriptAfterApply && result.appliedAutoCount > 0) {
-          clearTranscript()
-        }
+          if (
+            typeof window !== 'undefined' &&
+            process.env.NODE_ENV === 'development' &&
+            window.localStorage?.getItem('VOICE_DEBUG') === '1'
+          ) {
+            console.log('[VoiceInvoiceAssistant] live applied:', appliedCount, 'paths:', liveHighlight)
+          }
 
-        if (!quiet && hadNonCustomerAuto) {
-          toast.success(`Voice: applied ${result.appliedAutoCount - result.customerRhfApplied.length} other update(s)`)
-        }
-        if (!quiet && result.manualCount > 0) {
-          toast(`${result.manualCount} suggestion(s) need your confirmation`, { icon: '👆' })
+          if (liveHighlight.length) {
+            const kind: 'fill' | 'correct' = correction ? 'correct' : 'fill'
+            onRealtimeCustomerVoiceApplied?.(liveHighlight, kind)
+          }
+
+          if (opts?.clearTranscriptAfterApply && appliedCount > 0) clearTranscript()
+        } else {
+          const result = processUpdates(updates)
+
+          if (
+            typeof window !== 'undefined' &&
+            process.env.NODE_ENV === 'development' &&
+            window.localStorage?.getItem('VOICE_DEBUG') === '1'
+          ) {
+            console.log('[VoiceInvoiceAssistant] appliedAuto:', result.appliedAutoCount, 'manual:', result.manualCount)
+          }
+
+          const hadNonCustomerAuto = result.appliedAutoCount > result.customerRhfApplied.length
+
+          const highlightPaths = [...result.customerRhfApplied, ...result.interiorRhfApplied]
+          if (highlightPaths.length) {
+            const kind: 'fill' | 'correct' = correction ? 'correct' : 'fill'
+            onRealtimeCustomerVoiceApplied?.(highlightPaths, kind)
+          }
+
+          if (result.customerRhfApplied.length) {
+            const icon = correction ? '🔁' : '✅'
+            const suffix = correction ? 'corrected' : 'updated'
+            for (const path of result.customerRhfApplied) {
+              const lbl = labelForVoiceRhfPath(path)
+              toast.success(`${lbl} ${suffix}`, { icon })
+            }
+          }
+
+          if (opts?.clearTranscriptAfterApply && result.appliedAutoCount > 0) {
+            clearTranscript()
+          }
+
+          if (hadNonCustomerAuto) {
+            const n = result.appliedAutoCount - result.customerRhfApplied.length
+            toast.success(`Voice: applied ${n} other update(s)`)
+          }
+          if (result.manualCount > 0) {
+            toast(`${result.manualCount} suggestion(s) need your confirmation`, { icon: '👆' })
+          }
         }
       } catch (e) {
         console.error('parseVoiceIntentText', e)
         if (!opts?.quiet) toast.error('Voice parse failed')
       }
     },
-    [clearTranscript, onRealtimeCustomerVoiceApplied, processUpdates]
+    [
+      applyRhf,
+      clearTranscript,
+      getValues,
+      invoiceType,
+      onRealtimeCustomerVoiceApplied,
+      processUpdates,
+      selectedOption,
+      setInvoiceType,
+      setSelectedOption,
+      setWarrantyType,
+      takeSnapshot,
+      warrantyType
+    ]
   )
 
   const runIntentRef = useRef(runIntent)
   runIntentRef.current = runIntent
 
-  /** Web Speech: final + interim text, client-side parse, ~130ms debounce. */
+  /** Web Speech: final + interim text — parse on a short debounce so fields fill while you speak. */
   useEffect(() => {
     if (disabled || !isListening || liveIntentText.length === 0) return
 
@@ -361,7 +480,7 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
     streamDebounceRef.current = window.setTimeout(() => {
       runIntentRef.current(liveIntentText, { quiet: true, clearTranscriptAfterApply: true })
       streamDebounceRef.current = null
-    }, 100)
+    }, 75)
 
     return () => {
       if (streamDebounceRef.current) {
@@ -485,8 +604,13 @@ const VoiceInvoiceAssistant: React.FC<VoiceInvoiceAssistantProps> = ({
           value={`${transcript}${interimTranscript ? ` ${interimTranscript}` : ''}`}
           InputProps={{ readOnly: true }}
           sx={{ mt: 1 }}
-          helperText='Live: fields update while you speak (final + interim text, ~100ms debounce; transcript clears after each apply).'
+          helperText='Live: fields update while you speak (final + interim; short debounce; transcript clears after each apply batch).'
         />
+        {isListening && interiorInterpretationPreview ? (
+          <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 0.5 }}>
+            Interior interpreted: {interiorInterpretationPreview}
+          </Typography>
+        ) : null}
 
         <Box display='flex' gap={1} mt={2} alignItems='flex-start' flexWrap='wrap'>
           <TextField

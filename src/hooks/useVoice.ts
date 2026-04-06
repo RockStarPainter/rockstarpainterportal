@@ -14,6 +14,7 @@ type SpeechRec = {
 }
 
 export interface UseVoiceOptions {
+
   /**
    * Called synchronously on each speech recognition result (final + interim chunks).
    * Use for sub-100ms streaming parsers; not batched with React state.

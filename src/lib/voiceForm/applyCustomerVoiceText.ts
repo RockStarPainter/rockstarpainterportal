@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { flushSync } from 'react-dom'
 import { toast } from 'react-hot-toast'
-import type { InvoiceTypes } from 'src/enums/FormTypes'
+import type { FormTypes, InvoiceTypes } from 'src/enums/FormTypes'
 import type { Status } from 'src/enums'
 import type { UseFormSetFocus, UseFormSetValue } from 'react-hook-form'
 import {
@@ -13,9 +13,13 @@ import {
 import {
   parseIncrementalCustomerVoice,
   splitCorrectionSegments,
-  stripTrailingCorrectionRejections,
+  splitIntoConnectorClausesIfMultiField,
   trimTextBeforeInvoiceMetaCues
 } from './incrementalCustomerVoice'
+import {
+  isMeaningfulCustomerVoiceValue,
+  normalizeVoiceCustomerFieldValue
+} from './voiceCustomerFieldNormalize'
 import {
   type InvoiceMetaLiveState,
   type ParsedInvoiceMeta,
@@ -47,9 +51,12 @@ export async function resolveCustomerVoiceCommands(
   const segs = splitCorrectionSegments(customerPart)
   const byField = new Map<CustomerRhfField, string>()
   for (const seg of segs) {
-    for (const c of parseAllCustomerVoiceCommands(seg)) {
-      const v = stripTrailingCorrectionRejections(c.value, c.field)
-      if (v) byField.set(c.field, v)
+    const clauses = splitIntoConnectorClausesIfMultiField(seg)
+    for (const clause of clauses) {
+      for (const c of parseAllCustomerVoiceCommands(clause)) {
+        const v = normalizeVoiceCustomerFieldValue(c.value, c.field)
+        if (v && isMeaningfulCustomerVoiceValue(v, c.field)) byField.set(c.field, v)
+      }
     }
   }
   let cmds = [...byField.entries()].map(([field, value]) => ({ field, value }))
@@ -65,11 +72,11 @@ export async function resolveCustomerVoiceCommands(
         .filter(c => c.field && set.has(c.field as CustomerRhfField))
         .map(c => {
           const field = c.field as CustomerRhfField
-          const value = stripTrailingCorrectionRejections(String(c.value || '').trim(), field)
+          const value = normalizeVoiceCustomerFieldValue(String(c.value || '').trim(), field)
 
           return { field, value }
         })
-        .filter(c => c.value)
+        .filter(c => c.value && isMeaningfulCustomerVoiceValue(c.value, c.field))
     } catch {
       /* ignore */
     }
@@ -91,9 +98,11 @@ export interface ApplyCustomerVoiceOptions {
 /** Reset per mic session via `createLiveVoiceApplyState()`. */
 export interface LiveVoiceApplyState {
   completeSignature: string
+
   /** Last value written per RHF field — sealed fields stop updating when a new keyword takes over. */
   appliedByField: Partial<Record<CustomerRhfField, string>>
   notifiedFields: Set<CustomerRhfField>
+
   /** Rightmost field keyword — when it changes, context switches and the previous field is no longer live-updated. */
   lastActiveField: CustomerRhfField | null
 }
@@ -107,6 +116,16 @@ export function createLiveVoiceApplyState(): LiveVoiceApplyState {
   }
 }
 
+export interface ApplyIncrementalCustomerVoiceParseOptions {
+  customerScopeOffset?: number
+}
+
+function voiceFieldToastPreview(value: string): string {
+  const v = value.trim()
+
+  return v.length <= 40 ? v : `${v.slice(0, 37)}...`
+}
+
 /**
  * Synchronous apply from streaming speech (Web Speech interim/final chunks).
  * Smart switching: a new field keyword seals earlier fields and becomes the only streaming target.
@@ -115,9 +134,12 @@ export function createLiveVoiceApplyState(): LiveVoiceApplyState {
 export function applyIncrementalCustomerVoiceForm(
   combined: string,
   opts: Pick<ApplyCustomerVoiceOptions, 'setValue' | 'setFocus' | 'onCustomerFieldsApplied'>,
-  state: LiveVoiceApplyState
+  state: LiveVoiceApplyState,
+  parseOpts?: ApplyIncrementalCustomerVoiceParseOptions
 ): boolean {
-  const parsed = parseIncrementalCustomerVoice(combined)
+  const parsed = parseIncrementalCustomerVoice(combined, {
+    customerScopeOffset: parseOpts?.customerScopeOffset
+  })
   const highlightFields = new Set<CustomerRhfField>()
   let wrote = false
 
@@ -125,7 +147,7 @@ export function applyIncrementalCustomerVoiceForm(
   if (sig !== state.completeSignature) {
     state.completeSignature = sig
     for (const c of parsed.completeCommands) {
-      if (!c.value) continue
+      if (!c.value || !isMeaningfulCustomerVoiceValue(c.value, c.field)) continue
       if (state.appliedByField[c.field] === c.value) continue
       state.appliedByField[c.field] = c.value
       flushSync(() => {
@@ -136,12 +158,13 @@ export function applyIncrementalCustomerVoiceForm(
       if (!state.notifiedFields.has(c.field)) {
         state.notifiedFields.add(c.field)
         highlightFields.add(c.field)
+        toast.success(`${CUSTOMER_FIELD_LABELS[c.field]} set to ${voiceFieldToastPreview(c.value)}`)
       }
     }
   }
 
   for (const s of parsed.sealedFields) {
-    if (!s.value) continue
+    if (!s.value || !isMeaningfulCustomerVoiceValue(s.value, s.field)) continue
     if (state.appliedByField[s.field] === s.value) continue
     state.appliedByField[s.field] = s.value
     flushSync(() => {
@@ -152,6 +175,7 @@ export function applyIncrementalCustomerVoiceForm(
     if (!state.notifiedFields.has(s.field)) {
       state.notifiedFields.add(s.field)
       highlightFields.add(s.field)
+      toast.success(`${CUSTOMER_FIELD_LABELS[s.field]} set to ${voiceFieldToastPreview(s.value)}`)
     }
   }
 
@@ -163,21 +187,26 @@ export function applyIncrementalCustomerVoiceForm(
       highlightFields.add(parsed.activeField)
       if (parsed.activeValue.length === 0) wrote = true
     }
-    if (parsed.activeValue.length > 0) {
-      if (state.appliedByField[parsed.activeField] !== parsed.activeValue) {
-        state.appliedByField[parsed.activeField] = parsed.activeValue
-        flushSync(() => {
-          opts.setValue(parsed.activeField as any, parsed.activeValue, {
-            shouldDirty: true,
-            shouldTouch: true
-          })
+    if (
+      parsed.activeValue.length > 0 &&
+      isMeaningfulCustomerVoiceValue(parsed.activeValue, parsed.activeField) &&
+      state.appliedByField[parsed.activeField] !== parsed.activeValue
+    ) {
+      state.appliedByField[parsed.activeField] = parsed.activeValue
+      flushSync(() => {
+        opts.setValue(parsed.activeField as any, parsed.activeValue, {
+          shouldDirty: true,
+          shouldTouch: true
         })
-        wrote = true
-        opts.setFocus?.(parsed.activeField as any)
-        if (!state.notifiedFields.has(parsed.activeField)) {
-          state.notifiedFields.add(parsed.activeField)
-          highlightFields.add(parsed.activeField)
-        }
+      })
+      wrote = true
+      opts.setFocus?.(parsed.activeField as any)
+      if (!state.notifiedFields.has(parsed.activeField)) {
+        state.notifiedFields.add(parsed.activeField)
+        highlightFields.add(parsed.activeField)
+        toast.success(
+          `${CUSTOMER_FIELD_LABELS[parsed.activeField]} set to ${voiceFieldToastPreview(parsed.activeValue)}`
+        )
       }
     }
   } else if (parsed.phase === 'prepare' && parsed.focusField) {
@@ -202,8 +231,10 @@ export type InvoiceMetaApplyOpts = {
   setValue: UseFormSetValue<any>
   setFocus?: UseFormSetFocus<any>
   setInvoiceStatus?: (status: Status) => void
+
   /** Focus the status &lt;Select&gt; in the DOM (RHF setFocus does not cover it). */
   focusInvoiceStatus?: () => void
+  setFormTypeOption?: (t: FormTypes) => void
   setInvoiceType?: (t: InvoiceTypes) => void
   setWarrantyType?: (t: WarrantyVoiceValue) => void
   focusInvoiceService?: () => void
@@ -233,6 +264,11 @@ export function applyInvoiceMetaParsed(
     opts.setInvoiceStatus?.(meta.status)
     opts.focusInvoiceStatus?.()
     paths.push('invoice_status')
+  }
+  if (meta.formType != null && meta.formType !== state.lastFormType) {
+    state.lastFormType = meta.formType
+    opts.setFormTypeOption?.(meta.formType)
+    paths.push('invoice_form_type')
   }
   if (meta.invoiceType != null && meta.invoiceType !== state.lastInvoiceType) {
     state.lastInvoiceType = meta.invoiceType
@@ -277,6 +313,10 @@ export function applyInvoiceMetaFromTextFinal(text: string, opts: InvoiceMetaApp
     opts.focusInvoiceStatus?.()
     paths.push('invoice_status')
   }
+  if (meta.formType != null) {
+    opts.setFormTypeOption?.(meta.formType)
+    paths.push('invoice_form_type')
+  }
   if (meta.invoiceType != null) {
     opts.setInvoiceType?.(meta.invoiceType)
     opts.focusInvoiceService?.()
@@ -307,6 +347,7 @@ export async function applyCustomerVoiceText(
     const hadInvoiceMeta = Boolean(
       metaOnly.issueDate ||
         metaOnly.status != null ||
+        metaOnly.formType != null ||
         metaOnly.invoiceType != null ||
         metaOnly.warrantyType != null
     )
@@ -319,16 +360,18 @@ export async function applyCustomerVoiceText(
 
   const fields: CustomerRhfField[] = []
   for (const { field, value } of cmds) {
+    if (!isMeaningfulCustomerVoiceValue(value, field)) continue
     flushSync(() => {
       opts.setValue(field as any, value, { shouldDirty: true, shouldTouch: true })
     })
     fields.push(field)
     opts.setFocus?.(field as any)
   }
+  if (!fields.length) return false
   opts.onCustomerFieldsApplied?.(fields)
 
-  const labels = cmds.map(c => CUSTOMER_FIELD_LABELS[c.field]).join(', ')
-  toast.success(cmds.length === 1 ? `${labels} filled` : `Filled: ${labels}`)
+  const labels = fields.map(f => CUSTOMER_FIELD_LABELS[f]).join(', ')
+  toast.success(fields.length === 1 ? `${labels} filled` : `Filled: ${labels}`)
 
   return true
 }

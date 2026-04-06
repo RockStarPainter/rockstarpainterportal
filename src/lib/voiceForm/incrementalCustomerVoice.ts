@@ -4,18 +4,25 @@
  */
 
 import { parseAllCustomerVoiceCommands, normalizeVoiceTypos, type CustomerRhfField } from './parseCustomerVoiceCommands'
+import { normalizeVoiceCustomerFieldValue } from './voiceCustomerFieldNormalize'
+
+export { stripTrailingCorrectionRejections } from './voiceCustomerFieldNormalize'
 
 export type IncrementalPhase = 'idle' | 'prepare' | 'value'
 
 export interface IncrementalCustomerApply {
+
   /** Fields from comma / “and” clauses when no multi-trigger match covers the whole string. */
   completeCommands: { field: CustomerRhfField; value: string }[]
+
   /**
    * Fields whose keyword appears before a later keyword — values are frozen; no further updates.
    */
   sealedFields: { field: CustomerRhfField; value: string }[]
+
   /** Rightmost detected field — only this one receives streaming value updates after its keyword. */
   activeField: CustomerRhfField | null
+
   /** Value after the active keyword (may be partial). */
   activeValue: string
   live?: { field: CustomerRhfField; value: string }
@@ -24,6 +31,61 @@ export interface IncrementalCustomerApply {
 }
 
 const SPLIT = /\s+(?:,|and)\s+|\s*[,;]\s+/i
+
+/** Conversational continuation between field clauses (split only when each part has its own field cue). */
+const VOICE_CONNECTOR_SPLIT = /\s*\b(?:and|then|also)\b\s*/i
+
+/**
+ * True if this substring is likely a standalone field phrase, not a continuation (e.g. "jane" after "bob and").
+ */
+const SEGMENT_HAS_FIELD_CUE =
+  /\b(?:customer|client)\s+name\b|\b(?:zip\s*code|postal\s*code)\b|\b(?:phone|cell|mobile)(?:\s+number)?\b|\be\s*-?\s*mail\b|\bemail\b|\b(?:mailing\s+)?(?:street\s+)?address\b|\bcity\b|\bstate\b|\bzip\b|\bset\s+city\b|\bset\s+state\b|\b(?:my|the)\s+city\b|\b(?:my|the)\s+state\b|\b(?:i\s+)?live\s+in\b/i
+
+export function splitIntoConnectorClausesIfMultiField(text: string): string[] {
+  const t = text.trim()
+  if (!t) return []
+  const parts = t.split(VOICE_CONNECTOR_SPLIT).map(p => p.trim()).filter(Boolean)
+  if (parts.length < 2) return [t]
+  if (parts.every(p => SEGMENT_HAS_FIELD_CUE.test(p))) return parts
+
+  return [t]
+}
+
+function mergeMultiFieldAcrossConnectorClauses(clauses: string[]): {
+  sealedFields: { field: CustomerRhfField; value: string }[]
+  activeField: CustomerRhfField | null
+  activeValue: string
+} {
+  const sealedMap = new Map<CustomerRhfField, string>()
+  let activeField: CustomerRhfField | null = null
+  let activeValue = ''
+
+  for (const clause of clauses) {
+    const p = parseMultiFieldVoiceSegments(clause)
+    if (!p.activeField && !p.sealedFields.length) continue
+
+    if (activeField && p.activeField && p.activeField !== activeField && activeValue) {
+      sealedMap.set(activeField, activeValue)
+    }
+
+    for (const sf of p.sealedFields) {
+      if (sf.value) sealedMap.set(sf.field, sf.value)
+    }
+
+    if (p.activeField) {
+      activeField = p.activeField
+      activeValue = p.activeValue
+    }
+  }
+
+  const sealedFields: { field: CustomerRhfField; value: string }[] = []
+  for (const [field, value] of sealedMap) {
+    if (!value || field === activeField) continue
+    sealedFields.push({ field, value })
+  }
+
+  return { sealedFields, activeField, activeValue }
+}
 
 /** Starts a new correction clause; later clauses overwrite earlier field values. Trailing `not X` in segment values is still stripped separately where needed. */
 const CORRECTION_SEGMENT = /\s+(?:no|sorry|wrong|incorrect|change|not)\b[,.\s:!]*/gi
@@ -80,6 +142,17 @@ function collectTriggerMatches(norm: string): RawMatch[] {
 }
 
 /**
+ * Byte offset in `customerScope` (typo-normalized, meta-trimmed) to skip on the next parse:
+ * start index of the rightmost field keyword when at least two triggers exist (sealed clauses consumed).
+ */
+export function getCustomerScopeConsumeAdvance(customerScope: string): number {
+  const matches = collectTriggerMatches(customerScope.trim())
+  if (matches.length < 2) return 0
+
+  return matches[matches.length - 1]!.s
+}
+
+/**
  * Customer voice parsing must ignore invoice meta tails so values like zip are not polluted
  * (e.g. "zip 90210 date 04/03/2026" → customer scope stops before "date").
  */
@@ -117,41 +190,8 @@ export function stripLeadingCorrectionClauses(s: string): string {
   return t
 }
 
-/**
- * Removes rejected tail the user negates, e.g. "john not zone" → "john", "555 not 999" → "555".
- */
-export function stripTrailingCorrectionRejections(value: string, field: CustomerRhfField): string {
-  let t = value.trim()
-  if (!t) return t
-
-  if (field === 'phone_number') {
-    while (/\s+not\s+[\d\s\-+().]+$/i.test(t)) {
-      t = t.replace(/\s+not\s+[\d\s\-+().]+$/i, '').trim()
-    }
-  } else if (field === 'zip_code') {
-    while (/\s+not\s+[\d\-]+$/i.test(t)) {
-      t = t.replace(/\s+not\s+[\d\-]+$/i, '').trim()
-    }
-  } else {
-    while (/\s+not\s+\S+$/i.test(t)) {
-      t = t.replace(/\s+not\s+\S+$/i, '').trim()
-    }
-  }
-
-  while (/\s+(?:wrong|incorrect)\s+\S+$/i.test(t)) {
-    t = t.replace(/\s+(?:wrong|incorrect)\s+\S+$/i, '').trim()
-  }
-
-  return t
-}
-
 function cleanSegmentValue(raw: string, field: CustomerRhfField): string {
-  let v = raw.replace(/^(?:is|:)\s*/i, '').trim()
-  v = v.replace(/[\s,;]+$/g, '').trim()
-  if (field === 'phone_number') v = v.replace(/\s+/g, ' ')
-  v = stripTrailingCorrectionRejections(v, field)
-
-  return v
+  return normalizeVoiceCustomerFieldValue(raw, field)
 }
 
 export function splitCorrectionSegments(norm: string): string[] {
@@ -213,7 +253,8 @@ export function parseMultiFieldVoiceSegmentsWithCorrections(norm: string): {
   }
 
   for (const seg of segments) {
-    const p = parseMultiFieldVoiceSegments(seg)
+    const clauses = splitIntoConnectorClausesIfMultiField(seg)
+    const p = mergeMultiFieldAcrossConnectorClauses(clauses)
     if (!p.activeField && !p.sealedFields.length) continue
 
     lastMeaningful = p
@@ -245,9 +286,11 @@ export function parseMultiFieldVoiceSegmentsWithCorrections(norm: string): {
 
 /** Rightmost field keyword in the string (null if none). */
 export function detectActiveCustomerVoiceField(text: string): CustomerRhfField | null {
-  const norm = normalizeVoiceTypos(text).trim()
+  const normalized = normalizeVoiceTypos(text).trim()
+  if (!normalized) return null
+  const customerScope = trimTextBeforeInvoiceMetaCues(normalized)
 
-  return norm ? parseMultiFieldVoiceSegmentsWithCorrections(norm).activeField : null
+  return customerScope ? parseMultiFieldVoiceSegmentsWithCorrections(customerScope).activeField : null
 }
 
 interface FieldTailSpec {
@@ -273,6 +316,21 @@ const TAIL_SPECS: FieldTailSpec[] = [
     prepare: /\b(?:zip\s*c(?:o(?:d(?:e)?)?)?|postal|zips?)\s*$/i
   },
   {
+    field: 'city',
+    lock: /\b(?:my|the)\s+city\s*(?:is|:)?\s*(.+)$/i,
+    prepare: /\b(?:my|the)\s+ci(?:t(?:y)?)?\s*$/i
+  },
+  {
+    field: 'city',
+    lock: /\bset\s+city\s*(?:to|is|:)?\s*(.+)$/i,
+    prepare: /\bset\s+c(?:i(?:t(?:y)?)?)?\s*$/i
+  },
+  {
+    field: 'city',
+    lock: /\b(?:i\s+)?live\s+in\s+(.+)$/i,
+    prepare: /\b(?:i\s+)?live\s+in\s*$/i
+  },
+  {
     field: 'email',
     lock: /\be\s*-?\s*mail\s*(?:is|:)?\s*(\S.*)$/i,
     prepare: /\be\s*-?\s*m(?:a(?:i(?:l)?)?)?\s*$/i
@@ -286,6 +344,16 @@ const TAIL_SPECS: FieldTailSpec[] = [
     field: 'city',
     lock: /\bcity\s*(?:is|:)?\s*(.+)$/i,
     prepare: /\bci(?:t(?:y)?)?\s*$/i
+  },
+  {
+    field: 'state',
+    lock: /\b(?:my|the)\s+state\s*(?:is|:)?\s*(.+)$/i,
+    prepare: /\b(?:my|the)\s+st(?:a(?:t(?:e)?)?)?\s*$/i
+  },
+  {
+    field: 'state',
+    lock: /\bset\s+state\s*(?:to|is|:)?\s*(.+)$/i,
+    prepare: /\bset\s+st(?:a(?:t(?:e)?)?)?\s*$/i
   },
   {
     field: 'state',
@@ -320,6 +388,7 @@ function parseTailIncremental(tail: string): TailParse {
     if (lm) {
       const raw = (lm[1] ?? '').trim()
       const value = cleanSegmentValue(raw, spec.field)
+
       return {
         phase: value.length > 0 ? 'value' : 'prepare',
         live: { field: spec.field, value },
@@ -337,10 +406,19 @@ function parseTailIncremental(tail: string): TailParse {
   return { phase: 'idle' }
 }
 
+export interface ParseIncrementalCustomerVoiceOptions {
+
+  /** Skip this many leading characters of typo-normalized, meta-trimmed customer scope (prefix consumption). */
+  customerScopeOffset?: number
+}
+
 /**
  * Derives field updates from cumulative live caption text (final + interim).
  */
-export function parseIncrementalCustomerVoice(raw: string): IncrementalCustomerApply {
+export function parseIncrementalCustomerVoice(
+  raw: string,
+  options?: ParseIncrementalCustomerVoiceOptions
+): IncrementalCustomerApply {
   const normalized = normalizeVoiceTypos(raw).trim()
   if (!normalized) {
     return {
@@ -352,7 +430,13 @@ export function parseIncrementalCustomerVoice(raw: string): IncrementalCustomerA
     }
   }
 
-  const customerScope = trimTextBeforeInvoiceMetaCues(normalized)
+  let customerScope = trimTextBeforeInvoiceMetaCues(normalized)
+  const off = Math.max(0, options?.customerScopeOffset ?? 0)
+  if (off >= customerScope.length) {
+    customerScope = ''
+  } else if (off > 0) {
+    customerScope = customerScope.slice(off)
+  }
 
   const { completed, tail } = splitCompletedAndTail(customerScope)
   const completeCommands =
@@ -365,6 +449,7 @@ export function parseIncrementalCustomerVoice(raw: string): IncrementalCustomerA
   if (multi.activeField != null) {
     const live =
       multi.activeValue.length > 0 ? { field: multi.activeField, value: multi.activeValue } : undefined
+
     return {
       completeCommands,
       sealedFields: multi.sealedFields,
@@ -378,6 +463,7 @@ export function parseIncrementalCustomerVoice(raw: string): IncrementalCustomerA
 
   const tailPart = parseTailIncremental(tail)
   const tf = tailPart.live?.field ?? tailPart.focusField ?? null
+
   return {
     completeCommands,
     sealedFields: [],

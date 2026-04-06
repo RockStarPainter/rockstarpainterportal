@@ -1,6 +1,9 @@
 /**
  * Server-side proxy for Groq OpenAI-compatible speech-to-text.
  * Keeps GROQ_API_KEY out of the browser; never log the key or full audio.
+ *
+ * Transcription language: ISO 639-1 (e.g. en). Defaults to English when GROQ_STT_LANGUAGE is unset.
+ * Set GROQ_STT_LANGUAGE= (empty) to omit the field and let Groq auto-detect (multilingual).
  */
 
 export const config = {
@@ -37,6 +40,10 @@ export default async function handler(req: any, res: any) {
   }
 
   const model = process.env.GROQ_STT_MODEL || 'whisper-large-v3-turbo'
+  const langRaw =
+    process.env.GROQ_STT_LANGUAGE !== undefined ? process.env.GROQ_STT_LANGUAGE.trim() : 'en'
+  const langCode =
+    langRaw.length >= 2 ? langRaw.split(/[-_]/)[0]!.toLowerCase().slice(0, 2) : ''
   const safeMime = typeof mimeType === 'string' && mimeType.startsWith('audio/') ? mimeType : 'audio/webm'
 
   let buffer: Buffer
@@ -57,6 +64,9 @@ export default async function handler(req: any, res: any) {
   const form = new FormData()
   form.append('model', model)
   form.append('response_format', 'json')
+  if (/^[a-z]{2}$/i.test(langCode)) {
+    form.append('language', langCode.toLowerCase())
+  }
   form.append('file', new Blob([new Uint8Array(buffer)], { type: safeMime }), filename)
 
   try {

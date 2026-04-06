@@ -4,7 +4,7 @@ import { green } from '@mui/material/colors'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { useRouter } from 'next/router'
 
-const CustomerSection = ({ selectedOption, setSelectedOption }) => {
+const CustomerSection = ({ selectedOption, setSelectedOption, voiceFormTypeFlash = false }) => {
   const router = useRouter()
   const { view } = router.query
 
@@ -49,7 +49,22 @@ const CustomerSection = ({ selectedOption, setSelectedOption }) => {
         </Box>
       </Box>
 
-      <Box width={'100%'} justifyContent={'center'} display={'flex'}>
+      <Box
+        width={'100%'}
+        justifyContent={'center'}
+        display={'flex'}
+        sx={
+          voiceFormTypeFlash
+            ? {
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                boxShadow: '0 0 0 3px rgba(99, 102, 241, 0.45)',
+                transition: 'box-shadow 0.35s ease'
+              }
+            : {}
+        }
+      >
         <FormGroup row={true}>
           {renderCheckbox('INVOICE', 'INVOICE')}
           {renderCheckbox('ESTIMATE', 'ESTIMATE')}
